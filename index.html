@@ -255,12 +255,12 @@ nav.tabs button[aria-current="page"] svg{ background:var(--shell); border-radius
   </div>
   <div class="card">
     <div class="label">Before you buy</div>
-    <h2>Ask Dad first</h2>
+    <h2 id="askTitle">Ask Mr. Receipts first</h2>
     <div class="fields two">
       <div class="field"><label for="buyItem">What is it?</label><input id="buyItem" placeholder="A fourth water bottle"></div>
       <div class="field"><label for="buyAmt">Price</label><input id="buyAmt" inputmode="decimal" placeholder="24.99"></div>
     </div>
-    <button class="btn coral block" id="courtBtn">Ask Dad</button>
+    <button class="btn coral block" id="courtBtn">Roast me first</button>
   </div>
   <div class="card" id="parkedCard">
     <div class="label">Cooling off · 48 hours</div>
@@ -329,14 +329,14 @@ const STORY = [
   "You built a rope bridge to Junk Cove. A possum immediately fell off it, on purpose.",
   "The fog lifts over Mushroom Woods. Something in there is humming the Jeopardy theme.",
   "Laundry Lagoon is open. Every sock you ever lost is floating in it. Every. Single. One.",
-  "Raccoon Market opens. Your sock is for sale. It's $4. Dad says that's robbery.",
+  "Raccoon Market opens. Your sock is for sale. It's $4. {R} says you better not.",
   "Snail Bayou is open. Nobody here is in a rush. Somebody is making gumbo.",
   "You reach Goose Fortress. The goose has been expecting you. The goose has always been expecting you.",
   "Cookout Meadow is open. Unc is on the grill. Somebody brought store-bought potato salad and we're not talking about it.",
   "The Bat Cave Club is open. The DJ is playing the Electric Slide. You have to do it. It's the law.",
   "Volcano Lounge is open. The lava is perfect. Everyone is in sunglasses. You made it."
 ];
-const C = (id, name, sp, z, r, acc, bio, say) => ({ id, name, sp, z, r, acc, bio, say });
+const C = (id, name, sp, z, r, acc, bio, say) => ({ id, name, sp, z, r, acc, get bio() { return bio.split("{R}").join(typeof S !== "undefined" ? R() : "Mr. Receipts"); }, get say() { return say.map(x => x.split("{R}").join(typeof S !== "undefined" ? R() : "Mr. Receipts")); } });
 const CRITTERS = [
   C("pete", "Trash Panda Pete", "raccoon", 0, "common", "", "Steals one sock a week. Calls it rent.", ["That sock was abandoned. I checked.", "I ate a grape off the floor and I'd do it again.", "Not you cleaning without me 😭"]),
   C("crab", "Sir Crabsworth", "crab", 0, "common", "monocle", "Pinches anyone with sticky counters.", ["The counters? Acceptable. Barely.", "I said what I said. Wipe it again.", "Pinch first, ask questions never."]),
@@ -357,7 +357,7 @@ const CRITTERS = [
   C("ceo", "CEO Raccoon", "raccoon", 4, "rare", "tie", "Runs the market. Has never paid for anything.", ["Let's circle back on that impulse buy.", "Your budget is my KPI.", "Synergy. Trash. Profit."]),
   C("coupon", "Coupon Possum", "possum", 4, "common", "hat", "Has a coupon for everything except your cart.", ["Is it on sale? No? Then no.", "I saved 40 cents today. Living lavish.", "Park it 48 hours. Trust the possum."]),
   C("influ", "Pigeon Influencer", "pigeon", 4, "rare", "shades", "Posts your clean counters. Gets 3 likes.", ["Link in bio.", "This counter is GIVING.", "Smash that coo button."]),
-  C("penny", "Penny-Pinching Rat", "rat", 4, "common", "glasses", "Counts every crumb. Always agrees with Dad.", ["Dad is right. Put it back.", "That's six bags of rice, actually.", "We have it at home."]),
+  C("penny", "Penny-Pinching Rat", "rat", 4, "common", "glasses", "Counts every crumb. Always agrees with {R}.", ["{R} is right. Put it back.", "That's six bags of rice, actually.", "We have it at home."]),
   C("escargo", "Escar-Go", "snail", 5, "common", "headphones", "Fastest snail on the island. Still slow.", ["Zoom zoom (it's been 4 minutes).", "Lap one done. Lap two tomorrow.", "Slow and steady still gets the snack."]),
   C("earl", "Bayou Toad Earl", "frog", 5, "common", "chef", "Makes a mean gumbo. Won't share the recipe.", ["Secret ingredient? Clean pots.", "Don't touch my seasoning.", "Come eat. Wash your hands first."]),
   C("lou", "Axolotl Lou", "axolotl", 5, "common", "flowers", "Smiles through everything. Physically can't stop.", ["I'm smiling but I'm tired 😊", "Empty sink, happy Lou.", "Gills out. Mood up."]),
@@ -395,7 +395,7 @@ const NEWS = [
   { t: "{c} has been saying \"I'm about to fold the laundry\" since Tuesday. Sources say: be for real.", need: "" },
   { t: "The plastic on the couch remains undefeated. 14 years. Not one stain.", need: "" },
   { t: "{c} touched the good foil. The GOOD foil. Family meeting at 6.", need: "" },
-  { t: "{c} left the front door open. Dad says the island is now \"paying to air condition the whole neighborhood.\"", need: "" },
+  { t: "{c} left the front door open. {R} says you're now \"paying to air condition the whole neighborhood.\"", need: "" },
   { t: "Lid Larry has 47 Tupperware lids and zero bottoms. Experts are calling it \"a cry for help.\"", need: "larry" },
   { t: "DJ Bat played the Electric Slide 9 times in a row. Nobody complained. Everybody did it every single time.", need: "dj" },
   { t: "Cousin Crabby showed up 2 hours late with one bag of ice and said \"y'all should be thanking me.\"", need: "cuz" },
@@ -406,26 +406,27 @@ const YOU_NEWS = ["{you} actually did {n} tiny thing{s} today. Grandma Goose she
 const REACTS = [["😭", 900, 9000], ["💀", 300, 4000], ["🙏🏾", 100, 2500], ["👀", 50, 1200]];
 const PRAISE = ["Look at you, adulting on purpose.", "The dishes fear you now.", "Your future self says thanks.", "Tiny thing. Big win.", "That counts. It all counts.", "Main character behavior."];
 
-/* Cheap Dad roasts */
+/* Money roasts, aimed at YOU */
+const R = () => (S.roaster || "Mr. Receipts");
 const VERDICTS = {
-  tiny: { mood: "ok", items: [["Fine. You can get it.", "But Dad wants the change. All of it."], ["Small purchase", "Dad still wants to see the receipt"], ["Dad allows it", "Only because it was on sale"]] },
-  some: { mood: "meh", items: [["We have it at home", "The one at home is FINE"], ["Dad did the math", "That's 76 packs of ramen"], ["Put it back", "Put. It. Back."], ["Dad saw the cart", "Now he's turning off lights you're not using"]] },
-  big: { mood: "shock", items: [["Money don't grow on trees", "Dad checked. Twice."], ["Dad heard the price", "Dad has to go sit in the car"], ["That's not a need", "That's a want in a trench coat"], ["Dad just calculated", "How many hours he worked for that"]] },
-  over: { mood: "rage", items: [["Over budget?", "The AC is off for the whole summer"], ["Dad saw the bank app", "Dad is reusing the foil again"], ["From now on", "We wash the Ziploc bags"], ["Dad said no", "Dad said it three times. In three volumes."]] }
+  tiny: { mood: "ok", items: [["It's cheap, fine", "But you're still not slick"], ["You can have it", "Don't come back in an hour for one more thing"], ["Small purchase", "Big confidence for somebody with a $14 balance"]] },
+  some: { mood: "meh", items: [["You have one at home", "Go look. It's on the floor."], ["You're not buying it", "You're buying the feeling. Again."], ["The way you said 'I need it'", "With your whole chest 😭"], ["Put the phone down", "Slowly. Nobody has to get hurt."]] },
+  big: { mood: "shock", items: [["You had a budget", "And chose violence"], ["Your bank account", "Just filed a police report"], ["That's not a need", "That's a want in a trench coat"], ["You really about to", "Spend bill money on vibes?"]] },
+  over: { mood: "rage", items: [["You're over budget", "And STILL in the cart?"], ["Your account said", "Please. I have a family."], ["Over budget", "Close the app. Then close the cart."], ["Ma'am", "Be so for real right now"]] }
 };
-const DAD_SAYS = [
-  "That light you left on? That's 12 cents. Where's my 12 cents?",
-  "Why you need a new one? The old one still turns on.",
-  "Keep the box. Keep the receipt. We're returning it.",
-  "I don't buy name brand. Name brand don't know my name.",
-  "You know what's free? Water. From the tap.",
-  "Don't touch the good foil. Use the regular foil.",
-  "That's a whole tank of gas. In a candle.",
-  "Dollar store got the same thing. Same. Exact. Thing.",
-  "I work all day so you can NOT buy this.",
-  "Put it in the cart, wait two days, then take it out. That's how I shop."
+const ROASTS = [
+  "You said you'd \"just look.\" You lied to both of us.",
+  "You don't need it. You need a nap and a snack.",
+  "Remember the last thing you \"needed\"? It's in the closet with the tags still on.",
+  "You got 3 of those already. I counted. I keep receipts.",
+  "That's not self-care. That's self-sabotage with free shipping.",
+  "Your future self called. She's broke and she's mad at you.",
+  "\"Add to cart\" is not a personality.",
+  "Every time you say \"it's only $20,\" a wallet somewhere cries.",
+  "You can't even find the last one you bought.",
+  "You're one \"treat yourself\" away from cereal for dinner."
 ];
-const DAD_PROUD = ["Finally. Somebody in this house listens.", "That's my child. Smart with money.", "Good. Now we can buy the big pack of paper towels.", "Dad is proud. Dad will not say it again."];
+const PROUD = ["Look at you. Financially literate. Who knew.", "Your wallet just exhaled.", "I'm proud. Don't make it weird.", "See? You CAN close the app."];
 
 /* ================= state ================= */
 const DEF = () => ({ v: 4, at: 0, name: "", shells: 0, earned: 0, tasks: 0, zones: 1, crew: {}, sinceFind: 0, done: {}, goals: {}, micro: null, skip: 0, run: 0, runAt: 0, lastCollect: 0, lastVisit: 0, nospend: [], checkins: [], parked: [], nah: 0, nahAmt: 0, budget: 60, sound: true, calm: false, big: false, memes: true, week: [] });
@@ -676,7 +677,7 @@ $("#giftBtn").onclick = () => { const n = giftAmount(); if (n < 1) return; S.she
 function buyZone() {
   const z = ZONES[S.zones]; if (!z || S.shells < z.cost) return;
   S.shells -= z.cost; S.zones++; save(); renderAll(); ding(true); confetti(200);
-  openSheet(`<div class="stack"><div class="label">New zone</div><h2 class="big-title">${esc(z.name)} is open</h2><p>${esc(STORY[S.zones - 1])}</p><p class="muted small">New critters can show up now.</p></div><button class="btn main block" id="zOk">Let's go</button>`, el => (el.querySelector("#zOk").onclick = closeSheet));
+  openSheet(`<div class="stack"><div class="label">New zone</div><h2 class="big-title">${esc(z.name)} is open</h2><p>${esc(STORY[S.zones - 1].split("{R}").join(R()))}</p><p class="muted small">New critters can show up now.</p></div><button class="btn main block" id="zOk">Let's go</button>`, el => (el.querySelector("#zOk").onclick = closeSheet));
 }
 
 /* ================= news ================= */
@@ -687,7 +688,7 @@ function newsItem(found, usedT) {
   if (!ok.length) return null;
   const x = pick(ok); usedT.add(x.t);
   const c = x.need ? CRITTERS.find(k => k.id === x.need) : (found.length ? pick(found) : null);
-  return { t: x.t.split("{c}").join(c ? c.name : "Somebody"), c };
+  return { t: x.t.split("{c}").join(c ? c.name : "Somebody").split("{R}").join(R()), c };
 }
 function renderNews() {
   const found = CRITTERS.filter(c => S.crew[c.id]), used = new Set(), items = [];
@@ -769,11 +770,12 @@ function timerSheet(t) {
 
 /* ================= money ================= */
 function renderMoney() {
+  $("#askTitle").textContent = "Ask " + R() + " first";
   const ws = weekStart(), t = today(); let html = "";
   ["M", "T", "W", "T", "F", "S", "S"].forEach((l, i) => { const d = dkey(new Date(ws + i * DAY + 2 * HOUR)), on = S.nospend.includes(d); html += `<div class="day${on ? " on" : ""}${d === t ? " today" : ""}"><i>${on ? "✓" : ""}</i>${l}</div>`; });
   $("#nsWeek").innerHTML = html;
   const did = S.nospend.includes(t);
-  $("#nsBtn").disabled = did; $("#nsBtn").textContent = did ? "Logged. Dad says: Finally." : "Today I bought nothing fun (+10)";
+  $("#nsBtn").disabled = did; $("#nsBtn").textContent = did ? "Logged. " + R() + " is shocked. In a good way." : "Today I bought nothing fun (+10)";
   const now = Date.now();
   $("#parkedCard").hidden = !S.parked.length;
   $("#parked").innerHTML = S.parked.map((p, i) => { const ms = p.until - now, ready = ms <= 0, h = Math.floor(ms / HOUR), m = Math.floor(ms % HOUR / 6e4);
@@ -786,7 +788,7 @@ function renderMoney() {
   $("#ciBars").innerHTML = last.length ? last.map(c => `<div><span>${money(c.amt)}</span><i style="height:${Math.round(c.amt / max * 70)}px;background:${c.amt <= c.budget ? "var(--moss)" : "var(--coral)"}"></i><span>${new Date(c.week + "T12:00").toLocaleDateString(undefined, { month: "numeric", day: "numeric" })}</span></div>`).join("")
     : `<div class="empty">Your weeks show up here. Green means under your ${money(S.budget)} fun budget.</div>`;
 }
-$("#nsBtn").onclick = () => { const t = today(); if (S.nospend.includes(t)) return; S.nospend = S.nospend.filter(d => d >= dkey(new Date(Date.now() - 40 * DAY))).concat(t); S.shells += 10; S.earned += 10; save(); ding(); confetti(50); toast("+10. Dad: " + pick(DAD_PROUD)); renderAll(); };
+$("#nsBtn").onclick = () => { const t = today(); if (S.nospend.includes(t)) return; S.nospend = S.nospend.filter(d => d >= dkey(new Date(Date.now() - 40 * DAY))).concat(t); S.shells += 10; S.earned += 10; save(); ding(); confetti(50); toast("+10. " + R() + ": " + pick(PROUD)); renderAll(); };
 function tierFor(price) { const b = S.budget || 60; if (price > b) return "over"; const r = price / b; if (price <= 5 || r <= .1) return "tiny"; if (r <= .4) return "some"; return "big"; }
 function dadSVG(mood) {
   const mouth = { ok: "M48 88 Q60 96 72 88", meh: "M49 91 L71 91", shock: "M54 92 a6 8 0 1 0 12 0 a6 8 0 1 0 -12 0", rage: "M48 96 Q60 86 72 96" }[mood];
@@ -810,22 +812,22 @@ $("#courtBtn").onclick = () => {
   if (!item || !(amt > 0)) { toast("Add what it is and the price."); return; }
   const tier = tierFor(amt), v = VERDICTS[tier], [top, bottom] = pick(v.items);
   const side = ["penny", "coupon", "ceo", "lawyer", "pete"].map(id => CRITTERS.find(c => c.id === id)).find(c => S.crew[c.id]);
-  openSheet(`<div class="label">Dad court · ${esc(item)} · ${money(amt)}</div>` +
-    (S.memes ? `<div class="meme" role="img" aria-label="${esc(top + ". " + bottom)}">${dadSVG(v.mood)}<div class="cap">${esc(top)}</div><div class="cap">${esc(bottom)}</div></div><div class="dadsays"><b>Dad:</b> “${esc(pick(DAD_SAYS))}”</div>`
+  openSheet(`<div class="label">Receipt check · ${esc(item)} · ${money(amt)}</div>` +
+    (S.memes ? `<div class="meme" role="img" aria-label="${esc(top + ". " + bottom)}">${dadSVG(v.mood)}<div class="cap">${esc(top)}</div><div class="cap">${esc(bottom)}</div></div><div class="dadsays"><b>${esc(R())}:</b> “${esc(pick(ROASTS))}”</div>`
       : `<h2>${tier === "over" ? "This is more than your weekly fun money." : tier === "big" ? "This is a big chunk of your week." : tier === "some" ? "This is a decent chunk of your week." : "This is small."}</h2>`) +
     (side ? `<p class="small"><b>${esc(side.name)}:</b> ${esc(pick(side.say))}</p>` : "") +
     `<p class="small muted">That's ${Math.round(amt / (S.budget || 60) * 100)}% of your ${money(S.budget)} weekly fun money.</p>
     <button class="btn main huge block" id="cNah">Nah, I'm good (+15)</button><div class="btns"><button class="btn shell" id="cPark">Park it 48 hours</button><button class="btn" id="cBuy">I really need it</button></div>`, el => {
       const clear = () => { $("#buyItem").value = ""; $("#buyAmt").value = ""; };
-      el.querySelector("#cNah").onclick = () => { closeSheet(); clear(); S.nah++; S.nahAmt += amt; S.shells += 15; S.earned += 15; save(); ding(); confetti(70); toast(S.memes ? "+15. Dad: " + pick(DAD_PROUD) : "+15 shells. Money saved."); renderAll(); };
-      el.querySelector("#cPark").onclick = () => { closeSheet(); clear(); S.parked.push({ item, amt, until: Date.now() + 48 * HOUR }); S.shells += 3; S.earned += 3; save(); toast(S.memes ? "Parked. Dad: That's how I shop. +3" : "Parked for 48 hours. +3"); renderAll(); };
-      el.querySelector("#cBuy").onclick = () => { closeSheet(); clear(); toast(S.memes ? "Okay. Dad is unplugging the microwave to save electricity." : "Okay. Enjoy it."); };
+      el.querySelector("#cNah").onclick = () => { closeSheet(); clear(); S.nah++; S.nahAmt += amt; S.shells += 15; S.earned += 15; save(); ding(); confetti(70); toast(S.memes ? "+15. " + R() + ": " + pick(PROUD) : "+15 shells. Money saved."); renderAll(); };
+      el.querySelector("#cPark").onclick = () => { closeSheet(); clear(); S.parked.push({ item, amt, until: Date.now() + 48 * HOUR }); S.shells += 3; S.earned += 3; save(); toast(S.memes ? "Parked. You'll forget you even wanted it. +3" : "Parked for 48 hours. +3"); renderAll(); };
+      el.querySelector("#cBuy").onclick = () => { closeSheet(); clear(); toast(S.memes ? "Okay. " + R() + " is keeping the receipt. For evidence." : "Okay. Enjoy it."); };
     });
 };
 $("#parked").addEventListener("click", e => {
   const y = e.target.closest("[data-pyes]"), n = e.target.closest("[data-pno]"); if (!y && !n) return;
   const i = +(y ? y.dataset.pyes : n.dataset.pno), p = S.parked[i]; if (!p) return; S.parked.splice(i, 1);
-  if (n) { S.nah++; S.nahAmt += p.amt; S.shells += 15; S.earned += 15; ding(); confetti(60); toast("+15. The craving lost. Dad won."); } else toast("Still wanted it after 48 hours. That's a real want. Enjoy it.");
+  if (n) { S.nah++; S.nahAmt += p.amt; S.shells += 15; S.earned += 15; ding(); confetti(60); toast("+15. The craving lost. You won."); } else toast("Still wanted it after 48 hours. That's a real want. Enjoy it.");
   save(); renderAll();
 });
 $("#ciBtn").onclick = () => {
@@ -834,7 +836,7 @@ $("#ciBtn").onclick = () => {
     el.querySelector("#ciSave").onclick = () => { const a = parseFloat((el.querySelector("#ciAmt").value || "").replace(/[^0-9.]/g, "")); if (!(a >= 0)) { toast("Type a number. A guess is fine."); return; }
       S.checkins = S.checkins.filter(c => c.week !== ws).concat({ week: ws, amt: a, budget: S.budget }).slice(-12); S.shells += 20; S.earned += 20; save(); ding(true); confetti(80); renderAll();
       const under = a <= S.budget;
-      openSheet(`<div class="stack"><div class="plus">+20 ${SHELL}</div><h2 class="big-title">${under ? "Under budget!" : "Over by " + money(a - S.budget)}</h2><p><b>Dad:</b> ${under ? esc(pick(DAD_PROUD)) : "You looked. Good. Next week we park things first. And we eat what's at home."}</p></div><button class="btn main block" id="ok2">Okay Dad</button>`, el2 => (el2.querySelector("#ok2").onclick = closeSheet)); };
+      openSheet(`<div class="stack"><div class="plus">+20 ${SHELL}</div><h2 class="big-title">${under ? "Under budget!" : "Over by " + money(a - S.budget)}</h2><p><b>${esc(R())}:</b> ${under ? esc(pick(PROUD)) : "You looked. That's growth. Next week you park stuff first. Deal?"}</p></div><button class="btn main block" id="ok2">Deal</button>`, el2 => (el2.querySelector("#ok2").onclick = closeSheet)); };
   });
 };
 
@@ -862,12 +864,12 @@ async function makeShareImage() {
   imgs.forEach((im, i) => { if (!im) return; const x = 96 + (i % 6) * 150, y = 828 + Math.floor(i / 6) * 138; ctx.drawImage(im, x, y, 136, 136); });
   if (!show.length) { ctx.fillStyle = ink; ctx.font = "600 38px Fredoka, sans-serif"; ctx.fillText("Critters loading... (go do one tiny thing)", 110, 970); }
   ctx.fillStyle = ink; ctx.font = "700 34px 'Atkinson Hyperlegible', Verdana, sans-serif";
-  const quote = S.nahAmt > 0 ? `Dad: "${pick(DAD_PROUD)}"` : found.length ? `${found[0].name}: "${found[0].say[0]}"` : `The goose is watching. The goose approves.`;
+  const quote = S.nahAmt > 0 ? `${R()}: "${pick(PROUD)}"` : found.length ? `${found[0].name}: "${found[0].say[0]}"` : `The goose is watching. The goose approves.`;
   wrapText(ctx, quote, 72, 1170, 936, 44);
   ctx.font = "600 28px Fredoka, sans-serif"; ctx.fillStyle = "#3E5551"; ctx.fillText("One tiny thing at a time.", 72, 1282);
   return await new Promise(res => cv.toBlob(b => res(b), "image/png"));
 }
-function caption() { const f = Object.keys(S.crew).length; return `I've done ${S.tasks} tiny chore${S.tasks === 1 ? "" : "s"} and found ${f} weird critter${f === 1 ? "" : "s"} on my island 🦝🪿 ${S.nahAmt > 0 ? "Saved " + money(S.nahAmt) + " by telling impulse buys no. Dad is proud (he won't say it twice). " : ""}One tiny thing at a time.`; }
+function caption() { const f = Object.keys(S.crew).length; return `I've done ${S.tasks} tiny chore${S.tasks === 1 ? "" : "s"} and found ${f} weird critter${f === 1 ? "" : "s"} on my island 🦝🪿 ${S.nahAmt > 0 ? "Saved " + money(S.nahAmt) + " by telling impulse buys no. " + R() + " is shocked. " : ""}One tiny thing at a time.`; }
 let shareURL = null;
 $("#bragBtn").onclick = async () => {
   openSheet(`<div class="label">Share my island</div><img class="shareimg" id="shareImg" alt="Your island report image"><div class="btns"><button class="btn shell" id="shSave" disabled>Save or share image</button><button class="btn" id="shCopy">Copy caption</button></div><p class="small muted" id="shHelp">Making your picture…</p>`, async el => {
@@ -887,15 +889,16 @@ window.__makeShareImage = makeShareImage;
 function applyPrefs() { document.documentElement.classList.toggle("calm", !!S.calm); document.documentElement.classList.toggle("big", !!S.big); }
 $("#gearBtn").onclick = () => openSheet(`<div class="label">Settings</div>
   <div class="field"><label for="sName">Your name (for posts and the share card)</label><input id="sName" value="${esc(S.name)}" maxlength="20"></div>
+  <div class="field"><label for="sRoaster">Who roasts you about money?</label><input id="sRoaster" value="${esc(R())}" maxlength="20"></div>
   <div class="field"><label for="sBudget">Weekly fun money ($)</label><input id="sBudget" inputmode="decimal" value="${esc(S.budget)}"></div>
   <div><div class="switch"><div class="grow"><b>Sounds</b><div class="small muted">Soft plinks when you finish.</div></div><button class="tog" role="switch" data-k="sound" aria-checked="${S.sound}" aria-label="Sounds"></button></div>
   <div class="switch"><div class="grow"><b>Extra calm</b><div class="small muted">No confetti or wobbling critters.</div></div><button class="tog" role="switch" data-k="calm" aria-checked="${S.calm}" aria-label="Extra calm"></button></div>
   <div class="switch"><div class="grow"><b>Bigger text</b></div><button class="tog" role="switch" data-k="big" aria-checked="${S.big}" aria-label="Bigger text"></button></div>
-  <div class="switch"><div class="grow"><b>Dad roasts</b><div class="small muted">Off means plain, kind money wording.</div></div><button class="tog" role="switch" data-k="memes" aria-checked="${S.memes}" aria-label="Dad roasts"></button></div></div>
+  <div class="switch"><div class="grow"><b>Money roasts</b><div class="small muted">Off means plain, kind money wording.</div></div><button class="tog" role="switch" data-k="memes" aria-checked="${S.memes}" aria-label="Money roasts"></button></div></div>
   <p class="small muted">Tip: open this on your phone and use "Add to Home Screen" so the island is one tap away.</p>
   <button class="btn main block" id="sSave">Save</button>`, el => {
   el.querySelectorAll(".tog").forEach(t => (t.onclick = () => { const k = t.dataset.k; S[k] = !S[k]; t.setAttribute("aria-checked", S[k]); save(); applyPrefs(); }));
-  el.querySelector("#sSave").onclick = () => { S.name = el.querySelector("#sName").value.trim().slice(0, 20); const b = parseFloat(el.querySelector("#sBudget").value); if (b >= 0) S.budget = b; save(); closeSheet(); renderAll(); };
+  el.querySelector("#sSave").onclick = () => { S.name = el.querySelector("#sName").value.trim().slice(0, 20); S.roaster = el.querySelector("#sRoaster").value.trim().slice(0, 20) || "Mr. Receipts"; const b = parseFloat(el.querySelector("#sBudget").value); if (b >= 0) S.budget = b; save(); closeSheet(); renderAll(); };
 });
 
 /* ================= fx ================= */

@@ -1,6 +1,6 @@
 # Critter Cove
 
-A one-tap chore game for ADHD brains. Tiny tasks rebuild a messy creature island, lure in 40 weird critters, and a cheap Dad roasts your impulse buys before you check out.
+A one-tap chore game for ADHD brains. Tiny tasks rebuild a messy creature island, lure in 40 weird critters, and Mr. Receipts roasts you before you check out.
 
 ## What's in it
 
@@ -10,7 +10,7 @@ A one-tap chore game for ADHD brains. Tiny tasks rebuild a messy creature island
 - **40 critters across 10 island zones**, from Driftwood Beach to Volcano Lounge. Critters gather shells while you're away.
 - **No guilt.** No streaks. Come back after a few days and the critters throw you a welcome-back party.
 - **Island news.** Breaking stories from the cove.
-- **Money:** Ask Dad before you buy, park it for 48 hours, a one-tap no-spend day button, and a weekly check-in.
+- **Money:** Ask Mr. Receipts before you buy (he roasts you, not the item), park it for 48 hours, a one-tap no-spend day button, and a weekly check-in.
 - **Share my island:** makes a picture of your progress to post or text.
 
 ## Running it
