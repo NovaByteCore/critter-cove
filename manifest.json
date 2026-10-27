@@ -1,0 +1,10 @@
+{
+  "name": "Critter Cove",
+  "short_name": "Critter Cove",
+  "description": "One-tap chore game: tiny tasks rebuild a creature island.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#E4EDE9",
+  "theme_color": "#E4EDE9",
+  "icons": [{ "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }]
+}
