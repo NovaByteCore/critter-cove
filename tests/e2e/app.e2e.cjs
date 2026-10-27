@@ -366,10 +366,11 @@ async function t(name, fn) {
     const p = await open({ state: st, clock: "2026-10-27T13:00:00" });
     ok(!(await p.$(".nbanner")), "fired early");
     await p.clock.fastForward(6 * 60000); await p.waitForTimeout(500); await p.evaluate(() => document.dispatchEvent(new Event("visibilitychange")));
-    await p.waitForTimeout(200); ok(/Start the dishwasher/.test(await p.textContent("#nbanners")), "didn't fire");
+    await p.waitForTimeout(200);
+    if (!/start the dishwasher/i.test(await p.textContent("#nbanners"))) { const d = await p.evaluate(() => ({ now: new Date().toTimeString().slice(0, 8), log: JSON.parse(localStorage.getItem("critter-cove-v3")).notif.log, sheet: document.querySelector(".sheet") && document.querySelector(".sheet").getAttribute("aria-label"), banners: document.querySelectorAll(".nbanner").length })); ok(false, "didn't fire: " + JSON.stringify(d)); }
     await p.click('.nbanner [data-a="snooze"]'); ok(!(await p.$(".nbanner")), "banner stayed");
     await p.clock.fastForward(11 * 60000); await p.evaluate(() => document.dispatchEvent(new Event("visibilitychange"))); await p.waitForTimeout(200);
-    ok(/Start the dishwasher/.test(await p.textContent("#nbanners")), "snooze didn't bring it back");
+    ok(/start the dishwasher/i.test(await p.textContent("#nbanners")), "snooze didn't bring it back");
     await p.click('.nbanner [data-a="done"]');
     await p.clock.fastForward(9.5 * 3600e3); await p.evaluate(() => document.dispatchEvent(new Event("visibilitychange"))); await p.waitForTimeout(200);
     ok(!/Late one/.test(await p.textContent("#nbanners")), "fired during quiet hours");
