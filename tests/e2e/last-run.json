@@ -1,8 +1,8 @@
 {
- "when": "2026-10-27T21:14:18.864Z",
+ "when": "2026-10-27T21:45:24.414Z",
  "url": "file:///home/claude/critter-cove/index.html",
- "pass": 44,
- "total": 44,
+ "pass": 51,
+ "total": 51,
  "results": [
   {
    "name": "first visit: welcome, then completing a task pays shells, opens a chest and finds a critter",
@@ -117,6 +117,10 @@
    "pass": true
   },
   {
+   "name": "upgrade inside Claude: an old account save keeps critters, shells, tasks and its weekly budget, and skips the welcome",
+   "pass": true
+  },
+  {
    "name": "onboarding: reminders can be picked or skipped, and skipping never nags again",
    "pass": true
   },
@@ -158,6 +162,30 @@
   },
   {
    "name": "reduced motion and low stimulation turn animations off",
+   "pass": true
+  },
+  {
+   "name": "appearance: Playful is the default; Settings → Appearance switches theme and light/dark instantly and remembers it",
+   "pass": true
+  },
+  {
+   "name": "appearance: low stimulation and reduce animations calm things down without removing any buttons",
+   "pass": true
+  },
+  {
+   "name": "appearance: playful light keeps text and buttons readable (WCAG AA)",
+   "pass": true
+  },
+  {
+   "name": "appearance: playful dark keeps text and buttons readable (WCAG AA)",
+   "pass": true
+  },
+  {
+   "name": "appearance: cozy light keeps text and buttons readable (WCAG AA)",
+   "pass": true
+  },
+  {
+   "name": "appearance: cozy dark keeps text and buttons readable (WCAG AA)",
    "pass": true
   },
   {

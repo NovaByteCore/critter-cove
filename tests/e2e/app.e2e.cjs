@@ -11,7 +11,7 @@ const results = [];
 let browser;
 
 async function open(opts = {}) {
-  const ctx = await browser.newContext({ viewport: opts.viewport || { width: 390, height: 844 }, reducedMotion: opts.reducedMotion || "no-preference", acceptDownloads: true });
+  const ctx = await browser.newContext({ viewport: opts.viewport || { width: 390, height: 844 }, reducedMotion: opts.reducedMotion || "no-preference", colorScheme: opts.colorScheme || "light", acceptDownloads: true });
   const p = await ctx.newPage(); p.errs = [];
   p.on("pageerror", e => p.errs.push(e.message));
   if (opts.init) await p.addInitScript(opts.init);
@@ -443,7 +443,9 @@ async function t(name, fn) {
     await p.focus('[data-critter="kevin"]'); await p.keyboard.press("Enter");
     ok(/Couch Gremlin Kevin/.test(await p.textContent("#bubbleHost")), "no bubble");
     await p.click("nav button[data-tab=critters]");
-    const c = await p.evaluate(() => getComputedStyle(document.querySelector(".rar.rare")).color); ok(c === "rgb(43, 103, 100)", "rare color " + c);
+    const c = await p.evaluate(() => { const el = document.querySelector(".rar.rare"), card = el.closest(".cc"), rgb = s => s.match(/\d+(\.\d+)?/g).slice(0, 3).map(Number), L = a => { const [r, g, b] = a.map(v => { v /= 255; return v <= .03928 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4; }); return .2126 * r + .7152 * g + .0722 * b; };
+      const f = L(rgb(getComputedStyle(el).color)), bg = L(rgb(getComputedStyle(card).backgroundColor)); return (Math.max(f, bg) + .05) / (Math.min(f, bg) + .05); });
+    ok(c >= 4.5, "rare label contrast " + c.toFixed(2));
   });
 
   await t("reduced motion and low stimulation turn animations off", async () => {
@@ -451,6 +453,63 @@ async function t(name, fn) {
     ok(await p.evaluate(() => getComputedStyle(document.querySelector(".wave")).animationName) === "none", "OS setting ignored");
     const q = await open({ state: base({ calm: true }) });
     ok(await q.evaluate(() => getComputedStyle(document.querySelector(".wave")).animationName) === "none", "low stimulation ignored");
+  });
+
+  await t("appearance: Playful is the default; Settings → Appearance switches theme and light/dark instantly and remembers it", async () => {
+    const p = await open({ state: base() });
+    ok(await p.getAttribute("html", "data-look") === "playful", "default look " + await p.getAttribute("html", "data-look"));
+    const bg0 = await p.evaluate(() => getComputedStyle(document.body).backgroundColor);
+    await p.click("#gearBtn"); await p.click("#sAppear");
+    ok(await p.getAttribute(".sheet", "aria-label") === "Appearance", "Appearance screen not opened");
+    await p.click('[data-look="cozy"]');
+    ok(await p.getAttribute("html", "data-look") === "cozy", "cozy not applied");
+    ok(await p.evaluate(() => getComputedStyle(document.body).backgroundColor) !== bg0, "colors didn't change without a reload");
+    await p.click('[data-mode="dark"]'); ok(await p.getAttribute("html", "data-theme") === "dark", "dark not applied");
+    const darkBg = await p.evaluate(() => getComputedStyle(document.body).backgroundColor);
+    await p.click('[data-mode="light"]'); ok(await p.getAttribute("html", "data-theme") === "light", "light not applied");
+    await p.click('[data-mode="device"]'); ok(await p.getAttribute("html", "data-theme") === null, "follow device left a forced theme");
+    await p.click('[data-mode="dark"]'); await p.click("#aDone");
+    await p.reload(); await p.waitForTimeout(250);
+    ok(await p.getAttribute("html", "data-look") === "cozy" && await p.getAttribute("html", "data-theme") === "dark", "choices not remembered after reload");
+    ok(await p.evaluate(() => getComputedStyle(document.body).backgroundColor) === darkBg, "dark colors not restored");
+    const s = await saved(p); ok(s.look === "cozy" && s.mode === "dark" && s.appearAt > 0, "not saved");
+    const q = await open({ state: base(), colorScheme: "dark" });
+    ok(await q.evaluate(() => getComputedStyle(document.body).backgroundColor) === "rgb(15, 31, 41)", "follow device ignored a dark phone");
+    ok(!p.errs.length && !q.errs.length, p.errs.concat(q.errs).join());
+  });
+
+  await t("appearance: low stimulation and reduce animations calm things down without removing any buttons", async () => {
+    const p = await open({ state: base() });
+    await p.click("#gearBtn"); await p.click("#sAppear"); await p.click('[data-ak="still"]');
+    ok(await p.evaluate(() => getComputedStyle(document.querySelector(".wave")).animationName) === "none", "reduce animations ignored");
+    ok(await p.evaluate(() => getComputedStyle(document.querySelector(".btn.main")).boxShadow) !== "none", "reduce animations shouldn't change colors or styling");
+    await p.click('[data-ak="still"]'); await p.click('[data-ak="calm"]'); await p.click("#aDone");
+    ok(await p.evaluate(() => getComputedStyle(document.querySelector(".wave")).animationName) === "none", "low stimulation still animates");
+    ok(await p.evaluate(() => getComputedStyle(document.querySelector("#doneBtn")).boxShadow) === "none", "low stimulation kept decorative shadows");
+    for (const id of ["#doneBtn", "#defBtn", "#skipBtn", "#overBtn", "#giftBtn"]) ok(await p.isVisible(id), id + " hidden in low stimulation");
+    await p.click("#doneBtn"); await closeSheetIfAny(p); ok((await saved(p)).tasks === 1, "Done doesn't work in low stimulation");
+    const s = await saved(p); ok(s.calm === true && s.still === false, "toggles not saved");
+  });
+
+  for (const look of ["playful", "cozy"]) for (const mode of ["light", "dark"]) await t(`appearance: ${look} ${mode} keeps text and buttons readable (WCAG AA)`, async () => {
+    const p = await open({ state: base({ look, mode, crew: { kevin: { found: 1, friend: 1 }, velvet: { found: 1, friend: 1 } } }) });
+    const check = async () => p.evaluate(() => {
+      const rgb = s => (s.match(/[\d.]+/g) || []).map(Number), L = a => { const [r, g, b] = a.slice(0, 3).map(v => { v /= 255; return v <= .03928 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4; }); return .2126 * r + .7152 * g + .0722 * b; };
+      const bgOf = el => { for (let e = el; e; e = e.parentElement) { const c = getComputedStyle(e).backgroundColor, a = rgb(c); if (a.length === 3 || (a[3] ?? 1) > .9) return c; } return getComputedStyle(document.body).backgroundColor; };
+      const bad = [];
+      document.querySelectorAll("button, .label, .muted, h2, .goaltext, .rar, .pill, p, b").forEach(el => {
+        if (!el.offsetParent || !el.textContent.trim() || getComputedStyle(el).visibility === "hidden") return;
+        const fg = L(rgb(getComputedStyle(el).color)), bg = L(rgb(bgOf(el))), cr = (Math.max(fg, bg) + .05) / (Math.min(fg, bg) + .05);
+        const size = parseFloat(getComputedStyle(el).fontSize), bold = +getComputedStyle(el).fontWeight >= 700, need = size >= 24 || (bold && size >= 18.66) ? 3 : 4.5;
+        if (cr < need) bad.push(el.textContent.trim().slice(0, 30) + " " + cr.toFixed(2));
+      });
+      return bad;
+    });
+    let bad = await check();
+    await p.click("nav button[data-tab=critters]"); bad = bad.concat(await check());
+    await p.click("nav button[data-tab=money]"); bad = bad.concat(await check());
+    await p.click("nav button[data-tab=island]"); await p.click("#defBtn"); bad = bad.concat(await check());
+    ok(!bad.length, "low contrast: " + [...new Set(bad)].slice(0, 6).join(" | "));
   });
 
   for (const vp of [{ width: 320, height: 640 }, { width: 390, height: 844 }, { width: 412, height: 915 }, { width: 768, height: 1024 }, { width: 1280, height: 800 }]) {

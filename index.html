@@ -17,24 +17,24 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Atkinson+Hyperlegible:wght@400;700&family=Fredoka:wght@500;600;700&display=swap">
 <style>
-/* Layout: one predictable screen per tab. Island map, one task card with a goal ladder, gifts, timeline. Soft sea-glass palette; celebration only on completion. */
+/* Layout: one predictable screen per tab. Island map, one task card with a goal ladder, gifts, timeline. Two looks: Playful Cove (default) and Cozy Cove; celebration only on completion. */
 :root{
-  --bg:#E4EDE9; --surface:#FBFAF5; --sunk:#EEF2EE; --ink:#24343A; --muted:#5B6C70; --line:#D2DDD8;
-  --sea:#8FC0BC; --sea-dk:#6FA8A6; --sand:#EBDDB9; --moss:#86A872; --coral:#DF8E78; --shell:#F1C886; --fog:#F4F6F3;
-  --on-fill:#22302F;
   --f-display:Fredoka, "Trebuchet MS", system-ui, sans-serif;
   --f-body:"Atkinson Hyperlegible", Verdana, system-ui, sans-serif;
   --f-meme:Anton, Impact, "Arial Narrow", sans-serif;
   --fs:16px;
 }
-@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
-  --bg:#132020; --surface:#1C2B2A; --sunk:#172524; --ink:#E7EEEA; --muted:#9DB2AE; --line:#2C3E3C;
-  --sea:#2F5C5A; --sea-dk:#3E7270; --sand:#BFAE86; --moss:#7FA56C; --coral:#E39883; --shell:#EDC27E; --fog:#3A4C4A; color-scheme:dark } }
-:root[data-theme="dark"]{
-  --bg:#132020; --surface:#1C2B2A; --sunk:#172524; --ink:#E7EEEA; --muted:#9DB2AE; --line:#2C3E3C;
-  --sea:#2F5C5A; --sea-dk:#3E7270; --sand:#BFAE86; --moss:#7FA56C; --coral:#E39883; --shell:#EDC27E; --fog:#3A4C4A; color-scheme:dark }
+/* Playful Cove (default) */
+:root{ --bg:#FFF4E6; --surface:#FFFDF8; --sunk:#F7EEE1; --ink:#1E2D38; --muted:#536270; --line:#EADDC9; --sea:#5CC6CC; --sea-dk:#1F8794; --sand:#F7D9A0; --moss:#6FC277; --moss-dk:#2F8A45; --coral:#FF8E6E; --shell:#FFC93E; --on-fill:#1B2530; --start:#5CC6CC; --bad:#B23A22; --good:#2E7034; --rare:#136F78; --legend:#B4462A; --focus:#0F6F7C; --togoff:#808D97; --field:#808D97; --fog:#FFF8EE; }
+/* Cozy Cove */
+:root[data-look="cozy"]{ --bg:#F1EEE3; --surface:#FFFDF7; --sunk:#F0ECE0; --ink:#24343A; --muted:#55646A; --line:#DCD6C6; --sea:#9CCBC4; --sea-dk:#4E8A86; --sand:#EBDDB9; --moss:#8DB078; --moss-dk:#5B8A48; --coral:#E39A82; --shell:#F2CB8A; --on-fill:#1F2D2C; --start:#9CCBC4; --bad:#A3412B; --good:#3B6A2C; --rare:#2B6764; --legend:#A84E33; --focus:#2F6F6B; --togoff:#84918D; --field:#84918D; --fog:#F4F6F3; }
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){ --bg:#0F1F29; --surface:#182C38; --sunk:#1F3644; --ink:#EBF3F6; --muted:#A5B8C2; --line:#2C4554; --sea:#1E5F6D; --sea-dk:#3A97A6; --sand:#CDAE76; --moss:#78CB7E; --moss-dk:#78CB7E; --coral:#FF9C80; --shell:#FFD056; --on-fill:#15202A; --start:#5CC6CC; --bad:#FFA48C; --good:#9EDB8E; --rare:#7FDCE3; --legend:#FFA88E; --focus:#86E0E6; --togoff:#6D8796; --field:#6D8796; --fog:#2C4554; color-scheme:dark }
+  :root[data-look="cozy"]:not([data-theme="light"]){ --bg:#132020; --surface:#1C2B2A; --sunk:#233433; --ink:#E7EEEA; --muted:#A2B6B2; --line:#33302B; --sea:#2F5C5A; --sea-dk:#4A8582; --sand:#BFAE86; --moss:#86AD72; --moss-dk:#86AD72; --coral:#E39883; --shell:#EDC27E; --on-fill:#18211F; --start:#7DB8B3; --bad:#F2A08C; --good:#A9D493; --rare:#8FCFCB; --legend:#F0A58E; --focus:#8AD4CD; --togoff:#6E8480; --field:#6E8480; --fog:#3A4C4A; } }
+:root[data-theme="dark"]{ --bg:#0F1F29; --surface:#182C38; --sunk:#1F3644; --ink:#EBF3F6; --muted:#A5B8C2; --line:#2C4554; --sea:#1E5F6D; --sea-dk:#3A97A6; --sand:#CDAE76; --moss:#78CB7E; --moss-dk:#78CB7E; --coral:#FF9C80; --shell:#FFD056; --on-fill:#15202A; --start:#5CC6CC; --bad:#FFA48C; --good:#9EDB8E; --rare:#7FDCE3; --legend:#FFA88E; --focus:#86E0E6; --togoff:#6D8796; --field:#6D8796; --fog:#2C4554; color-scheme:dark }
+:root[data-look="cozy"][data-theme="dark"]{ --bg:#132020; --surface:#1C2B2A; --sunk:#233433; --ink:#E7EEEA; --muted:#A2B6B2; --line:#33302B; --sea:#2F5C5A; --sea-dk:#4A8582; --sand:#BFAE86; --moss:#86AD72; --moss-dk:#86AD72; --coral:#E39883; --shell:#EDC27E; --on-fill:#18211F; --start:#7DB8B3; --bad:#F2A08C; --good:#A9D493; --rare:#8FCFCB; --legend:#F0A58E; --focus:#8AD4CD; --togoff:#6E8480; --field:#6E8480; --fog:#3A4C4A; }
 :root.big{ --fs:19px; }
-.calm *, .calm *::before, .calm *::after{ animation:none!important; transition:none!important; }
+.calm *, .calm *::before, .calm *::after, .still *, .still *::before, .still *::after{ animation:none!important; transition:none!important; }
 @media (prefers-reduced-motion: reduce){ *, *::before, *::after{ animation:none!important; transition:none!important; } }
 
 [hidden]{ display:none!important; }
@@ -140,9 +140,6 @@ details.adv summary{ cursor:pointer; font-weight:700; min-height:44px; display:f
 .rbtn[role=checkbox][aria-checked="true"]{ border-color:var(--moss); background:var(--sunk); }
 .rbtn[role=checkbox] b::before{ content:"☐ "; } .rbtn[role=checkbox][aria-checked="true"] b::before{ content:"☑ "; }
 /* big sis check */
-:root{ --bad:#A9442E; --good:#3E6B2E; --rare:#2B6764; }
-@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --bad:#F2A08C; --good:#A9D493; --rare:#8FCFCB; } }
-:root[data-theme="dark"]{ --bad:#F2A08C; --good:#A9D493; --rare:#8FCFCB; }
 .sis-head{ display:flex; gap:12px; align-items:center; }
 .sis-head .grow{ flex:1; min-width:0; }
 .sis-head h2{ font-size:24px; }
@@ -283,6 +280,60 @@ nav.tabs button[aria-current="page"] svg{ background:var(--shell); border-radius
 .toast{ position:fixed; left:50%; bottom:calc(84px + env(safe-area-inset-bottom,0px)); transform:translateX(-50%); z-index:30; background:var(--ink); color:var(--bg); padding:12px 16px; border-radius:14px; font-weight:700; width:max-content; max-width:calc(100% - 32px); text-align:center; animation:up .2s ease-out; }
 .shareimg{ width:100%; max-width:100%; border-radius:18px; border:1px solid var(--line); display:block; aspect-ratio:4 / 5; background:var(--sunk); object-fit:cover; }
 #confetti{ position:fixed; inset:0; pointer-events:none; z-index:40; width:100%; height:100%; }
+
+/* ===== appearance: fixes shared by both looks (contrast audit) ===== */
+:focus-visible, .field input:focus{ outline-color:var(--focus)!important; }
+.island [data-critter]:focus-visible{ outline:3px solid var(--focus); }
+.tog{ background:var(--togoff); } .tog[aria-checked="true"]{ background:var(--moss-dk); }
+.tog::after{ display:grid; place-items:center; font:700 14px/1 system-ui, sans-serif; color:var(--moss-dk); }
+.tog[aria-checked="true"]::after{ content:"✓"; }
+.field input, .field textarea, .addline input, select{ border-color:var(--field); }
+.btn.tstart{ background:var(--start); }
+.rar.legendary{ color:var(--legend); }
+.task{ border-color:var(--moss-dk); }
+.label{ font-size:13px; } .pill, .goaltext, .field .help{ font-size:14px; } nav.tabs button{ font-size:14px; }
+/* ===== Cozy Cove extras: soft shadows ===== */
+:root[data-look="cozy"] .card, :root[data-look="cozy"] .task, :root[data-look="cozy"] .gift, :root[data-look="cozy"] .nbanner{ box-shadow:0 1px 2px rgba(70,55,30,.06), 0 8px 20px -12px rgba(70,55,30,.22); }
+:root[data-look="cozy"] .island{ box-shadow:0 8px 20px -14px rgba(40,70,60,.35); }
+/* ===== Playful Cove extras: game-style buttons, golden shells, brighter critters ===== */
+:root:not([data-look="cozy"]) .card, :root:not([data-look="cozy"]) .gift, :root:not([data-look="cozy"]) .nbanner{ box-shadow:0 2px 0 rgba(120,80,30,.07), 0 10px 24px -14px rgba(120,80,30,.28); border-color:transparent; }
+:root:not([data-look="cozy"]) .task{ border-width:3px; background:linear-gradient(180deg, color-mix(in srgb, var(--sea) 18%, var(--surface)) 0, var(--surface) 120px); box-shadow:0 12px 28px -16px rgba(20,90,100,.45); }
+:root:not([data-look="cozy"]) .btn.main{ box-shadow:0 4px 0 var(--moss-dk); }
+:root:not([data-look="cozy"]) .btn.shell{ box-shadow:0 4px 0 #C9921C; }
+:root:not([data-look="cozy"]) .btn.tstart{ box-shadow:0 3px 0 var(--sea-dk); }
+:root:not([data-look="cozy"]) .btn.coral{ box-shadow:0 4px 0 #C8573A; }
+:root:not([data-look="cozy"]) .btn.main:active, :root:not([data-look="cozy"]) .btn.shell:active, :root:not([data-look="cozy"]) .btn.tstart:active, :root:not([data-look="cozy"]) .btn.coral:active{ transform:translateY(3px); box-shadow:none; }
+:root:not([data-look="cozy"]) .shells{ background:var(--shell); border-color:transparent; color:var(--on-fill); box-shadow:0 3px 0 #C9921C; }
+:root:not([data-look="cozy"]) .island{ border:3px solid var(--sea-dk); }
+:root:not([data-look="cozy"]) .island [data-critter], :root:not([data-look="cozy"]) .grid svg, :root:not([data-look="cozy"]) .sis-ava svg{ filter:saturate(1.18); }
+:root:not([data-look="cozy"]) .progress i{ background:linear-gradient(90deg, var(--moss), var(--sea)); }
+:root:not([data-look="cozy"]) .ladder .seg.on{ background:var(--shell); }
+:root:not([data-look="cozy"]) nav.tabs button[aria-current="page"] svg{ background:var(--sea); }
+/* dark: no shadows on dark surfaces */
+@media (prefers-color-scheme: dark){
+  :root[data-look="cozy"]:not([data-theme="light"]) .card, :root[data-look="cozy"]:not([data-theme="light"]) .task, :root[data-look="cozy"]:not([data-theme="light"]) .gift, :root[data-look="cozy"]:not([data-theme="light"]) .nbanner, :root[data-look="cozy"]:not([data-theme="light"]) .island{ box-shadow:none; }
+  :root:not([data-look="cozy"]):not([data-theme="light"]) .card, :root:not([data-look="cozy"]):not([data-theme="light"]) .gift, :root:not([data-look="cozy"]):not([data-theme="light"]) .nbanner{ box-shadow:none; border-color:var(--line); }
+  :root:not([data-look="cozy"]):not([data-theme="light"]) .task{ box-shadow:none; background:linear-gradient(180deg, color-mix(in srgb, var(--sea) 40%, var(--surface)) 0, var(--surface) 120px); }
+  :root:not([data-look="cozy"]):not([data-theme="light"]) .btn.shell, :root:not([data-look="cozy"]):not([data-theme="light"]) .shells{ box-shadow:0 3px 0 #A97A12; } }
+:root[data-look="cozy"][data-theme="dark"] .card, :root[data-look="cozy"][data-theme="dark"] .task, :root[data-look="cozy"][data-theme="dark"] .gift, :root[data-look="cozy"][data-theme="dark"] .nbanner, :root[data-look="cozy"][data-theme="dark"] .island{ box-shadow:none; }
+:root:not([data-look="cozy"])[data-theme="dark"] .card, :root:not([data-look="cozy"])[data-theme="dark"] .gift, :root:not([data-look="cozy"])[data-theme="dark"] .nbanner{ box-shadow:none; border-color:var(--line); }
+:root:not([data-look="cozy"])[data-theme="dark"] .task{ box-shadow:none; background:linear-gradient(180deg, color-mix(in srgb, var(--sea) 40%, var(--surface)) 0, var(--surface) 120px); }
+:root:not([data-look="cozy"])[data-theme="dark"] .btn.shell, :root:not([data-look="cozy"])[data-theme="dark"] .shells{ box-shadow:0 3px 0 #A97A12; }
+/* ===== Low stimulation: no motion, no decoration, softer color. Every button and screen stays. ===== */
+:root.calm .card, :root.calm .task, :root.calm .gift, :root.calm .nbanner, :root.calm .island, :root.calm .btn, :root.calm .shells{ box-shadow:none!important; }
+:root.calm .task{ background:var(--surface)!important; border-width:2px; }
+:root.calm .island [data-critter], :root.calm .grid svg, :root.calm .sis-ava svg, :root.calm .island svg{ filter:saturate(.75)!important; }
+:root.calm .wave{ display:none; }
+:root.calm .progress i{ background:var(--moss)!important; }
+/* appearance picker */
+.looks{ display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:10px; }
+.look{ border:2px solid var(--field); background:var(--surface); border-radius:16px; padding:10px; display:flex; flex-direction:column; gap:8px; text-align:left; min-height:44px; }
+.look[aria-checked="true"]{ border-color:var(--ink); box-shadow:0 0 0 2px var(--ink) inset; }
+.look b{ font-family:var(--f-display); font-weight:600; font-size:17px; }
+.look span{ font-size:14px; color:var(--muted); }
+.look .dots{ display:flex; gap:4px; } .look .dots i{ width:18px; height:18px; border-radius:50%; border:1px solid rgba(0,0,0,.15); }
+.look[aria-checked="true"] b::after{ content:" ✓"; }
+.chip2{ border-color:var(--field); } .chip2[aria-checked="true"]{ border-color:var(--ink); }
 </style>
 
 <canvas id="confetti" aria-hidden="true"></canvas>
@@ -826,7 +877,8 @@ const CoreEngine = (() => {
         return { id, title, cat: oneOf(r.cat, CATS, "chores"), time: hhmm(r.time) || "09:00", freq: oneOf(r.freq, ["once", "daily", "weekdays", "days", "weekly", "custom"], "daily"),
           days: arr(r.days).filter(x => Number.isInteger(x) && x >= 0 && x <= 6), date: isDay(r.date) ? r.date : "", every: Math.round(num(r.every, 1, 60, 2)), start: isDay(r.start) ? r.start : "", on: r.on !== false, updated: num(r.updated, 0, 1e14, 0) }; }).filter(Boolean).slice(0, 100),
       log: (() => { const l = {}; Object.entries(obj(nf.log)).slice(-400).forEach(([k, v]) => { v = obj(v); l[str(k, 90)] = { firedAt: num(v.firedAt, 0, 1e14, 0), snoozeUntil: num(v.snoozeUntil, 0, 1e14, 0), done: v.done === true, skipped: v.skipped === true, at: num(v.at, 0, 1e14, 0) }; }); return l; })() };
-    ["sound", "calm", "big", "quick"].forEach(k => (o[k] = o[k] === undefined ? (k === "sound") : o[k] === true));
+    ["sound", "calm", "big", "quick", "still"].forEach(k => (o[k] = o[k] === undefined ? (k === "sound") : o[k] === true));
+    o.look = oneOf(o.look, ["playful", "cozy"], "playful"); o.mode = oneOf(o.mode, ["device", "light", "dark"], "device"); o.appearAt = num(o.appearAt, 0, 1e14, 0);
     o.nahAmt = num(o.nahAmt, 0, 1e7, 0);
     if (o.sis) {
       const si = obj(o.sis), b = obj(si.budget);
@@ -851,6 +903,8 @@ const CoreEngine = (() => {
     const pa = a.earned || 0, pb = b.earned || 0;
     const base = (pb > pa || (pb === pa && (b.at || 0) > (a.at || 0))) ? b : a, other = base === a ? b : a;
     const m = JSON.parse(JSON.stringify(base));
+    const look = (other.appearAt || 0) > (base.appearAt || 0) ? other : base;
+    ["look", "mode", "still", "calm", "big", "appearAt"].forEach(k => { if (look[k] !== undefined) m[k] = look[k]; });
     m.crew = {}; [...new Set([...Object.keys(a.crew || {}), ...Object.keys(b.crew || {})])].sort().forEach(id => {
       const x = (a.crew || {})[id], y = (b.crew || {})[id];
       m.crew[id] = x && y ? { found: Math.min(x.found || y.found || 0, y.found || x.found || 0), friend: Math.max(x.friend || 1, y.friend || 1) } : JSON.parse(JSON.stringify(x || y));
@@ -2172,7 +2226,33 @@ $("#bragBtn").onclick = async () => {
 window.__makeShareImage = makeShareImage;
 
 /* ================= settings ================= */
-function applyPrefs() { document.documentElement.classList.toggle("calm", !!S.calm); document.documentElement.classList.toggle("big", !!S.big); }
+function applyPrefs() {
+  const r = document.documentElement;
+  r.classList.toggle("calm", !!S.calm); r.classList.toggle("still", !!S.still); r.classList.toggle("big", !!S.big);
+  r.setAttribute("data-look", S.look === "cozy" ? "cozy" : "playful");
+  if (S.mode === "light" || S.mode === "dark") r.setAttribute("data-theme", S.mode); else r.removeAttribute("data-theme");
+  try { const m = document.querySelector('meta[name="theme-color"]'); if (m) m.content = getComputedStyle(r).getPropertyValue("--bg").trim() || m.content; } catch (e) {}
+}
+const motionOff = () => !!(S.calm || S.still) || matchMedia("(prefers-reduced-motion: reduce)").matches;
+const LOOKS = [["playful", "Playful Cove 🌈", "Brighter colors, game-style buttons.", ["#5CC6CC", "#6FC277", "#FF8E6E", "#FFC93E"]], ["cozy", "Cozy Cove 🌿", "Softer sea-glass colors. Calm.", ["#9CCBC4", "#8DB078", "#E39A82", "#F2CB8A"]]];
+function appearanceSheet() {
+  const sw = (k, label, hint) => `<div class="switch"><div class="grow"><b id="lb-a-${k}">${label}</b><div class="small muted">${hint}</div></div><button class="tog" role="switch" data-ak="${k}" aria-checked="${!!S[k]}" aria-labelledby="lb-a-${k}"></button></div>`;
+  openSheet(`<div class="label">Settings → Appearance</div><h2>How Critter Cove looks</h2><p class="small muted">Changes show right away and save automatically.</p>
+    <div class="field"><span class="flabel" id="lb-look">Theme</span><div class="looks" role="radiogroup" aria-labelledby="lb-look">${LOOKS.map(([k, n, h, c]) => `<button class="look" role="radio" data-look="${k}" aria-checked="${S.look === k}"><b>${n}</b><span>${h}</span><span class="dots" aria-hidden="true">${c.map(x => `<i style="background:${x}"></i>`).join("")}</span></button>`).join("")}</div></div>
+    <div class="field"><span class="flabel" id="lb-mode">Light or dark</span><div class="chips2" role="radiogroup" aria-labelledby="lb-mode">${[["device", "Follow my device"], ["light", "Light"], ["dark", "Dark"]].map(([k, l]) => `<button class="chip2" role="radio" data-mode="${k}" aria-checked="${S.mode === k}">${l}</button>`).join("")}</div></div>
+    <div>
+      ${sw("calm", "Low stimulation", "Softer colors, no shadows, no confetti, no moving critters or waves, no sounds. Every button still works.")}
+      ${sw("still", "Reduce animations", "Stops movement but keeps the colors. Your phone's reduce-motion setting is always respected too.")}
+      ${sw("big", "Bigger text", "Makes all text larger.")}
+    </div>
+    <button class="btn main block" id="aDone">Done</button>`, el => {
+    const stamp = () => { S.appearAt = Date.now(); save(); applyPrefs(); renderIsland(); };
+    const radios = (sel, key) => el.querySelectorAll(sel).forEach(b => (b.onclick = () => { S[key] = b.dataset[key]; el.querySelectorAll(sel).forEach(x => x.setAttribute("aria-checked", x === b)); stamp(); }));
+    radios("[data-look]", "look"); radios("[data-mode]", "mode");
+    el.querySelectorAll("[data-ak]").forEach(t => (t.onclick = () => { const k = t.dataset.ak; S[k] = !S[k]; t.setAttribute("aria-checked", S[k]); stamp(); }));
+    el.querySelector("#aDone").onclick = closeSheet;
+  }, { label: "Appearance" });
+}
 function saveFile(name, blob) {
   if (downloads) return downloads.save({ filename: name, data: blob }).then(() => true, e => { if (e && e.code === "declined") return false; throw e; });
   return new Promise((res, rej) => { try { const u = URL.createObjectURL(blob), a = document.createElement("a"); a.href = u; a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(u), 4000); res(true); } catch (e) { rej(e); } });
@@ -2182,13 +2262,12 @@ $("#gearBtn").onclick = settingsSheet;
 function settingsSheet() {
   const where = syncState === "account" ? "Saving to your Claude account, so it follows you to other devices." : syncState === "error" ? "Saving on this device. Your Claude account couldn't be reached just now." : "Saving on this device only. Download a backup now and then so you never lose progress.";
   openSheet(`<div class="label">Settings</div>
-  <div class="btns"><button class="btn shell" id="sTasks">My tasks and routines</button><button class="btn shell" id="sNotif">Notifications</button></div>
+  <div class="btns"><button class="btn shell" id="sTasks">My tasks and routines</button><button class="btn shell" id="sNotif">Notifications</button><button class="btn shell" id="sAppear">Appearance</button></div>
+  <p class="small muted">Theme, light or dark, low stimulation, reduced animations and bigger text are under Appearance.</p>
   <div class="field"><label for="sName">Your name (for news and the share card)</label><input id="sName" value="${esc(S.name)}" maxlength="20"></div>
   <div>
     <div class="switch"><div class="grow"><b id="lb-sound">Sounds</b><div class="small muted">Soft plinks when you finish.</div></div><button class="tog" role="switch" data-k="sound" aria-checked="${S.sound}" aria-labelledby="lb-sound"></button></div>
-    <div class="switch"><div class="grow"><b id="lb-calm">Low stimulation</b><div class="small muted">No confetti, no moving critters, no waves.</div></div><button class="tog" role="switch" data-k="calm" aria-checked="${S.calm}" aria-labelledby="lb-calm"></button></div>
     <div class="switch"><div class="grow"><b id="lb-quick">Skip reward pop-ups</b><div class="small muted">After a task, show a small note instead of a full screen.</div></div><button class="tog" role="switch" data-k="quick" aria-checked="${S.quick}" aria-labelledby="lb-quick"></button></div>
-    <div class="switch"><div class="grow"><b id="lb-big">Bigger text</b></div><button class="tog" role="switch" data-k="big" aria-checked="${S.big}" aria-labelledby="lb-big"></button></div>
   </div>
   <div class="sec"><h3>Backup</h3><p class="small muted">${where}</p>
     <div class="btns"><button class="btn" id="sExport">Download backup</button><button class="btn" id="sImport">Restore from backup</button></div>
@@ -2202,6 +2281,7 @@ function settingsSheet() {
     el.querySelector("#sSave").onclick = () => { S.name = el.querySelector("#sName").value.trim().slice(0, 20); save(); closeSheet(); renderAll(); };
     el.querySelector("#sTasks").onclick = () => tasksSheet();
     el.querySelector("#sNotif").onclick = () => notifSheet();
+    el.querySelector("#sAppear").onclick = () => appearanceSheet();
     el.querySelector("#sExport").onclick = async () => {
       const blob = new Blob([CoreEngine.makeBackup(S, Date.now())], { type: "application/json" });
       try { if (await saveFile("critter-cove-backup-" + today() + ".json", blob)) toast("Backup saved."); } catch (e) { toast("Couldn't save the backup here. Try again from a browser."); }
@@ -2300,10 +2380,10 @@ function taskEditSheet(task) {
 
 /* ================= fx ================= */
 let actx = null;
-function ding(big) { if (!S.sound) return; try { actx = actx || new (window.AudioContext || window.webkitAudioContext)(); (big ? [523, 659, 784, 1047] : [659, 880]).forEach((f, i) => { const o = actx.createOscillator(), g = actx.createGain(), t = actx.currentTime + i * .11; o.type = "sine"; o.frequency.value = f; g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(.12, t + .02); g.gain.exponentialRampToValueAtTime(.0001, t + .5); o.connect(g).connect(actx.destination); o.start(t); o.stop(t + .52); }); } catch (e) {} }
+function ding(big) { if (!S.sound || S.calm) return; try { actx = actx || new (window.AudioContext || window.webkitAudioContext)(); (big ? [523, 659, 784, 1047] : [659, 880]).forEach((f, i) => { const o = actx.createOscillator(), g = actx.createGain(), t = actx.currentTime + i * .11; o.type = "sine"; o.frequency.value = f; g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(.12, t + .02); g.gain.exponentialRampToValueAtTime(.0001, t + .5); o.connect(g).connect(actx.destination); o.start(t); o.stop(t + .52); }); } catch (e) {} }
 const cvf = $("#confetti"), cx = cvf.getContext("2d"); let parts = [], raf = 0;
 function confetti(n = 60) {
-  if (S.calm || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  if (motionOff()) return;
   const r = devicePixelRatio; cvf.width = innerWidth * r; cvf.height = innerHeight * r;
   const cols = ["#F1C886", "#86A872", "#DF8E78", "#8FC0BC", "#FBFAF5"];
   for (let i = 0; i < n; i++) parts.push({ x: cvf.width / 2 + (Math.random() - .5) * 80 * r, y: cvf.height * .5, vx: (Math.random() - .5) * 12 * r, vy: (-Math.random() * 12 - 4) * r, s: (Math.random() * 4 + 3) * r, c: pick(cols), life: 0 });
