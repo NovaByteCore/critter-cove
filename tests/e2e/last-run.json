@@ -1,0 +1,184 @@
+{
+ "when": "2026-10-27T21:14:18.864Z",
+ "url": "file:///home/claude/critter-cove/index.html",
+ "pass": 44,
+ "total": 44,
+ "results": [
+  {
+   "name": "first visit: welcome, then completing a task pays shells, opens a chest and finds a critter",
+   "pass": true
+  },
+  {
+   "name": "double tap on Done counts once",
+   "pass": true
+  },
+  {
+   "name": "double tap counts once even with reward pop-ups turned off",
+   "pass": true
+  },
+  {
+   "name": "Not this one, Smaller please and back again",
+   "pass": true
+  },
+  {
+   "name": "Later hides a task for two hours with no penalty",
+   "pass": true
+  },
+  {
+   "name": "30-second start: hide, resume card survives reload, finish via resume",
+   "pass": true
+  },
+  {
+   "name": "timer: pause, resume, restart and end session work, and stay accurate",
+   "pass": true
+  },
+  {
+   "name": "timer: screen lock or sleeping tab doesn't make it drift",
+   "pass": true
+  },
+  {
+   "name": "timer end choices: five more minutes, take a break, back to it, switch tasks",
+   "pass": true
+  },
+  {
+   "name": "timer: custom length and saving it as the default",
+   "pass": true
+  },
+  {
+   "name": "timer: double tap on I'm Done gives one reward",
+   "pass": true
+  },
+  {
+   "name": "I'm overwhelmed: rescue picks one tiny thing; rest mode; ready again",
+   "pass": true
+  },
+  {
+   "name": "three daily chests open at 1, 3 and 5; the fifth guarantees a critter",
+   "pass": true
+  },
+  {
+   "name": "Skip reward pop-ups shows a small note instead",
+   "pass": true
+  },
+  {
+   "name": "opening a zone spends shells and tells its story",
+   "pass": true
+  },
+  {
+   "name": "progress survives a reload",
+   "pass": true
+  },
+  {
+   "name": "old saves load: version 3 parked items become cooldowns, nothing lost",
+   "pass": true
+  },
+  {
+   "name": "Big Sis: needs a budget, then red, jail, green, bought; spent and avoided add up",
+   "pass": true
+  },
+  {
+   "name": "Big Sis rejects bad input with a message",
+   "pass": true
+  },
+  {
+   "name": "cooldown: decide after it expires; Nah counts as avoided once",
+   "pass": true
+  },
+  {
+   "name": "But Hear Me Out: new facts can change it, insisting can't",
+   "pass": true
+  },
+  {
+   "name": "budget cycles: monthly reset keeps history and logs the old period",
+   "pass": true
+  },
+  {
+   "name": "history: edit price and delete; deletion sticks after reload",
+   "pass": true
+  },
+  {
+   "name": "my tasks: add, edit, delete; important tasks come first",
+   "pass": true
+  },
+  {
+   "name": "backup: download, change things, restore, then undo the restore",
+   "pass": true
+  },
+  {
+   "name": "backup: a damaged or wrong file is refused and nothing changes",
+   "pass": true
+  },
+  {
+   "name": "security: tampered saved data can't run code",
+   "pass": true
+  },
+  {
+   "name": "sync: account progress is merged, never overwritten by an older device",
+   "pass": true
+  },
+  {
+   "name": "onboarding: reminders can be picked or skipped, and skipping never nags again",
+   "pass": true
+  },
+  {
+   "name": "existing users see the new reminders card once",
+   "pass": true
+  },
+  {
+   "name": "every notification setting can be changed later and survives reload",
+   "pass": true
+  },
+  {
+   "name": "reminders show at their time, snooze brings them back, quiet hours hold them",
+   "pass": true
+  },
+  {
+   "name": "missed reminders: shown later when allowed, skipped when not",
+   "pass": true
+  },
+  {
+   "name": "all notifications off: the cleaning timer still works fully",
+   "pass": true
+  },
+  {
+   "name": "browser notification permission is asked only when the user chooses, and never re-asked after no",
+   "pass": true
+  },
+  {
+   "name": "existing progress is untouched by the new settings",
+   "pass": true
+  },
+  {
+   "name": "accessibility: pop-ups are named, hold focus, close with Escape and return focus",
+   "pass": true
+  },
+  {
+   "name": "accessibility: map critters work with the keyboard; rare label readable",
+   "pass": true
+  },
+  {
+   "name": "reduced motion and low stimulation turn animations off",
+   "pass": true
+  },
+  {
+   "name": "layout at 320px: tabs switch, nothing scrolls sideways, sheets fit",
+   "pass": true
+  },
+  {
+   "name": "layout at 390px: tabs switch, nothing scrolls sideways, sheets fit",
+   "pass": true
+  },
+  {
+   "name": "layout at 412px: tabs switch, nothing scrolls sideways, sheets fit",
+   "pass": true
+  },
+  {
+   "name": "layout at 768px: tabs switch, nothing scrolls sideways, sheets fit",
+   "pass": true
+  },
+  {
+   "name": "layout at 1280px: tabs switch, nothing scrolls sideways, sheets fit",
+   "pass": true
+  }
+ ]
+}

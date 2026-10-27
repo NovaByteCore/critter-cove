@@ -1,0 +1,132 @@
+{
+ "viewports": {
+  "320": {
+   "island": {
+    "overflowX": false,
+    "scrollW": 320,
+    "w": 320
+   },
+   "critters": {
+    "overflowX": false,
+    "scrollW": 320,
+    "w": 320
+   },
+   "money": {
+    "overflowX": false,
+    "scrollW": 320,
+    "w": 320
+   },
+   "errors": []
+  },
+  "390": {
+   "island": {
+    "overflowX": false,
+    "scrollW": 390,
+    "w": 390
+   },
+   "critters": {
+    "overflowX": false,
+    "scrollW": 390,
+    "w": 390
+   },
+   "money": {
+    "overflowX": false,
+    "scrollW": 390,
+    "w": 390
+   },
+   "errors": []
+  },
+  "768": {
+   "island": {
+    "overflowX": false,
+    "scrollW": 768,
+    "w": 768
+   },
+   "critters": {
+    "overflowX": false,
+    "scrollW": 768,
+    "w": 768
+   },
+   "money": {
+    "overflowX": false,
+    "scrollW": 768,
+    "w": 768
+   },
+   "errors": []
+  },
+  "1280": {
+   "island": {
+    "overflowX": false,
+    "scrollW": 1280,
+    "w": 1280
+   },
+   "critters": {
+    "overflowX": false,
+    "scrollW": 1280,
+    "w": 1280
+   },
+   "money": {
+    "overflowX": false,
+    "scrollW": 1280,
+    "w": 1280
+   },
+   "errors": []
+  }
+ },
+ "clockGift": "Your crew is out foraging",
+ "stateBytes300": 238206,
+ "historyCap": {
+  "before": 300,
+  "after": 300,
+  "firstIdNow": "h1",
+  "avoidedBefore": "$3000",
+  "avoidedAfter": "$2990"
+ },
+ "xssFromStoredData": true,
+ "modalFocus": {
+  "tabsThatLeftTheDialog": 16,
+  "of": 25,
+  "focusAfterClose": "BUTTON#smallBtn",
+  "dialogLabelled": true
+ },
+ "syncRace": {
+  "accountHad": {
+   "shells": 999,
+   "earned": 5000,
+   "tasks": 300
+  },
+  "writesToAccount": [
+   {
+    "shells": 30,
+    "earned": 70,
+    "tasks": 4
+   },
+   {
+    "shells": 30,
+    "earned": 70,
+    "tasks": 4
+   }
+  ],
+  "shownShells": "30"
+ },
+ "doubleTapTasks": 21,
+ "targets": {
+  "island": {
+   "count": 10,
+   "small": [],
+   "unlabeled": []
+  },
+  "critters": {
+   "count": 12,
+   "small": [],
+   "unlabeled": []
+  },
+  "money": {
+   "count": 19,
+   "small": [],
+   "unlabeled": []
+  }
+ },
+ "mapCritterTarget": "26x26 keyboard-focusable:false",
+ "reducedMotion": "none"
+}
