@@ -107,10 +107,26 @@ main .wrap{ padding-block:4px 110px; }
 .gift b{ font-family:var(--f-display); font-weight:600; font-size:18px; display:block; }
 .gift[disabled]{ cursor:default; }
 
+/* task start + rescue + resume */
+.starts{ display:flex; flex-direction:column; gap:6px; }
+.startrow{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+.startrow .wide{ grid-column:1 / -1; }
+.btn.sm{ min-height:44px; font-size:15px; padding:8px 10px; border-radius:12px; }
+.task .sub{ justify-content:flex-start; gap:2px 14px; }
+.resume{ flex-direction:row; align-items:center; flex-wrap:wrap; border:2px solid var(--shell); }
+.resume .grow{ flex:1; min-width:180px; }
+.rbtns{ display:flex; gap:8px; }
+.rescue{ display:flex; flex-direction:column; gap:8px; }
+.rbtn{ text-align:left; border:2px solid var(--line); background:var(--surface); border-radius:16px; padding:12px 14px; display:flex; flex-direction:column; gap:2px; min-height:56px; }
+.rbtn b{ font-family:var(--f-display); font-weight:600; font-size:17px; }
+.rbtn span{ color:var(--muted); font-size:14px; }
+details.adv{ border-top:1px solid var(--line); padding-top:8px; }
+details.adv summary{ cursor:pointer; font-weight:700; min-height:44px; display:flex; align-items:center; }
+.island [data-critter]:focus-visible{ outline:3px solid var(--ink); }
 /* big sis check */
-:root{ --bad:#A9442E; --good:#3E6B2E; }
-@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --bad:#F2A08C; --good:#A9D493; } }
-:root[data-theme="dark"]{ --bad:#F2A08C; --good:#A9D493; }
+:root{ --bad:#A9442E; --good:#3E6B2E; --rare:#2B6764; }
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --bad:#F2A08C; --good:#A9D493; --rare:#8FCFCB; } }
+:root[data-theme="dark"]{ --bad:#F2A08C; --good:#A9D493; --rare:#8FCFCB; }
 .sis-head{ display:flex; gap:12px; align-items:center; }
 .sis-head .grow{ flex:1; min-width:0; }
 .sis-head h2{ font-size:24px; }
@@ -125,7 +141,9 @@ main .wrap{ padding-block:4px 110px; }
 .chips2{ display:flex; gap:8px; flex-wrap:wrap; }
 .chip2{ border:2px solid var(--line); background:var(--surface); border-radius:99px; padding:8px 14px; font-weight:700; min-height:44px; }
 .chip2[aria-checked="true"]{ background:var(--ink); color:var(--bg); border-color:var(--ink); }
-.stats{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.stats3{ display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:10px; }
+.stats3 .stat{ padding:12px; }
+.stats3 .stat b{ font-size:22px; }
 .stat{ gap:4px; }
 .stat b{ font-family:var(--f-display); font-size:26px; display:block; font-variant-numeric:tabular-nums; }
 .verdict{ border-radius:16px; padding:12px 14px; font-family:var(--f-display); font-weight:700; font-size:20px; text-align:center; color:var(--on-fill); }
@@ -187,7 +205,7 @@ main .wrap{ padding-block:4px 110px; }
 .cc b{ font-family:var(--f-display); font-weight:600; font-size:14px; line-height:1.15; overflow-wrap:anywhere; }
 .cc span{ font-size:11px; color:var(--muted); }
 .rar{ font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); }
-.rar.rare{ color:var(--sea-dk); } .rar.legendary{ color:var(--coral); }
+.rar.rare{ color:var(--rare); } .rar.legendary{ color:var(--coral); }
 .progress{ height:12px; background:var(--sunk); border-radius:99px; overflow:hidden; }
 .progress i{ display:block; height:100%; background:var(--moss); border-radius:99px; transition:width .5s; }
 .zones{ display:flex; flex-direction:column; gap:8px; }
@@ -265,12 +283,16 @@ nav.tabs button[aria-current="page"] svg{ background:var(--shell); border-radius
   <div class="island" id="island"><div id="map"></div><div id="bubbleHost"></div></div>
   <div class="next-zone" id="nextZone"></div>
 
+  <div class="card resume" id="resume" hidden></div>
   <div class="task" id="task">
     <div class="row"><div class="label grow" id="taskWhen">Next tiny thing</div><div id="taskMeta"></div></div>
     <h2 id="taskText">Loading…</h2>
     <button class="btn main huge block" id="doneBtn">Done</button>
-    <div class="sub"><button class="link" id="skipBtn">Not this one</button><button class="link" id="smallBtn">Smaller, please</button><button class="link" id="timerBtn">5‑min timer</button></div>
-    <div class="ladder" id="ladder" aria-label="Today's goals"></div>
+    <button class="btn main huge block" id="readyBtn" hidden>I'm ready</button>
+    <button class="btn shell block" id="addTaskBtn" hidden>Add my own tasks</button>
+    <div class="starts" id="starts"><span class="small muted" id="startsLbl">Hard to start? Just start for:</span><div class="startrow" role="group" aria-labelledby="startsLbl"><button class="btn sm" data-secs="30">30 sec</button><button class="btn sm" data-secs="120">2 min</button><button class="btn sm" data-secs="300">5 min</button><button class="btn sm wide" data-secs="full" id="fullBtn">Whole thing</button></div></div>
+    <div class="sub" id="taskLinks"><button class="link" id="skipBtn">Not this one</button><button class="link" id="smallBtn">Smaller, please</button><button class="link" id="laterBtn">Later</button><button class="link" id="overBtn">I'm overwhelmed</button></div>
+    <div class="ladder" id="ladder" role="group" aria-label="Today's goal chests"></div>
     <div class="goaltext" id="goalText"></div>
   </div>
 
@@ -308,14 +330,15 @@ nav.tabs button[aria-current="page"] svg{ background:var(--shell); border-radius
     <div class="field" id="linkField" hidden><label for="buyLink">Product link</label><input id="buyLink" inputmode="url" placeholder="https://" autocomplete="off"></div>
     <button class="btn coral huge block" id="checkBtn">Should I Buy This? 👀</button>
   </div>
-  <div class="stats">
-    <div class="card stat"><b id="avoidAmt">$0</b><span class="small muted">avoided spending. Not savings, just money you didn't spend.</span></div>
-    <div class="card stat"><b id="jailCount">0</b><span class="small muted">in Wishlist Jail</span></div>
+  <div class="stats3">
+    <div class="card stat"><b id="spentAmt">$0</b><span class="small muted" id="spentLbl">actually spent this week</span></div>
+    <div class="card stat"><b id="plannedAmt">$0</b><span class="small muted">planned (cooling off)</span></div>
+    <div class="card stat"><b id="avoidAmt">$0</b><span class="small muted">avoided. Not savings, just money you didn't spend.</span></div>
   </div>
   <div class="card" id="coolCard"><div class="label">Cooling off</div><div id="cooldowns"></div></div>
-  <div class="card" id="jailCard"><div class="label">Wishlist Jail</div><p class="small muted">Congratulations. We successfully stopped you from acting brand new today.</p><div id="jail"></div></div>
+  <div class="card" id="jailCard"><div class="label">Wishlist Jail · <span id="jailCount">0</span></div><p class="small muted">Congratulations. We successfully stopped you from acting brand new today.</p><div id="jail"></div></div>
   <div class="card" id="patternCard"><div class="label">Your spending patterns</div><div id="patterns" class="plist"></div></div>
-  <div class="card"><div class="label">Purchase history</div><div id="history"></div></div>
+  <div class="card"><div class="label">Purchase history</div><div id="history"></div><div id="periods"></div></div>
   <div class="card">
     <div class="label">No‑spend days this week</div>
     <div class="week" id="nsWeek"></div>
@@ -487,11 +510,11 @@ const SisEngine = (() => {
 
   /* All the money math. Money in the account is never treated as spendable on its own:
      available = weekly plan minus what's spent, capped by (balance - unpaid bills) when a balance is given. */
-  function numbers(b, price, now) {
-    b = b || {};
+  function numbers(b, price, now, extra) {
+    b = b || {}; extra = Math.max(0, +extra || 0);
     const weekly = num(b.weekly), spent = num(b.spent) || 0, balance = num(b.balance), bills = num(b.bills) || 0, savings = num(b.savings) || 0;
     const missing = weekly === null ? ["weekly"] : [];
-    const remaining = weekly === null ? null : r2(weekly - spent);
+    const remaining = weekly === null ? null : r2(weekly - spent + extra);
     const billsRoom = balance === null ? null : r2(balance - bills);
     const savingsRoom = balance === null ? null : r2(balance - bills - savings);
     let available = remaining;
@@ -503,7 +526,7 @@ const SisEngine = (() => {
     const billsUnknown = balance === null && bills > 0;
     let daysToPayday = null;
     if (b.payday) { const p = new Date(b.payday + "T00:00:00"); if (!isNaN(p)) { const t = new Date(now); t.setHours(0, 0, 0, 0); const d = Math.round((p - t) / D); daysToPayday = d >= 0 ? d : null; } }
-    return { weekly, spent, remaining, balance, bills, savings, billsRoom, savingsRoom, available, price, after, pct, hitsBills, hitsSavings, billsUnknown, daysToPayday, missing };
+    return { weekly, spent, remaining, balance, bills, savings, billsRoom, savingsRoom, available, price, after, pct, hitsBills, hitsSavings, billsUnknown, daysToPayday, missing, extra };
   }
 
   /* The verdict comes only from numbers and rules, never from the personality. */
@@ -541,7 +564,7 @@ const SisEngine = (() => {
 
   function nextMove(input, n, d) {
     const need = input.kind === "need";
-    if (d.verdict === "needinfo") return "Add your weekly spending money so I can actually run the numbers.";
+    if (d.verdict === "needinfo") return "Add your spending money so I can actually run the numbers.";
     if (d.reasons.includes("bills")) return need ? "Cover your bills first, then get only the part you truly need, or the cheapest version." : "Pay your upcoming bills first. Look at this again after payday" + (n.daysToPayday ? " (" + n.daysToPayday + " day" + (n.daysToPayday === 1 ? "" : "s") + ")." : ".");
     if (d.verdict === "red") {
       if (need) return "Get the cheapest version that does the job, or only what you need right now.";
@@ -559,10 +582,11 @@ const SisEngine = (() => {
 
   function reality(input, n, d) {
     const s = [];
-    if (d.verdict === "needinfo") return ["I can't check this yet because I don't know how much you have to spend this week.", "Tap Edit budget and add your weekly spending money. I won't guess."];
+    if (d.verdict === "needinfo") return ["I can't check this yet because I don't know how much you have to spend.", "Tap Edit budget and add your spending money. I won't guess."];
     const avail = Math.max(0, n.available);
     if (n.price > n.available) s.push("It costs " + fmt(n.price) + " and you have " + fmt(avail) + " available, so you'd be " + fmt(n.price - avail) + " short.");
     else s.push("This uses " + (n.pct < 1 ? "less than 1" : Math.round(n.pct)) + "% of your " + fmt(n.available) + " available and leaves " + fmt(n.after) + ".");
+    if (n.extra > 0 && s.length < 4) s.push("That counts the " + fmt(n.extra) + " you set aside just for this.");
     if (n.hitsBills) s.push("It would dip into the " + fmt(n.bills) + " you need for bills before payday.");
     else if (n.billsUnknown) s.push("You have " + fmt(n.bills) + " in bills coming and I don't know your account balance, so I can't confirm they're covered.");
     if (n.hitsSavings) s.push("It would cut into the " + fmt(n.savings) + " you planned to save.");
@@ -585,6 +609,38 @@ const SisEngine = (() => {
     if (want !== have) { b.spent = r2(Math.max(0, (num(b.spent) || 0) + want - have)); r.counted = want; r.countedWeek = want ? wk : null; }
     return { rec: r, budget: b };
   }
+  /* Budget periods: weekly, every 2 weeks, monthly, or every N days, counted from the user's reset date. */
+  const dayStr = x => x.getFullYear() + "-" + String(x.getMonth() + 1).padStart(2, "0") + "-" + String(x.getDate()).padStart(2, "0");
+  function periodInfo(b, now) {
+    b = b || {};
+    const cycle = ["weekly", "biweekly", "monthly", "custom"].includes(b.cycle) ? b.cycle : "weekly";
+    const t0 = new Date(now); t0.setHours(0, 0, 0, 0);
+    let anchor = b.anchor ? new Date(b.anchor + "T00:00:00") : null;
+    if (!anchor || isNaN(anchor)) { anchor = new Date(t0); anchor.setDate(anchor.getDate() - ((anchor.getDay() + 6) % 7)); }
+    let start, end;
+    if (cycle === "monthly") {
+      const dom = anchor.getDate(), at = (y, m) => new Date(y, m, Math.min(dom, new Date(y, m + 1, 0).getDate()));
+      start = at(t0.getFullYear(), t0.getMonth()); if (start > t0) start = at(t0.getFullYear(), t0.getMonth() - 1);
+      end = at(start.getFullYear(), start.getMonth() + 1);
+    } else {
+      const len = cycle === "weekly" ? 7 : cycle === "biweekly" ? 14 : Math.min(90, Math.max(1, Math.round(b.customDays || 10)));
+      const k = Math.floor(Math.round((t0 - anchor) / D) / len);
+      start = new Date(anchor); start.setDate(anchor.getDate() + k * len); end = new Date(start); end.setDate(start.getDate() + len);
+    }
+    const last = new Date(end); last.setDate(end.getDate() - 1);
+    return { cycle, key: dayStr(start), start: +start, end: +end, lastDay: dayStr(last), daysLeft: Math.round((end - t0) / D) };
+  }
+  function periodLabel(b) { const c = (b || {}).cycle; return c === "biweekly" ? "these 2 weeks" : c === "monthly" ? "this month" : c === "custom" ? "these " + Math.round((b.customDays || 10)) + " days" : "this week"; }
+  /* Starting a new period saves the old one's total and resets "already spent". Purchases are never touched. */
+  function rollPeriod(budget, now) {
+    const b = Object.assign({}, budget), info = periodInfo(b, now);
+    let closed = null;
+    if (b.period !== info.key) {
+      if (b.period) { const prev = new Date(info.start); prev.setDate(prev.getDate() - 1); closed = { start: b.period, end: dayStr(prev), spent: num(b.spent) || 0, amount: num(b.weekly), cycle: info.cycle }; b.spent = 0; }
+      b.period = info.key;
+    }
+    return { budget: b, closed, info };
+  }
   function rollWeek(budget, wk) { const b = Object.assign({}, budget); if (b.week !== wk) { if (b.week) b.spent = 0; b.week = wk; } return b; }
 
   function patterns(history, now) {
@@ -602,7 +658,7 @@ const SisEngine = (() => {
     return out.slice(0, 3);
   }
 
-  const DEFAULT_SIS = () => ({ name: "Big Sis", persona: "bigsis", custom: "", intensity: 2, budget: { weekly: null, spent: 0, balance: null, bills: null, savings: null, payday: "", emergency: null, week: null, updated: 0 }, history: [], rules: {} });
+  const DEFAULT_SIS = () => ({ name: "Big Sis", persona: "bigsis", custom: "", intensity: 2, budget: { weekly: null, spent: 0, balance: null, bills: null, savings: null, payday: "", emergency: null, cycle: "weekly", anchor: "", customDays: 10, period: null, week: null, updated: 0, changed: 0 }, history: [], deleted: [], periods: [], rules: {} });
   /* Upgrades older saves without losing anything. */
   function migrate(state, now) {
     const s = Object.assign({}, state);
@@ -619,19 +675,250 @@ const SisEngine = (() => {
     return s;
   }
 
-  return { RULES, COOLDOWNS, r2, num, fmt, norm, parsePrice, weekKey, numbers, decide, label, nextMove, reality, avoided, reconcile, rollWeek, patterns, migrate, DEFAULT_SIS };
+  return { RULES, COOLDOWNS, r2, num, fmt, norm, parsePrice, weekKey, numbers, decide, label, nextMove, reality, avoided, reconcile, rollWeek, periodInfo, periodLabel, rollPeriod, patterns, migrate, DEFAULT_SIS };
 })();
 /* ===ENGINE END=== */
 
+/* ===CORE START=== Critter Cove core engine: task queue, rewards, save validation, merging and backups.
+   Pure functions only: no DOM, no app state. Tested in tests/core.test.mjs */
+const CoreEngine = (() => {
+  const H = 36e5, M = 6e4, FORMAT = 1;
+  const phaseOf = h => (h >= 5 && h < 11) ? "morning" : (h >= 19 || h < 3) ? "night" : "day";
+
+  /* ---------- tasks ---------- */
+  function isDue(task, now) {
+    if (!task || task.paused) return false;
+    const day = new Date(now).getDay();
+    if (task.repeat === "once") return !task.completedAt;
+    if (task.repeat === "weekdays") return day >= 1 && day <= 5;
+    if (task.repeat === "weekly") return Array.isArray(task.days) && task.days.includes(day);
+    return true; // daily
+  }
+  const fitsPhase = (task, ph) => !task.when || task.when === "any" || task.when === ph;
+  /* Order: important custom tasks, the routine for this time of day, other custom tasks, today's room, anywhere tasks.
+     Skipped-for-later tasks (snooze) and tasks done today are left out. */
+  function buildQueue(o) {
+    const now = o.now, ph = phaseOf(new Date(now).getHours()), done = o.done || [], snooze = o.snooze || {}, sug = o.suggest || {}, rooms = sug.rooms || {};
+    const ok = x => !done.includes(x.key) && !((snooze[x.key] || 0) > now);
+    const custom = (o.custom || []).filter(t => isDue(t, now) && fitsPhase(t, ph))
+      .map(t => ({ key: "c:" + t.id, t: t.text, where: t.cat || "My task", mins: t.mins || 5, custom: t.id, high: t.priority === "high" })).filter(ok);
+    let routine = [];
+    if (ph === "morning" && sug.morning !== false) routine = o.MORNING.map(t => ({ key: t, t, where: "Morning reset", mins: 2 }));
+    if (ph === "night" && sug.night !== false) routine = o.NIGHT.map(t => ({ key: t, t, where: "Night reset", mins: 3 }));
+    const start = (new Date(now).getDay() + 6) % 7; let room = null;
+    for (let i = 0; i < o.ROOM_ORDER.length; i++) { const r = o.ROOM_ORDER[(start + i) % o.ROOM_ORDER.length]; if (r !== "Anywhere" && rooms[r] !== false) { room = r; break; } }
+    const roomList = room ? o.ROOMS[room].map(t => ({ key: t, t, where: room, mins: 5 })) : [];
+    const any = rooms.Anywhere !== false ? o.ROOMS.Anywhere.map(t => ({ key: t, t, where: "Anywhere", mins: 3 })) : [];
+    return custom.filter(x => x.high).concat(routine.filter(ok), custom.filter(x => !x.high), roomList.filter(ok), any.filter(ok));
+  }
+
+  /* ---------- rewards ---------- */
+  function chainFor(now, runAt, run) { const gap = now - (runAt || 0); return gap >= 0 && gap < 12 * M ? Math.min(5, (run || 0) + 1) : 1; }
+  function gainFor(o) { return (o.micro ? 5 + Math.floor(o.roll * 3) : 8 + Math.floor(o.roll * 5)) + (o.viaTimer ? 4 : 0) + (o.chain - 1) * 3; }
+  function chestFor(doneCount, claimed, goals) {
+    const c = (claimed || []).slice(); let chest = null;
+    goals.forEach(([need, bonus], i) => { if (doneCount >= need && !c.includes(i)) { chest = { need, bonus, i }; c.push(i); } });
+    return { chest, claimed: c };
+  }
+  function giftFor(now, lastCollect, crewCount) { if (!crewCount || !lastCollect || lastCollect > now) return 0; return Math.floor(Math.min(12, (now - lastCollect) / H) * Math.min(crewCount, 20) * .6); }
+  /* A phone clock that was set back must not freeze gifts or create endless combo bonuses. */
+  function clampClock(s, now) {
+    const x = Object.assign({}, s);
+    if ((x.lastCollect || 0) > now) x.lastCollect = now;
+    if ((x.runAt || 0) > now) { x.runAt = 0; x.run = 0; }
+    if ((x.lastVisit || 0) > now) x.lastVisit = now;
+    return x;
+  }
+
+  /* ---------- validation: every save, sync and backup passes through here ---------- */
+  const str = (v, n) => (typeof v === "string" ? v : (v === null || v === undefined) ? "" : String(v)).slice(0, n);
+  const num = (v, lo, hi, d) => { const x = typeof v === "number" ? v : (typeof v === "string" && v.trim() !== "" ? Number(v) : NaN); return isFinite(x) ? Math.min(hi, Math.max(lo, x)) : d; };
+  const numOrNull = (v, lo, hi) => (v === null || v === undefined || v === "") ? null : num(v, lo, hi, null);
+  const oneOf = (v, list, d) => list.includes(v) ? v : d;
+  const isDay = v => typeof v === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v);
+  const obj = v => (v && typeof v === "object" && !Array.isArray(v)) ? v : {};
+  const arr = v => Array.isArray(v) ? v : [];
+  const VERDICTS = ["green", "yellow", "red"], DECISIONS = ["bought", "skipped", "jail", "cooldown"];
+  function cleanNums(n) {
+    n = obj(n);
+    return { available: numOrNull(n.available, -1e7, 1e7), price: numOrNull(n.price, 0, 1e7), after: numOrNull(n.after, -1e7, 1e7), pct: numOrNull(n.pct, 0, 1e9),
+      hitsBills: typeof n.hitsBills === "boolean" ? n.hitsBills : null, billsUnknown: n.billsUnknown === true, hitsSavings: typeof n.hitsSavings === "boolean" ? n.hitsSavings : null,
+      bills: num(n.bills, 0, 1e7, 0), savings: num(n.savings, 0, 1e7, 0), daysToPayday: numOrNull(n.daysToPayday, 0, 400), extra: num(n.extra, 0, 1e7, 0) };
+  }
+  function cleanRecord(r) {
+    r = obj(r);
+    const price = num(r.price, 0, 1e7, NaN), id = str(r.id, 60);
+    if (!id || !isFinite(price) || price <= 0) return null;
+    const out = { id, item: str(r.item, 80) || "Something", price, why: str(r.why, 140), kind: oneOf(r.kind, ["need", "want", "unsure"], "want"), urgency: oneOf(r.urgency, ["today", "week", "whenever"], "whenever"),
+      link: /^https?:\/\/\S+$/i.test(str(r.link, 300)) ? str(r.link, 300) : "", at: num(r.at, 0, 1e14, 0), verdict: oneOf(r.verdict, VERDICTS, null),
+      reasons: arr(r.reasons).filter(x => typeof x === "string").slice(0, 12).map(x => x.slice(0, 30)), cooldown: oneOf(r.cooldown, ["24h", "48h", "7d"], null),
+      n: cleanNums(r.n), roast: str(r.roast, 900), reality: str(r.reality, 900), next: str(r.next, 400), ai: r.ai === true, name: str(r.name, 24),
+      decision: oneOf(r.decision, DECISIONS, null) };
+    ["decidedAt", "until", "jailAt", "updated"].forEach(k => { if (r[k] !== undefined && r[k] !== null) out[k] = num(r[k], 0, 1e14, 0); });
+    if (r.rewarded === true) out.rewarded = true;
+    if (r.counted) { out.counted = num(r.counted, 0, 1e7, 0); out.countedWeek = isDay(r.countedWeek) ? r.countedWeek : null; }
+    if (r.original) { const o = obj(r.original); out.original = { verdict: oneOf(o.verdict, VERDICTS, null), roast: str(o.roast, 900), price: num(o.price, 0, 1e7, price), kind: oneOf(o.kind, ["need", "want", "unsure"], "want") }; }
+    if (r.appeals) out.appeals = arr(r.appeals).slice(0, 3).map(a => { a = obj(a); return { at: num(a.at, 0, 1e14, 0), note: str(a.note, 300), from: oneOf(a.from, VERDICTS, null), to: oneOf(a.to, VERDICTS, null) }; });
+    return out;
+  }
+  function cleanTask(t) {
+    t = obj(t); const id = str(t.id, 40), text = str(t.text, 100).trim();
+    if (!id || !text) return null;
+    return { id, text, when: oneOf(t.when, ["morning", "day", "night", "any"], "any"), repeat: oneOf(t.repeat, ["daily", "weekdays", "weekly", "once"], "daily"),
+      days: arr(t.days).filter(d => Number.isInteger(d) && d >= 0 && d <= 6), mins: oneOf(t.mins, [1, 2, 5, 10, 15, 30], 5), cat: str(t.cat, 30),
+      priority: t.priority === "high" ? "high" : "normal", created: num(t.created, 0, 1e14, 0), updated: num(t.updated, 0, 1e14, 0),
+      completedAt: t.completedAt ? num(t.completedAt, 0, 1e14, 0) : null, paused: t.paused === true };
+  }
+  function sanitize(s, opts) {
+    s = obj(s); const o = Object.assign({}, s), ids = new Set(opts.critterIds || []);
+    o.shells = Math.round(num(o.shells, 0, 1e7, 0)); o.earned = Math.round(num(o.earned, 0, 1e8, 0)); o.tasks = Math.round(num(o.tasks, 0, 1e7, 0));
+    o.zones = Math.round(num(o.zones, 1, opts.zoneCount || 10, 1)); o.sinceFind = Math.round(num(o.sinceFind, 0, 100, 0));
+    o.run = Math.round(num(o.run, 0, 5, 0)); o.skip = Math.round(num(o.skip, 0, 1e6, 0));
+    ["at", "runAt", "lastCollect", "lastVisit", "restUntil"].forEach(k => (o[k] = num(o[k], 0, 1e14, 0)));
+    o.name = str(o.name, 20);
+    const crew = {}; Object.entries(obj(o.crew)).forEach(([k, v]) => { if (ids.has(k)) { v = obj(v); crew[k] = { found: num(v.found, 0, 1e14, 0), friend: Math.round(num(v.friend, 1, 9999, 1)) }; } }); o.crew = crew;
+    const done = {}; Object.entries(obj(o.done)).filter(([k]) => isDay(k)).slice(-2).forEach(([k, v]) => (done[k] = arr(v).filter(x => typeof x === "string").slice(0, 300).map(x => x.slice(0, 140)))); o.done = done;
+    const goals = {}; Object.entries(obj(o.goals)).filter(([k]) => isDay(k)).slice(-2).forEach(([k, v]) => (goals[k] = arr(v).filter(x => [0, 1, 2].includes(x)))); o.goals = goals;
+    o.nospend = arr(o.nospend).filter(isDay).slice(-120);
+    o.checkins = arr(o.checkins).map(c => { c = obj(c); return isDay(c.week) ? { week: c.week, amt: num(c.amt, 0, 1e7, 0), budget: numOrNull(c.budget, 0, 1e7) } : null; }).filter(Boolean).slice(-52);
+    o.week = arr(o.week).filter(x => typeof x === "number" && isFinite(x)).slice(-500);
+    o.micro = typeof o.micro === "string" && o.micro ? o.micro.slice(0, 140) : null;
+    const snooze = {}; Object.entries(obj(o.snooze)).forEach(([k, v]) => { const t = num(v, 0, 1e14, 0); if (t) snooze[str(k, 140)] = t; }); o.snooze = snooze;
+    const sug = obj(o.suggest), rooms = {}; Object.entries(obj(sug.rooms)).forEach(([k, v]) => { if (typeof v === "boolean") rooms[str(k, 30)] = v; });
+    o.suggest = { morning: sug.morning !== false, night: sug.night !== false, rooms };
+    o.custom = arr(o.custom).map(cleanTask).filter(Boolean).slice(0, 200);
+    o.tasksDeleted = arr(o.tasksDeleted).filter(x => typeof x === "string").slice(-500);
+    const at = obj(o.activeTimer);
+    o.activeTimer = (str(at.t, 140) && num(at.end, 0, 1e14, 0)) ? { key: str(at.key, 140), t: str(at.t, 140), where: str(at.where, 40), micro: at.micro === true, custom: at.custom ? str(at.custom, 40) : null, end: num(at.end, 0, 1e14, 0), total: num(at.total, 1000, 36e5, 3e5) } : null;
+    ["sound", "calm", "big", "quick"].forEach(k => (o[k] = o[k] === undefined ? (k === "sound") : o[k] === true));
+    o.nahAmt = num(o.nahAmt, 0, 1e7, 0);
+    if (o.sis) {
+      const si = obj(o.sis), b = obj(si.budget);
+      o.sis = { name: str(si.name, 24) || "Big Sis", persona: oneOf(si.persona, ["bigsis", "haitiandad", "blackdad", "bestie", "custom"], "bigsis"), custom: str(si.custom, 500),
+        intensity: oneOf(si.intensity, [1, 2, 3], 2), settingsAt: num(si.settingsAt, 0, 1e14, 0), rules: {},
+        budget: { weekly: numOrNull(b.weekly, 0, 1e7), spent: num(b.spent, 0, 1e7, 0), balance: numOrNull(b.balance, 0, 1e8), bills: numOrNull(b.bills, 0, 1e7), savings: numOrNull(b.savings, 0, 1e7),
+          payday: isDay(b.payday) ? b.payday : "", emergency: numOrNull(b.emergency, 0, 1e8), cycle: oneOf(b.cycle, ["weekly", "biweekly", "monthly", "custom"], "weekly"),
+          anchor: isDay(b.anchor) ? b.anchor : "", customDays: Math.round(num(b.customDays, 1, 90, 10)), period: isDay(b.period) ? b.period : (isDay(b.week) ? b.week : null),
+          updated: num(b.updated, 0, 1e14, 0), changed: num(b.changed, 0, 1e14, 0) },
+        history: arr(si.history).map(cleanRecord).filter(Boolean),
+        deleted: arr(si.deleted).filter(x => typeof x === "string").slice(-2000),
+        periods: arr(si.periods).map(p => { p = obj(p); return isDay(p.start) ? { start: p.start, end: isDay(p.end) ? p.end : "", spent: num(p.spent, 0, 1e7, 0), amount: numOrNull(p.amount, 0, 1e7), cycle: oneOf(p.cycle, ["weekly", "biweekly", "monthly", "custom"], "weekly") } : null; }).filter(Boolean).slice(-200) };
+    }
+    delete o.parked;
+    return o;
+  }
+
+  /* ---------- merging two copies of the same person's progress (two devices) ---------- */
+  const stamp = r => Math.max(r.updated || 0, r.decidedAt || 0, r.at || 0);
+  function mergeStates(a, b) {
+    if (!a) return b; if (!b) return a;
+    const pa = a.earned || 0, pb = b.earned || 0;
+    const base = (pb > pa || (pb === pa && (b.at || 0) > (a.at || 0))) ? b : a, other = base === a ? b : a;
+    const m = JSON.parse(JSON.stringify(base));
+    m.crew = {}; [...new Set([...Object.keys(a.crew || {}), ...Object.keys(b.crew || {})])].sort().forEach(id => {
+      const x = (a.crew || {})[id], y = (b.crew || {})[id];
+      m.crew[id] = x && y ? { found: Math.min(x.found || y.found || 0, y.found || x.found || 0), friend: Math.max(x.friend || 1, y.friend || 1) } : JSON.parse(JSON.stringify(x || y));
+    });
+    m.zones = Math.max(a.zones || 1, b.zones || 1); m.tasks = Math.max(a.tasks || 0, b.tasks || 0);
+    m.nospend = [...new Set([...(a.nospend || []), ...(b.nospend || [])])].sort();
+    const ci = {}; [...(other.checkins || []), ...(base.checkins || [])].forEach(c => (ci[c.week] = c)); m.checkins = Object.values(ci).sort((x, y) => (x.week < y.week ? -1 : 1));
+    const lastDay = [...Object.keys(a.done || {}), ...Object.keys(b.done || {})].sort().pop();
+    if (lastDay) { m.done = { [lastDay]: [...new Set([...((a.done || {})[lastDay] || []), ...((b.done || {})[lastDay] || [])])] }; m.goals = { [lastDay]: [...new Set([...((a.goals || {})[lastDay] || []), ...((b.goals || {})[lastDay] || [])])] }; }
+    const tdel = new Set([...(a.tasksDeleted || []), ...(b.tasksDeleted || [])]); m.tasksDeleted = [...tdel].slice(-500);
+    const ct = {}; [...(base.custom || []), ...(other.custom || [])].forEach(t => { if (!ct[t.id] || (t.updated || 0) > (ct[t.id].updated || 0)) ct[t.id] = t; });
+    m.custom = Object.values(ct).filter(t => !tdel.has(t.id));
+    if (a.sis || b.sis) {
+      const sa = a.sis || {}, sb = b.sis || {};
+      const settings = (sa.settingsAt || 0) >= (sb.settingsAt || 0) ? sa : sb;
+      m.sis = Object.assign({}, JSON.parse(JSON.stringify(base.sis || other.sis)), { name: settings.name, persona: settings.persona, custom: settings.custom, intensity: settings.intensity, settingsAt: settings.settingsAt || 0 });
+      const ba = sa.budget || {}, bb = sb.budget || {};
+      m.sis.budget = JSON.parse(JSON.stringify(Math.max(ba.changed || 0, ba.updated || 0) >= Math.max(bb.changed || 0, bb.updated || 0) ? ba : bb));
+      const hdel = new Set([...(sa.deleted || []), ...(sb.deleted || [])]);
+      const hs = {}; [...(sa.history || []), ...(sb.history || [])].forEach(r => { if (!hs[r.id] || stamp(r) >= stamp(hs[r.id])) hs[r.id] = r; });
+      m.sis.history = Object.values(hs).filter(r => !hdel.has(r.id)).sort((x, y) => x.at - y.at);
+      m.sis.deleted = [...hdel].slice(-2000);
+      const ps = {}; [...(sa.periods || []), ...(sb.periods || [])].forEach(p => (ps[p.start] = p)); m.sis.periods = Object.values(ps).sort((x, y) => (x.start < y.start ? -1 : 1));
+    }
+    m.at = Math.max(a.at || 0, b.at || 0);
+    return m;
+  }
+
+  /* Same progress, ignoring when it was saved and key order? Used to avoid two devices re-saving back and forth. */
+  function canon(x) { if (Array.isArray(x)) return "[" + x.map(canon).join(",") + "]"; if (x && typeof x === "object") return "{" + Object.keys(x).sort().map(k => JSON.stringify(k) + ":" + canon(x[k])).join(",") + "}"; return JSON.stringify(x === undefined ? null : x); }
+  function sameProgress(a, b) { return canon(Object.assign({}, a, { at: 0 })) === canon(Object.assign({}, b, { at: 0 })); }
+
+  /* ---------- backups ---------- */
+  function makeBackup(state, now) { return JSON.stringify({ app: "critter-cove", format: FORMAT, exportedAt: new Date(now).toISOString(), data: state }); }
+  function readBackup(text, prepare) {
+    if (typeof text !== "string" || !text.trim()) return { ok: false, error: "That file is empty." };
+    if (text.length > 5e6) return { ok: false, error: "That file is too big to be a Critter Cove backup." };
+    let j; try { j = JSON.parse(text); } catch (e) { return { ok: false, error: "That file couldn't be read. It may be damaged, or it isn't a Critter Cove backup." }; }
+    if (!j || typeof j !== "object" || j.app !== "critter-cove" || !j.data || typeof j.data !== "object" || Array.isArray(j.data)) return { ok: false, error: "That file isn't a Critter Cove backup." };
+    if ((j.format || 1) > FORMAT) return { ok: false, error: "This backup is from a newer version of Critter Cove. Update the app, then try again." };
+    let data; try { data = prepare(j.data); } catch (e) { return { ok: false, error: "That backup is damaged and couldn't be restored." }; }
+    const sis = data.sis || {};
+    return { ok: true, data, summary: { exportedAt: typeof j.exportedAt === "string" ? j.exportedAt.slice(0, 30) : null, critters: Object.keys(data.crew || {}).length, shells: data.shells, zones: data.zones, tasks: data.tasks, customTasks: (data.custom || []).length, purchases: (sis.history || []).length } };
+  }
+
+  /* ---------- storage split for Claude account saves (one document has a 256 KiB limit) ---------- */
+  function splitForStorage(state, chunkSize) {
+    const main = JSON.parse(JSON.stringify(state)), hist = (main.sis && main.sis.history) || [], chunks = [];
+    for (let i = 0; i < hist.length; i += chunkSize) chunks.push(hist.slice(i, i + chunkSize));
+    if (main.sis) main.sis.history = [];
+    main.histChunks = chunks.length;
+    return { main, chunks };
+  }
+  function joinFromStorage(main, chunks) { const s = JSON.parse(JSON.stringify(main)); if (s.histChunks && s.sis) s.sis.history = [].concat(...chunks.map(c => c || [])); delete s.histChunks; return s; }
+
+  return { FORMAT, phaseOf, isDue, buildQueue, chainFor, gainFor, chestFor, giftFor, clampClock, cleanRecord, cleanTask, sanitize, mergeStates, sameProgress, makeBackup, readBackup, splitForStorage, joinFromStorage };
+})();
+/* ===CORE END=== */
+
+
 /* ================= state ================= */
-const DEF = () => ({ v: 4, at: 0, name: "", shells: 0, earned: 0, tasks: 0, zones: 1, crew: {}, sinceFind: 0, done: {}, goals: {}, micro: null, skip: 0, run: 0, runAt: 0, lastCollect: 0, lastVisit: 0, nospend: [], checkins: [], parked: [], nah: 0, nahAmt: 0, budget: 60, sis: null, sound: true, calm: false, big: false, memes: true, week: [] });
+const DEF = () => ({ v: 5, at: 0, name: "", shells: 0, earned: 0, tasks: 0, zones: 1, crew: {}, sinceFind: 0, done: {}, goals: {}, micro: null, skip: 0, run: 0, runAt: 0, lastCollect: 0, lastVisit: 0, restUntil: 0, nospend: [], checkins: [], nah: 0, nahAmt: 0, budget: 60, sis: null, custom: [], tasksDeleted: [], snooze: {}, suggest: { morning: true, night: true, rooms: {} }, activeTimer: null, sound: true, calm: false, big: false, quick: false, memes: true, week: [] });
+const CRITTER_IDS = CRITTERS.map(c => c.id);
+/* Every save from storage, another device or a backup file goes through this before the app uses it. */
+const prepare = raw => CoreEngine.clampClock(CoreEngine.sanitize(SisEngine.migrate(Object.assign(DEF(), raw || {}), Date.now()), { critterIds: CRITTER_IDS, zoneCount: ZONES.length }), Date.now());
 let S = DEF();
-const LSK = "critter-cove-v3";
-try { const raw = localStorage.getItem(LSK); if (raw) S = Object.assign(DEF(), JSON.parse(raw)); } catch (e) {}
-S = SisEngine.migrate(S, Date.now());
-let dbRef = null, writing = false, pending = false, saveT = 0;
-function save() { S.at = Date.now(); try { localStorage.setItem(LSK, JSON.stringify(S)); } catch (e) {} if (dbRef) { clearTimeout(saveT); saveT = setTimeout(flush, 800); } }
-async function flush() { if (!dbRef) return; if (writing) { pending = true; return; } writing = true; try { await dbRef.set({ json: JSON.stringify(S), at: S.at }); } catch (e) {} writing = false; if (pending) { pending = false; flush(); } }
+const LSK = "critter-cove-v3", SAFETY_KEY = "critter-cove-before-restore";
+try { const raw = localStorage.getItem(LSK); if (raw) S = JSON.parse(raw); } catch (e) {}
+S = prepare(S);
+let dbRef = null, dbBase = "", writing = false, pending = false, saveT = 0, lastPushedAt = 0, syncState = "device";
+const lastChunk = [];
+function persistLocal() { try { localStorage.setItem(LSK, JSON.stringify(S)); return true; } catch (e) { return false; } }
+function save() {
+  S.at = Date.now();
+  if (!persistLocal()) toast("This device is out of storage space. Download a backup from Settings.");
+  if (dbRef) { clearTimeout(saveT); saveT = setTimeout(flush, 800); }
+}
+function setSync(st) {
+  if (st === "error" && syncState !== "error") toast("Couldn't save to your Claude account just now. Your progress is safe on this device and I'll keep trying.");
+  syncState = st;
+}
+const CHUNK = 150;
+const dbDoc = name => dbRef && window.__coveDb.doc(dbBase + name);
+async function flush() {
+  if (!dbRef) return; if (writing) { pending = true; return; }
+  writing = true;
+  try {
+    const { main, chunks } = CoreEngine.splitForStorage(S, CHUNK);
+    for (let i = 0; i < chunks.length; i++) { const j = JSON.stringify(chunks[i]); if (lastChunk[i] !== j) { await dbDoc("cove-h" + i).set({ json: j, at: S.at }); lastChunk[i] = j; } }
+    const mj = JSON.stringify(main);
+    if (mj.length > 240000) throw new Error("too_big");
+    await dbRef.set({ json: mj, at: S.at, v: 5 }); lastPushedAt = S.at; setSync("account");
+  } catch (e) { setSync("error"); }
+  writing = false;
+  if (pending) { pending = false; flush(); }
+}
+async function loadRemote() {
+  const snap = await dbRef.get(); if (!snap.exists || !snap.data() || !snap.data().json) return null;
+  const main = JSON.parse(snap.data().json), n = Math.min(main.histChunks || 0, 400);
+  if (!n) { delete main.histChunks; return main; }
+  const parts = await Promise.all(Array.from({ length: n }, (_, i) => dbDoc("cove-h" + i).get()));
+  const chunks = parts.map((p, i) => { const j = p.exists && p.data() ? p.data().json : null; lastChunk[i] = j || undefined; try { return j ? JSON.parse(j) : []; } catch (e) { return []; } });
+  return CoreEngine.joinFromStorage(main, chunks);
+}
 let downloads = null, sampleFn = null;
 async function connect() {
   try {
@@ -640,10 +927,21 @@ async function connect() {
     claude.use("sample").then(f => (sampleFn = f)).catch(() => {});
     const [db, user] = await Promise.all([claude.use("db"), claude.use("user")]);
     if (!db || !user) return; const id = await user.id(); if (!id) return;
-    dbRef = db.doc("data/users/" + id + "/cove");
-    const snap = await dbRef.get();
-    if (snap.exists && snap.data().json && (snap.data().at || 0) > (S.at || 0)) { S = SisEngine.migrate(Object.assign(DEF(), JSON.parse(snap.data().json)), Date.now()); try { localStorage.setItem(LSK, JSON.stringify(S)); } catch (e) {} applyPrefs(); renderAll(); }
-    else if (S.at) flush();
+    window.__coveDb = db; dbBase = "data/users/" + id + "/"; dbRef = db.doc(dbBase + "cove");
+    const remote = await loadRemote();
+    // Merge, never overwrite: whatever this device did while loading is kept alongside the account's progress.
+    if (remote) { S = prepare(CoreEngine.mergeStates(S, prepare(remote))); persistLocal(); applyPrefs(); renderAll(); }
+    syncState = "account";
+    await flush();
+    dbRef.onSnapshot(async snap => {
+      try {
+        const d = snap.exists && snap.data(); if (!d || !d.at || d.at <= lastPushedAt) return;
+        const r = await loadRemote(); if (!r) return;
+        const theirs = prepare(r); S = prepare(CoreEngine.mergeStates(S, theirs));
+        persistLocal(); renderAll();
+        if (!CoreEngine.sameProgress(S, theirs)) save(); // only push back if this device had something new
+      } catch (e) {}
+    }, () => {});
   } catch (e) { dbRef = null; }
 }
 
@@ -789,7 +1087,7 @@ function mapSVG() {
   });
   const found = CRITTERS.filter(c => S.crew[c.id]), per = {};
   found.forEach(c => { const n = per[c.z] || 0; per[c.z] = n + 1; const z = ZONES[c.z], o = SPOTS[n % SPOTS.length];
-    s += `<g data-critter="${c.id}" transform="translate(${z.x + o[0] - 13} ${z.y + o[1] - 18}) scale(.26)"><g class="wob" style="animation-delay:${(n * .7 + c.z * .3).toFixed(1)}s"><rect width="100" height="100" fill="transparent"/>${critterSVG(c, { raw: true })}</g></g>`; });
+    s += `<g data-critter="${c.id}" tabindex="0" role="button" aria-label="${esc(c.name)}. Hear what they have to say." transform="translate(${z.x + o[0] - 13} ${z.y + o[1] - 18}) scale(.26)"><g class="wob" style="animation-delay:${(n * .7 + c.z * .3).toFixed(1)}s"><rect width="100" height="100" fill="transparent"/>${critterSVG(c, { raw: true })}</g></g>`; });
   if (!found.length) s += `<text x="180" y="190" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="600" font-size="14" fill="var(--ink)">No critters yet. Do a tiny thing to lure one in.</text>`;
   return s + `</svg>`;
 }
@@ -797,17 +1095,22 @@ function mapSVG() {
 /* ================= tasks ================= */
 const today = () => dkey();
 const doneToday = () => S.done[today()] || [];
-function phase() { const h = new Date().getHours(); return h >= 5 && h < 11 ? "morning" : (h >= 19 || h < 3) ? "night" : "day"; }
+function phase() { return CoreEngine.phaseOf(new Date().getHours()); }
 function candidates() {
-  const d = doneToday(), ph = phase(), room = ROOM_ORDER[(new Date().getDay() + 6) % 7];
-  let list = [];
-  if (ph === "morning") list = MORNING.map(t => ({ t, where: "Morning reset" }));
-  if (ph === "night") list = NIGHT.map(t => ({ t, where: "Night reset" }));
-  list = list.filter(x => !d.includes(x.t));
-  const extra = ROOMS[room].map(t => ({ t, where: room })).concat(ROOMS.Anywhere.map(t => ({ t, where: "Anywhere" }))).filter(x => !d.includes(x.t));
-  return list.length ? list.concat(extra) : extra;
+  return CoreEngine.buildQueue({ now: Date.now(), done: doneToday(), snooze: S.snooze, suggest: S.suggest, custom: S.custom, MORNING, NIGHT, ROOMS, ROOM_ORDER });
 }
-function currentTask() { if (S.micro) return { t: S.micro, where: "30‑second version", micro: true }; const c = candidates(); if (!c.length) return null; return c[S.skip % c.length]; }
+function currentTask() {
+  if (S.micro) return { key: S.micro, t: S.micro, where: "Tiny version", mins: 1, micro: true };
+  const c = candidates(); if (!c.length) return null; return c[S.skip % c.length];
+}
+const RESCUE = [
+  ["Drink some water", "Just a few sips counts."],
+  ["Throw away ONE thing", "The closest piece of trash. That's it."],
+  ["Put on one song and just sit", "You don't have to do anything during it."],
+  ["Clear one spot the size of a plate", "Not the table. Just a plate-sized spot."],
+  ["Step outside or open a window for a minute", "Fresh air counts as doing something."]
+];
+const KIND_WORDS = ["You're not behind. You're here, and that counts.", "Resting is part of the plan, not a failure of it.", "One tiny thing today is still a thing.", "The mess will wait. It always does. No rush.", "You've gotten through every hard day so far. This one too."];
 
 /* ================= rewards ================= */
 function rollCritter(force) {
@@ -823,23 +1126,36 @@ function rollCritter(force) {
   S.crew[c.id] = isNew ? { found: Date.now(), friend: 1 } : Object.assign({}, S.crew[c.id], { friend: (S.crew[c.id].friend || 1) + 1 });
   return { c, isNew };
 }
+let completing = false;
 function completeTask(task, viaTimer) {
-  const doneList = doneToday().concat(task.t);
+  if (completing || !task) return; completing = true; setTimeout(() => (completing = false), 400);
+  const key = task.key || task.t;
+  if (doneToday().includes(key)) { renderIsland(); return; }
+  const doneList = doneToday().concat(key);
   S.done = { [today()]: doneList };
-  S.micro = null;
-  const chain = Date.now() - S.runAt < 12 * 6e4 ? Math.min(5, S.run + 1) : 1;
-  S.run = chain; S.runAt = Date.now(); S.skip = 0; S.tasks++;
-  S.week = (S.week || []).filter(t => t >= weekStart()).concat(Date.now());
-  let gain = (task.micro ? 5 + Math.floor(Math.random() * 3) : 8 + Math.floor(Math.random() * 5)) + (viaTimer ? 4 : 0) + (chain - 1) * 3;
-  // daily goal chests
-  const n = doneList.length, claimed = (S.goals[today()] || []); let chest = null;
-  GOALS.forEach(([need, bonus], i) => { if (n >= need && !claimed.includes(i)) { chest = { need, bonus, i }; claimed.push(i); } });
-  S.goals = { [today()]: claimed };
+  if (S.micro === key) S.micro = null;
+  if (S.activeTimer && S.activeTimer.key === key) S.activeTimer = null;
+  if (task.custom) { const ct = S.custom.find(x => x.id === task.custom); if (ct && ct.repeat === "once") { ct.completedAt = Date.now(); ct.updated = Date.now(); } }
+  const now = Date.now(), chain = CoreEngine.chainFor(now, S.runAt, S.run);
+  S.run = chain; S.runAt = now; S.skip = 0; S.tasks++; S.restUntil = 0;
+  S.week = (S.week || []).filter(t => t >= weekStart()).concat(now);
+  let gain = CoreEngine.gainFor({ micro: !!task.micro, viaTimer, chain, roll: Math.random() });
+  const r = CoreEngine.chestFor(doneList.length, S.goals[today()] || [], GOALS), chest = r.chest;
+  S.goals = { [today()]: r.claimed };
   if (chest) gain += chest.bonus;
   S.shells += gain; S.earned += gain;
   const found = rollCritter(chest && chest.i === 2);
   save(); renderAll();
-  rewardSheet(gain, chain, found, chest);
+  if (S.quick) quickReward(gain, chain, found, chest); else rewardSheet(gain, chain, found, chest);
+}
+function quickReward(gain, chain, found, chest) {
+  ding(!!found || !!chest); confetti(found ? 80 : 30);
+  const z = ZONES[S.zones], bits = ["+" + gain + " shells"];
+  if (chain > 1) bits.push("run x" + chain);
+  if (chest) bits.push("chest opened");
+  if (found) bits.push(found.isNew ? found.c.name + " joined your island!" : found.c.name + " came back to hang out");
+  if (z && S.shells >= z.cost) bits.push("you can open " + z.name);
+  toast(bits.join(" · "));
 }
 function rewardSheet(gain, chain, found, chest) {
   ding(!!found || !!chest); confetti(found ? 140 : 60);
@@ -853,15 +1169,16 @@ function rewardSheet(gain, chain, found, chest) {
   openSheet(`<div class="stack">${head}<div class="plus">+${gain} ${SHELL}</div>${chain > 1 ? `<span class="pill run">Clean run x${chain}</span>` : ""}</div>${chestTxt}
     ${zoneReady ? `<button class="btn shell block" id="zoneNow">You can open ${esc(z.name)}!</button>` : ""}
     ${next ? `<button class="btn main huge block" id="moreBtn">One more? (+${chain * 3} bonus)</button><p class="small muted" style="text-align:center">Next: ${esc(next.t)}</p>` : ""}
-    <button class="btn block" id="restBtn">${next ? "I'm done for now" : "All done. Go rest."}</button>`, el => {
-    const m = el.querySelector("#moreBtn"); m && (m.onclick = () => { closeSheet(); window.scrollTo(0, 0); });
+    <button class="btn block" id="restBtn">${next ? "I'm done for now" : "All done. Go rest."}</button>
+    <p class="fine">Tired of this pop-up? Turn on "Skip reward pop-ups" in Settings.</p>`, el => {
+    const m = el.querySelector("#moreBtn"); m && (m.onclick = () => { closeSheet(); window.scrollTo(0, 0); setTimeout(() => $("#doneBtn").focus({ preventScroll: true }), 30); });
     const zn = el.querySelector("#zoneNow"); zn && (zn.onclick = () => { closeSheet(); buyZone(); });
     el.querySelector("#restBtn").onclick = closeSheet;
-  });
+  }, { label: c ? (found.isNew ? c.name + " joined your island" : "Task done") : "Task done" });
 }
 
 /* ================= idle gifts ================= */
-function giftAmount() { const crew = Object.keys(S.crew).length; if (!crew || !S.lastCollect) return 0; const hrs = Math.min(12, (Date.now() - S.lastCollect) / HOUR); return Math.floor(hrs * Math.min(crew, 20) * .6); }
+function giftAmount() { return CoreEngine.giftFor(Date.now(), S.lastCollect, Object.keys(S.crew).length); }
 function renderGift() {
   const n = giftAmount(), crew = Object.keys(S.crew).length, b = $("#giftBtn");
   if (!crew) { b.disabled = true; b.innerHTML = `<span style="width:40px;flex:none">${SHELL}</span><div class="grow"><b>Critters bring gifts</b><span class="small muted">Once critters join, they gather shells while you're away.</span></div>`; return; }
@@ -900,25 +1217,45 @@ $("#teaBtn").onclick = renderNews;
 
 /* ================= render ================= */
 function renderAll() { $("#shellCount").textContent = S.shells; renderIsland(); renderCritters(); renderMoney(); }
+const fmtMins = m => m >= 60 ? Math.round(m / 60) + " hr" : m + " min";
+function renderResume() {
+  const at = S.activeTimer, box = $("#resume");
+  if (!at) { box.hidden = true; box.innerHTML = ""; return; }
+  const left = at.end - Date.now();
+  box.hidden = false;
+  box.innerHTML = left > 0
+    ? `<div class="grow"><div class="label">You were in the middle of</div><b>${esc(at.t)}</b><div class="small muted">${Math.ceil(left / 6e4)} min left on your timer</div></div><div class="rbtns"><button class="btn shell" id="resumeBtn">Resume</button><button class="btn main" id="resumeDone">Done</button></div>`
+    : `<div class="grow"><div class="label">Timer finished</div><b>${esc(at.t)}</b><div class="small muted">You started it. That's the hard part. Did you finish?</div></div><div class="rbtns"><button class="btn main" id="resumeDone">I did it</button><button class="btn" id="resumeDrop">Not yet</button></div>`;
+  const rb = $("#resumeBtn"); rb && (rb.onclick = openTimer);
+  $("#resumeDone").onclick = () => { const a = S.activeTimer; S.activeTimer = null; completeTask({ key: a.key, t: a.t, where: a.where, micro: a.micro, custom: a.custom }, true); };
+  const dr = $("#resumeDrop"); dr && (dr.onclick = () => { S.activeTimer = null; save(); renderIsland(); toast("No problem. It'll be here when you're ready."); });
+}
 function renderIsland() {
   $("#map").innerHTML = mapSVG();
   const z = ZONES[S.zones];
-  $("#nextZone").innerHTML = z ? `<div class="row"><div class="grow">Next: <b>${esc(z.name)}</b></div><span class="muted" style="font-variant-numeric:tabular-nums">${Math.min(S.shells, z.cost)} / ${z.cost}</span></div><div class="progress"><i style="width:${Math.min(100, S.shells / z.cost * 100)}%"></i></div>` : `<div class="row"><b>Whole island unlocked. You're HER.</b></div>`;
-  const t = currentTask();
-  if (t) {
-    $("#taskWhen").textContent = t.micro || t.where.endsWith("reset") ? t.where : "Next tiny thing · " + t.where;
-    $("#taskText").textContent = t.t; $("#doneBtn").disabled = false;
-    ["#skipBtn", "#timerBtn"].forEach(s => ($(s).hidden = false)); $("#smallBtn").hidden = !!t.micro;
+  $("#nextZone").innerHTML = z ? `<div class="row"><div class="grow">Next: <b>${esc(z.name)}</b></div><span class="muted" style="font-variant-numeric:tabular-nums">${Math.min(S.shells, z.cost)} / ${z.cost}</span></div><div class="progress" role="progressbar" aria-label="Shells toward ${esc(z.name)}" aria-valuemin="0" aria-valuemax="${z.cost}" aria-valuenow="${Math.min(S.shells, z.cost)}"><i style="width:${Math.min(100, S.shells / z.cost * 100)}%"></i></div>` : `<div class="row"><b>Whole island unlocked. You're HER.</b></div>`;
+  renderResume();
+  const resting = S.restUntil > Date.now(), t = resting ? null : currentTask();
+  const show = (ids, on) => ids.forEach(s => ($(s).hidden = !on));
+  if (resting) {
+    $("#taskWhen").textContent = "Resting"; $("#taskText").textContent = "Resting counts. Come back whenever you're ready.";
+    show(["#doneBtn", "#starts", "#taskLinks"], false); show(["#readyBtn"], true); $("#addTaskBtn").hidden = true;
+  } else if (t) {
+    $("#taskWhen").textContent = t.micro ? "Tiny version" : t.where.endsWith("reset") ? t.where : "Next tiny thing · " + t.where;
+    $("#taskText").textContent = t.t;
+    show(["#doneBtn", "#starts", "#taskLinks"], true); show(["#readyBtn", "#addTaskBtn"], false);
+    $("#smallBtn").hidden = !!t.micro; $("#laterBtn").hidden = !!t.micro;
+    $("#skipBtn").textContent = t.micro ? "Back to the bigger task" : "Not this one";
+    $("#fullBtn").textContent = "Whole thing (" + fmtMins(t.mins || 5) + ")"; $("#fullBtn").hidden = (t.mins || 5) <= 5;
   } else {
-    $("#taskWhen").textContent = "All clear"; $("#taskText").textContent = "You did every tiny thing today. The critters are throwing you a party.";
-    $("#doneBtn").disabled = true; ["#skipBtn", "#timerBtn", "#smallBtn"].forEach(s => ($(s).hidden = true));
+    $("#taskWhen").textContent = "All clear"; $("#taskText").textContent = "You did every tiny thing for now. The critters are throwing you a party.";
+    show(["#doneBtn", "#starts", "#taskLinks", "#readyBtn"], false); $("#addTaskBtn").hidden = false;
   }
   const live = Date.now() - S.runAt < 12 * 6e4 && S.run > 0;
-  $("#taskMeta").innerHTML = live ? `<span class="pill run">Run x${S.run}</span>` : "";
-  // goal ladder
+  $("#taskMeta").innerHTML = (t && !resting ? `<span class="pill">about ${fmtMins(t.mins || 5)}</span> ` : "") + (live ? `<span class="pill run">Run x${S.run}</span>` : "");
   const n = doneToday().length;
   let lad = "";
-  GOALS.forEach(([need], i) => { if (i) lad += `<div class="seg${n >= need ? " on" : ""}"></div>`; else lad += `<div class="seg${n >= 1 ? " on" : ""}" style="max-width:0"></div>`; lad += `<div class="node${n >= need ? " on" : ""}" title="${need} tiny things">${n >= need ? "✓" : need}</div>`; });
+  GOALS.forEach(([need], i) => { lad += `<div class="seg${n >= need ? " on" : ""}"${i ? "" : ' style="max-width:0"'}></div><div class="node${n >= need ? " on" : ""}" aria-label="${need} tiny thing${need > 1 ? "s" : ""}: ${n >= need ? "chest opened" : "not yet"}">${n >= need ? "✓" : need}</div>`; });
   $("#ladder").innerHTML = lad;
   const nextGoal = GOALS.find(([need]) => n < need);
   $("#goalText").textContent = nextGoal ? (nextGoal[0] - n) + " more tiny thing" + (nextGoal[0] - n > 1 ? "s" : "") + " to open today's next chest (+" + nextGoal[1] + ")" + (nextGoal[0] === 5 ? " plus a guaranteed critter" : "") : "All 3 chests opened today. Anything else is pure bonus.";
@@ -937,33 +1274,59 @@ function renderCritters() {
 }
 $("#crewGrid").addEventListener("click", e => { const b = e.target.closest("[data-cc]"); if (!b) return; const c = CRITTERS.find(x => x.id === b.dataset.cc);
   openSheet(`<div class="hero">${critterSVG(c)}</div><div class="stack"><span class="rar ${c.r}">${c.r} · ${esc(ZONES[c.z].name)}</span><h2 class="big-title">${esc(c.name)}</h2><p class="muted">${esc(c.bio)}</p><p><b>“${esc(pick(c.say))}”</b></p><p class="small muted">Friendship level ${S.crew[c.id].friend}</p></div><button class="btn block" id="cOk">Close</button>`, el => (el.querySelector("#cOk").onclick = closeSheet)); });
-$("#map").addEventListener("click", e => {
-  const g = e.target.closest("[data-critter]"); if (!g) return; const c = CRITTERS.find(x => x.id === g.dataset.critter);
-  $("#bubbleHost").innerHTML = `<div class="bubble"><b>${esc(c.name)}:</b> ${esc(pick(c.say))}</div>`;
+function critterSays(id) {
+  const c = CRITTERS.find(x => x.id === id); if (!c) return;
+  $("#bubbleHost").innerHTML = `<div class="bubble" role="status"><b>${esc(c.name)}:</b> ${esc(pick(c.say))}</div>`;
   clearTimeout(window.__bt); window.__bt = setTimeout(() => ($("#bubbleHost").innerHTML = ""), 3500);
-});
+}
+$("#map").addEventListener("click", e => { const g = e.target.closest("[data-critter]"); if (g) critterSays(g.dataset.critter); });
+$("#map").addEventListener("keydown", e => { const g = e.target.closest("[data-critter]"); if (g && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); critterSays(g.dataset.critter); } });
 $("#doneBtn").onclick = () => { const t = currentTask(); if (t) completeTask(t, false); };
 $("#skipBtn").onclick = () => { if (S.micro) S.micro = null; else S.skip++; save(); renderIsland(); };
 $("#smallBtn").onclick = () => { S.micro = pick(MICRO.filter(m => !doneToday().includes(m))) || MICRO[0]; save(); renderIsland(); };
-$("#timerBtn").onclick = () => { const t = currentTask(); if (t) timerSheet(t); };
+$("#laterBtn").onclick = () => {
+  const t = currentTask(); if (!t) return;
+  const now = Date.now(); Object.keys(S.snooze).forEach(k => { if (S.snooze[k] < now) delete S.snooze[k]; });
+  S.snooze[t.key] = now + 2 * HOUR; save(); renderIsland(); toast("Okay. I'll bring it back in a couple hours. No penalty.");
+};
+$("#starts").addEventListener("click", e => { const b = e.target.closest("[data-secs]"); if (!b) return; const t = currentTask(); if (!t) return; startTimer(t, b.dataset.secs === "full" ? (t.mins || 5) * 60 : +b.dataset.secs); });
+$("#readyBtn").onclick = () => { S.restUntil = 0; save(); renderIsland(); };
+$("#addTaskBtn").onclick = () => tasksSheet();
+$("#overBtn").onclick = () => {
+  openSheet(`<div class="stack"><div class="label">I'm overwhelmed</div><h2 class="big-title">Okay. Breathe. We're not doing the whole house.</h2><p class="muted">Pick one tiny thing, or pick rest. Both are fine.</p></div>
+    <div class="rescue">${RESCUE.map(([t, h], i) => `<button class="rbtn" data-i="${i}"><b>${esc(t)}</b><span>${esc(h)}</span></button>`).join("")}</div>
+    <button class="btn block" id="kindBtn">Just say something nice</button>
+    <button class="btn block" id="restNow">Rest for now</button>`, el => {
+    el.querySelector(".rescue").onclick = e => { const b = e.target.closest("[data-i]"); if (!b) return; S.micro = RESCUE[+b.dataset.i][0]; S.restUntil = 0; save(); closeSheet(); renderIsland(); toast("That's the only thing on your list right now."); };
+    el.querySelector("#kindBtn").onclick = () => { const found = CRITTERS.filter(c => S.crew[c.id]); const who = found.length ? pick(found).name : "Trash Panda Pete"; el.querySelector("#kindBtn").outerHTML = `<p class="roast" role="status"><b>${esc(who)}:</b> ${esc(pick(KIND_WORDS))}</p>`; };
+    el.querySelector("#restNow").onclick = () => { S.restUntil = Date.now() + 45 * 6e4; save(); closeSheet(); renderIsland(); toast("Resting counts. I'll be here."); };
+  }, { label: "I'm overwhelmed" });
+};
 
 /* ================= timer ================= */
-let timer = null, wake = null;
-function stopTimer() { if (timer) { clearInterval(timer.int); timer = null; } try { wake && wake.release(); } catch (e) {} wake = null; }
-function timerSheet(t) {
-  const total = 5 * 6e4;
-  openSheet(`<div class="label">5‑minute sprint · +4 bonus</div><h2 class="big-title">${esc(t.t)}</h2><div class="ring"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" fill="none" stroke="var(--sunk)" stroke-width="9"/><circle id="arc" cx="50" cy="50" r="44" fill="none" stroke="var(--moss)" stroke-width="9" stroke-linecap="round" stroke-dasharray="276.5" stroke-dashoffset="0"/></svg><div class="num" id="tnum">5:00</div></div><p class="muted" style="text-align:center" id="tmsg">Go. Tap Done whenever you finish.</p><button class="btn main huge block" id="tDone">Done</button><button class="btn block" id="tStop">Stop timer</button>`, el => {
-    timer = { end: Date.now() + total };
-    try { navigator.wakeLock && navigator.wakeLock.request("screen").then(w => (wake = w)).catch(() => {}); } catch (e) {}
-    el.querySelector("#tDone").onclick = () => { closeSheet(); completeTask(t, true); };
-    el.querySelector("#tStop").onclick = closeSheet;
-    const draw = () => { if (!timer) return; const left = Math.max(0, timer.end - Date.now()), s = Math.ceil(left / 1000);
-      el.querySelector("#tnum").textContent = Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0");
-      el.querySelector("#arc").setAttribute("stroke-dashoffset", String(276.5 * (1 - left / total)));
-      if (left <= 0) { clearInterval(timer.int); timer = null; ding(true); el.querySelector("#tmsg").textContent = "Time! Halfway still counts. Tap Done."; } };
-    draw(); timer.int = setInterval(draw, 250);
-  });
+let ticker = null, wake = null;
+function stopTicker() { if (ticker) { clearInterval(ticker); ticker = null; } try { wake && wake.release(); } catch (e) {} wake = null; }
+function startTimer(t, secs) {
+  S.activeTimer = { key: t.key || t.t, t: t.t, where: t.where || "", micro: !!t.micro, custom: t.custom || null, end: Date.now() + secs * 1000, total: secs * 1000 };
+  save(); renderIsland(); openTimer();
 }
+function openTimer() {
+  const at = S.activeTimer; if (!at) return;
+  const total = at.total, label = total < 6e4 ? Math.round(total / 1000) + " seconds" : Math.round(total / 6e4) + " minute" + (total >= 12e4 ? "s" : "");
+  openSheet(`<div class="label">Just start · ${label}</div><h2 class="big-title">${esc(at.t)}</h2><div class="ring" aria-hidden="true"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" fill="none" stroke="var(--sunk)" stroke-width="9"/><circle id="arc" cx="50" cy="50" r="44" fill="none" stroke="var(--moss)" stroke-width="9" stroke-linecap="round" stroke-dasharray="276.5" stroke-dashoffset="0"/></svg><div class="num" id="tnum"></div></div><p class="muted" style="text-align:center" id="tmsg" aria-live="polite">Go. Tap Done whenever you finish. Stopping early is allowed.</p><button class="btn main huge block" id="tDone">Done</button><div class="btns"><button class="btn" id="tHide">Hide, keep it running</button><button class="btn" id="tStop">Stop timer</button></div>`, el => {
+    try { navigator.wakeLock && navigator.wakeLock.request("screen").then(w => (wake = w)).catch(() => {}); } catch (e) {}
+    el.querySelector("#tDone").onclick = () => { const a = S.activeTimer; S.activeTimer = null; closeSheet(); if (a) completeTask({ key: a.key, t: a.t, where: a.where, micro: a.micro, custom: a.custom }, true); };
+    el.querySelector("#tHide").onclick = () => { closeSheet(); renderIsland(); };
+    el.querySelector("#tStop").onclick = () => { S.activeTimer = null; save(); closeSheet(); renderIsland(); };
+    let rang = false;
+    const draw = () => { const a = S.activeTimer; if (!a || !el.isConnected) return stopTicker(); const left = Math.max(0, a.end - Date.now()), s = Math.ceil(left / 1000);
+      el.querySelector("#tnum").textContent = Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0");
+      el.querySelector("#arc").setAttribute("stroke-dashoffset", String(276.5 * (1 - left / a.total)));
+      if (left <= 0 && !rang) { rang = true; ding(true); el.querySelector("#tmsg").textContent = "Time! You started, and that's the hard part. Keep going or tap Done."; } };
+    draw(); ticker = setInterval(draw, 250);
+  }, { label: "Timer", onClose: stopTicker });
+}
+setInterval(() => { if (S.activeTimer && !$("#sheetHost").firstChild) renderResume(); }, 15000);
 
 /* ================= money: Big Sis Check ================= */
 const PERSONAS = {
@@ -982,40 +1345,57 @@ const LOADING = ["{n} is checking those numbers...", "Hold on. Let me see what f
 /* Backup roasts when Claude isn't reachable (for example on the GitHub Pages copy). The verdict never comes from here. */
 const FALLBACK = {
   sis: {
-    green: ["Okay, look at you being responsible. {item} for {price}? It fits. I'm still judging your taste a little, but go ahead. 😂", "Bills handled and money left over? Who ARE you? Go get your {item}.", "I came ready to fight and you actually have the money. Fine. Approved. Don't get used to it. 😌"],
-    yellow: ["Hmm. {item} for {price}? I'm not saying no. I'm saying sit down for a second.", "You CAN. But should you? Let's wait before you act brand new.", "Your wallet is side-eyeing you right now and honestly so am I. 👀"],
-    red: ["{price}? For {item}? Tell it to leave a voicemail. Your bank account is fighting for its life. 😭", "Absolutely not. You'd be left with {left} and a whole lot of confidence. Put the phone down.", "Girl. Be so for real. {item} is not about to take your whole week from you.", "The audacity. The nerve. The {price}. No ma'am."]
+    green: ["Okay, look at you being responsible. {item} for {price}? It fits. I'm still judging your taste a little, but go ahead. 😂", "Bills handled and money left over? Who ARE you? Go get your {item}.", "I came ready to fight and you actually have the money. Fine. Approved. Don't get used to it. 😌", "You asked first AND it fits? Growth. Go ahead, sis.", "I looked at the numbers twice. I'm annoyed I can't say no. Enjoy it.", "That's a sensible purchase from a sensible person. Who knew. 😂", "Approved. And I'm only a little suspicious that you're being this mature.", "It fits, you planned, nobody's getting hurt. Go live your life."],
+    yellow: ["Hmm. {item} for {price}? I'm not saying no. I'm saying sit down for a second.", "You CAN. But should you? Let's wait before you act brand new.", "Your wallet is side-eyeing you right now and honestly so am I. 👀", "It's not a no. It's a 'let me see your face in two days and ask again.'", "I've seen you want things before. Let's see if this one survives the weekend.", "Close. Not quite. Give it a minute before you click anything.", "You're not wrong for wanting it. You're just early.", "Pause. Hydrate. Then we'll talk about the {item}."],
+    red: ["{price}? For {item}? Tell it to leave a voicemail. Your bank account is fighting for its life. 😭", "Absolutely not. You'd be left with {left} and a whole lot of confidence. Put the phone down.", "Girl. Be so for real. {item} is not about to take your whole week from you.", "The audacity. The nerve. The {price}. No ma'am.", "Respectfully? No. Disrespectfully? Also no.", "I'm not even mad. I'm just going to sit here quietly while you close that tab.", "You really typed {price} with your whole chest. The answer is no. 😭", "Your future self just called me crying. We're not doing this."]
   },
   dad: {
-    green: ["You have the money and the bills are handled. I'm suspicious, but approved.", "Hm. {price}. It fits. Don't tell your mother I said yes. 😂", "Okay. You did the math before you spent. That's my child."],
-    yellow: ["Wait two days. If you still want {item} after that, we'll talk. Maybe.", "{price}? I'm not saying no. I'm saying turn off the light in the other room first.", "We have something at home that does the same thing. Go look."],
-    red: ["{price}? What is inside this {item}, next month's rent? Absolutely not.", "You know how many packs of chicken that is? I did the math. No.", "You're going to walk around with {left} and confidence? Not in this house. 😭", "Put it back. Put. It. Back."]
+    green: ["You have the money and the bills are handled. I'm suspicious, but approved.", "Hm. {price}. It fits. Don't tell your mother I said yes. 😂", "Okay. You did the math before you spent. That's my child.", "Fine. But you're keeping the receipt in a safe place. Not in your pocket. A SAFE place.", "It fits the budget. I don't understand it, but it fits.", "Go ahead. And turn the light off on your way out.", "You planned for this? Who taught you that? Oh right. Me.", "Approved. I'm going to act like I didn't see the price."],
+    yellow: ["Wait two days. If you still want {item} after that, we'll talk. Maybe.", "{price}? I'm not saying no. I'm saying turn off the light in the other room first.", "We have something at home that does the same thing. Go look.", "Let it sit in the cart. If it's still there in two days, it really wants to come home.", "Hmm. Let me think about it. That means wait.", "You don't need it today. Things you need today are food and sleep.", "Sleep on it. It's free. Sleep is the only free thing left.", "Let's see if it goes on sale. Things always go on sale."],
+    red: ["{price}? What is inside this {item}, next month's rent? Absolutely not.", "You know how many packs of chicken that is? I did the math. No.", "You're going to walk around with {left} and confidence? Not in this house. 😭", "Put it back. Put. It. Back.", "I worked all day so you could NOT buy this.", "When I was your age I had one pair of shoes and I was happy.", "No. And don't ask your mother either, I already told her.", "The answer is no and the electricity bill agrees with me."]
   },
   bestie: {
-    green: ["Babe it fits!! Get the {item}. I'm happy for you. I'm also screenshotting this for the group chat. 😂", "Bills paid, money left, and you asked first? Healed behavior. Go.", "Okay rich auntie, I see you. Approved."],
-    yellow: ["Babe. I love you. But let's sleep on the {item}. 👀", "You're not wrong for wanting it. You're just early. Give it two days.", "I'm not saying no. I'm saying I've seen this movie before."],
-    red: ["Babe. {price}?? On {item}?? I'm sending this to the group chat. 😭", "Ma'am you would have {left} left. LEFT. Put the phone down.", "Nope. Not today. Not on my watch. I'll go window shopping with you instead."]
+    green: ["Babe it fits!! Get the {item}. I'm happy for you. I'm also screenshotting this for the group chat. 😂", "Bills paid, money left, and you asked first? Healed behavior. Go.", "Okay rich auntie, I see you. Approved.", "The numbers said yes so I'm saying yes. Send me a pic when it comes.", "You did everything right. Go treat yourself, you earned it.", "I love when you're responsible. It's so attractive. Approved. 😌", "Yes ma'am. Budget-friendly AND cute? We love.", "It fits! Go! Before you overthink it!"],
+    yellow: ["Babe. I love you. But let's sleep on the {item}. 👀", "You're not wrong for wanting it. You're just early. Give it two days.", "I'm not saying no. I'm saying I've seen this movie before.", "Put it in the cart and walk away. If you dream about it, we'll revisit.", "I need you to give this 48 hours. For me. For us.", "It's giving 'maybe.' Let's let it marinate.", "Ask me again after payday and I'll probably cheer for you.", "Babe it's a maybe. Don't make me be the bad guy."],
+    red: ["Babe. {price}?? On {item}?? I'm sending this to the group chat. 😭", "Ma'am you would have {left} left. LEFT. Put the phone down.", "Nope. Not today. Not on my watch. I'll go window shopping with you instead.", "I love you too much to let you do this.", "I'm hiding your phone. Don't look for it.", "If I let you buy this I'm a bad friend, and I'm a GREAT friend.", "This is me physically blocking the checkout button. 🙅🏾‍♀️", "Babe. No. Let's get boba instead. A cheap boba."]
   },
-  needGreen: ["That's a need. Go handle it. This is exactly what the money is for.", "No roast here. You need it, it fits. Take care of yourself."],
-  needOver: ["I know you need it, so I'm not playing with you. But it doesn't fit as-is. Let's find the cheaper way to cover it.", "This is a real need, so no jokes. We just have to make the numbers work without touching your bills."],
+  drag: {
+    green: ["I hate that this is approved. I had a whole speech ready.", "Fine. It fits. But I'm judging the {item} with my whole chest. 😂"],
+    yellow: ["Your bank account just sent me a 'please help' text. Wait two days.", "You've been brand new all week. Sit down."],
+    red: ["{price}?? You can't even afford to think about this. 😭", "Your account balance is a cry for help and you're out here shopping.", "I'm calling your mama. And your bank. And your therapist.", "This purchase would be a crime and I'm the police."]
+  },
+  needGreen: ["That's a need. Go handle it. This is exactly what the money is for.", "No roast here. You need it, it fits. Take care of yourself.", "Needs come first. You've got room. Go get it.", "That's a grown-up purchase and I'm proud of you for handling it."],
+  needOver: ["I know you need it, so I'm not playing with you. But it doesn't fit as-is. Let's find the cheaper way to cover it.", "This is a real need, so no jokes. We just have to make the numbers work without touching your bills.", "You need it, so we're figuring this out together. Let's look for the cheaper option first."],
   gentle: {
-    green: ["This fits nicely. Enjoy it. 💛", "You've got room for this. Go for it."],
-    yellow: ["You could, but it's a big piece of your week. Maybe give it a day or two?", "Not a no, just a pause. Let's see if you still want it later."],
-    red: ["Love you, but this one doesn't fit right now. {item} can wait.", "This would stretch you too thin this week. Let's park it."]
+    green: ["This fits nicely. Enjoy it. 💛", "You've got room for this. Go for it.", "Looks good. You planned well.", "Yes, this works with your budget."],
+    yellow: ["You could, but it's a big piece of your budget. Maybe give it a day or two?", "Not a no, just a pause. Let's see if you still want it later.", "It's close. A short wait might help you decide.", "Maybe sleep on it? There's no rush."],
+    red: ["Love you, but this one doesn't fit right now. {item} can wait.", "This would stretch you too thin right now. Let's park it.", "Not this time. It'll still be there after payday.", "This one's a no for now, and that's okay."]
+  },
+  appeal: {
+    same: ["I heard you. I love you. The numbers didn't move, so neither did I. 😭", "That was a beautiful speech. Still no.", "Counselor, your argument has been noted. Denied.", "Okay that was cute. Doesn't change the math though.", "Mm-hm. Mm-hm. I'm listening. Still the same answer."],
+    better: ["Okay okay. With THAT info? Fine. I respect someone who brings receipts.", "See, you should've led with that. That changes things.", "Why didn't you say that first?? Okay, new answer.", "Now we're talking. Facts over feelings. Updated."],
+    worse: ["You really argued yourself into a worse answer. 😭", "Ma'am. That made it worse."],
+    gentleSame: ["I hear you. The numbers are the same, so my answer is too. We can look again later."]
   }
 };
+const RANK = { green: 2, yellow: 1, red: 0 };
+function appealRoast(from, to) {
+  if (from === to) return pick(S.sis.intensity === 1 ? FALLBACK.appeal.gentleSame : FALLBACK.appeal.same);
+  return pick(RANK[to] > RANK[from] ? FALLBACK.appeal.better : FALLBACK.appeal.worse);
+}
 function fallbackRoast(input, n, d) {
   const fill = t => t.split("{item}").join(input.item).split("{price}").join(SisEngine.fmt(input.price)).split("{left}").join(n.after === null ? "nothing" : SisEngine.fmt(n.after));
-  if (d.verdict === "needinfo") return "I can't read you yet because I don't know your numbers. Give me your weekly budget and I'll get to work. 👀";
+  if (d.verdict === "needinfo") return "I can't read you yet because I don't know your numbers. Give me your spending money and I'll get to work. 👀";
   if (input.kind === "need") return fill(pick(d.verdict === "green" ? FALLBACK.needGreen : FALLBACK.needOver));
   if (S.sis.intensity === 1) return fill(pick(FALLBACK.gentle[d.verdict]));
   const set = S.sis.persona === "bestie" ? FALLBACK.bestie : (S.sis.persona === "haitiandad" || S.sis.persona === "blackdad") ? FALLBACK.dad : FALLBACK.sis;
-  const recent = S.sis.history.slice(-6).map(r => r.roast);
-  const options = set[d.verdict].filter(x => !recent.includes(fill(x)));
-  return fill(pick(options.length ? options : set[d.verdict]));
+  let pool = set[d.verdict].slice(); if (S.sis.intensity === 3) pool = pool.concat(FALLBACK.drag[d.verdict], FALLBACK.drag[d.verdict]);
+  const recent = S.sis.history.slice(-8).map(r => r.roast);
+  const options = pool.filter(x => !recent.includes(fill(x)));
+  return fill(pick(options.length ? options : pool));
 }
 
-async function aiRoast(input, n, d, base) {
+async function aiRoast(input, n, d, base, appeal) {
   if (!sampleFn) return null;
   const p = PERSONAS[S.sis.persona] || PERSONAS.bigsis, name = R();
   const persona = S.sis.persona === "custom" ? (S.sis.custom || "A funny, honest friend who cares about the user.") : p.desc;
@@ -1048,7 +1428,9 @@ Facts (use only these numbers, never invent balances, bills or other facts):
 - ${facts}
 Suggested reality check: ${base.reality}
 Suggested next move: ${base.next}
-
+${appeal ? `
+The user pushed back ("But hear me out"). They said: "${appeal.note || "(nothing extra)"}". New facts: ${appeal.facts || "none"}. The verdict ${appeal.changed ? "CHANGED because the facts changed the math" : "did NOT change, because nothing they said changes the numbers"}. React to their case in character: ${appeal.changed ? "admit the new facts fairly" : "acknowledge them warmly but hold firm"}.
+` : ""}
 Reply with JSON only: {"roast": string, "reality": string, "next": string}
 - roast: 1 to 3 sentences, genuinely funny, in character, matching the verdict. If approved, you can tease their taste but clearly say go ahead. At most 2 emoji.
 - reality: 2 to 4 conversational sentences explaining why, using only the facts above.
@@ -1107,8 +1489,11 @@ function chipGroup(el, items, key) {
 chipGroup($("#kindChips"), KINDS, "kind"); chipGroup($("#urgChips"), URGENCY, "urgency");
 $("#linkToggle").onclick = () => { $("#linkField").hidden = false; $("#linkToggle").hidden = true; $("#buyLink").focus(); };
 
-const wkNow = () => SisEngine.weekKey(Date.now());
-function sisRoll() { S.sis.budget = SisEngine.rollWeek(S.sis.budget, wkNow()); }
+const wkNow = () => SisEngine.periodInfo(S.sis.budget, Date.now()).key;
+const periodWord = () => SisEngine.periodLabel(S.sis.budget);
+function touchBudget() { S.sis.budget.changed = Date.now(); }
+/* New period: the old period's total goes into the period log; purchases are never touched. */
+function sisRoll() { const r = SisEngine.rollPeriod(S.sis.budget, Date.now()); S.sis.budget = r.budget; if (r.closed && !(S.sis.periods || []).some(p => p.start === r.closed.start)) { S.sis.periods = (S.sis.periods || []).concat(r.closed); touchBudget(); } }
 const avoidedAll = () => SisEngine.r2(SisEngine.avoided(S.sis.history) + (S.nahAmt || 0));
 const fmtDate = t => new Date(t).toLocaleDateString(undefined, { month: "short", day: "numeric" });
 const DECISIONS = { bought: "Bought", skipped: "Didn't buy", jail: "Wishlist Jail", cooldown: "Cooling off" };
@@ -1120,10 +1505,10 @@ function renderMoney() {
   $("#sisTitle").textContent = R() + " Check 💸";
   $("#sisWho").innerHTML = `<span><b>${esc(R())}</b>${R() === (PERSONAS[sis.persona] || PERSONAS.bigsis).label ? "" : " · " + esc((PERSONAS[sis.persona] || PERSONAS.bigsis).label)} · ${esc(INTENSITY[sis.intensity][0])}</span><span class="muted">Change</span>`;
   const n = SisEngine.numbers(b, 0, new Date());
-  if (n.available === null) { $("#sisAvail").textContent = "Not set"; $("#sisAvailSub").textContent = "Add your weekly spending money so I can check purchases."; }
+  if (n.available === null) { $("#sisAvail").textContent = "Not set"; $("#sisAvailSub").textContent = "Add your spending money so I can check purchases."; }
   else {
     $("#sisAvail").textContent = fmt(n.available);
-    const bits = [fmt(n.weekly) + " this week", fmt(n.spent) + " spent"];
+    const pi = SisEngine.periodInfo(b, Date.now()); const bits = [fmt(n.weekly) + " " + periodWord(), fmt(n.spent) + " spent", "new period in " + pi.daysLeft + "d"];
     if (n.balance !== null) bits.push(n.hitsBills === false && n.billsRoom >= n.remaining ? "bills covered" : "limited by bills");
     else if (n.bills) bits.push("add your balance to check bills");
     if (n.daysToPayday !== null) bits.push(n.daysToPayday === 0 ? "payday today" : "payday in " + n.daysToPayday + "d");
@@ -1131,6 +1516,8 @@ function renderMoney() {
   }
   // stats
   $("#avoidAmt").textContent = fmt(avoidedAll());
+  $("#spentAmt").textContent = fmt(b.spent || 0); $("#spentLbl").textContent = "actually spent " + periodWord();
+  $("#plannedAmt").textContent = fmt(sis.history.filter(r => r.decision === "cooldown").reduce((a, r) => a + r.price, 0));
   const jailed = sis.history.filter(r => r.decision === "jail"), cooling = sis.history.filter(r => r.decision === "cooldown");
   $("#jailCount").textContent = jailed.length;
   const now = Date.now();
@@ -1145,6 +1532,8 @@ function renderMoney() {
   const hist = sis.history.slice().sort((a, c) => c.at - a.at).slice(0, 40);
   $("#history").innerHTML = hist.length ? hist.map(r => `<button class="hrow" data-edit="${esc(r.id)}"><div class="grow"><b>${esc(r.item)}</b> · ${fmt(r.price)}<div class="meta"><span class="small muted">${fmtDate(r.at)}</span>${r.verdict ? `<span class="vchip ${r.verdict}">${{ green: "Approved", yellow: "Hold up", red: "Absolutely not" }[r.verdict]}</span>` : ""}<span class="dchip">${r.decision ? DECISIONS[r.decision] : "Not decided"}</span></div></div><span class="muted">Edit</span></button>`).join("")
     : `<div class="empty">Nothing checked yet. Next time you're about to buy something, run it by ${esc(R())} first.</div>`;
+  const per = (sis.periods || []).slice(-6).reverse(), dshort = k => new Date(k + "T12:00").toLocaleDateString(undefined, { month: "short", day: "numeric" });
+  $("#periods").innerHTML = per.length ? `<div class="sec" style="margin-top:12px"><h3>Past periods</h3>${per.map(p => `<div class="item"><div class="grow">${dshort(p.start)}${p.end ? " – " + dshort(p.end) : ""}</div><b>${fmt(p.spent)}${p.amount !== null && p.amount !== undefined ? ` <span class="muted small">of ${fmt(p.amount)}</span>` : ""}</b></div>`).join("")}</div>` : "";
   // no-spend + check-in
   const ws = weekStart(), t = today(); let html = "";
   ["M", "T", "W", "T", "F", "S", "S"].forEach((l, i) => { const d = dkey(new Date(ws + i * DAY + 2 * HOUR)), on = S.nospend.includes(d); html += `<div class="day${on ? " on" : ""}${d === t ? " today" : ""}"><i>${on ? "✓" : ""}</i>${l}</div>`; });
@@ -1164,11 +1553,11 @@ function renderMoney() {
 function setDecision(id, dec, cool) {
   const i = S.sis.history.findIndex(r => r.id === id); if (i < 0) return;
   let r = Object.assign({}, S.sis.history[i]);
-  r.decision = dec || null; r.decidedAt = Date.now();
+  r.decision = dec || null; r.decidedAt = Date.now(); r.updated = Date.now();
   if (dec === "cooldown") r.until = Date.now() + (SisEngine.COOLDOWNS[cool] || SisEngine.COOLDOWNS["48h"]); else delete r.until;
   if (dec === "jail") r.jailAt = Date.now();
   sisRoll();
-  const out = SisEngine.reconcile(r, S.sis.budget, wkNow()); r = out.rec; S.sis.budget = out.budget;
+  const out = SisEngine.reconcile(r, S.sis.budget, wkNow()); r = out.rec; S.sis.budget = out.budget; touchBudget();
   let msg = "";
   if ((dec === "skipped" || dec === "jail") && !r.rewarded) { r.rewarded = true; S.shells += 15; S.earned += 15; ding(true); confetti(90); }
   if (dec === "jail") msg = "Congratulations. We successfully stopped you from acting brand new today. +15";
@@ -1180,6 +1569,7 @@ function setDecision(id, dec, cool) {
 ["#cooldowns", "#jail"].forEach(sel => $(sel).addEventListener("click", e => { const b = e.target.closest("[data-act]"); if (b) setDecision(b.dataset.id, b.dataset.act); }));
 
 /* ---- the check ---- */
+const snapN = n => ({ available: n.available, price: n.price, after: n.after, pct: isFinite(n.pct) ? n.pct : null, hitsBills: n.hitsBills, billsUnknown: n.billsUnknown, hitsSavings: n.hitsSavings, bills: n.bills, savings: n.savings, daysToPayday: n.daysToPayday, extra: n.extra || 0 });
 let checking = false;
 $("#checkBtn").onclick = async () => {
   if (checking) return;
@@ -1201,9 +1591,9 @@ $("#checkBtn").onclick = async () => {
   const ai = await aiRoast(input, n, d, base);
   clearInterval(spin);
   const rec = Object.assign({}, input, { at: Date.now(), verdict: d.verdict, reasons: d.reasons, cooldown: d.cooldown,
-    n: { available: n.available, price: n.price, after: n.after, pct: isFinite(n.pct) ? n.pct : null, hitsBills: n.hitsBills, billsUnknown: n.billsUnknown, hitsSavings: n.hitsSavings, bills: n.bills, savings: n.savings, daysToPayday: n.daysToPayday },
+    n: snapN(n),
     roast: ai ? ai.roast : fallbackRoast(input, n, d), reality: ai ? ai.reality : base.reality, next: ai && input.kind !== "need" ? ai.next : base.next, ai: !!ai, name: R(), decision: null });
-  S.sis.history.push(rec); if (S.sis.history.length > 300) S.sis.history = S.sis.history.slice(-300);
+  S.sis.history.push(rec);
   save(); checking = false; $("#checkBtn").disabled = false;
   ["#buyItem", "#buyAmt", "#buyWhy", "#buyLink"].forEach(s => ($(s).value = ""));
   renderMoney(); showResult(rec);
@@ -1232,20 +1622,60 @@ function showResult(rec) {
     </dl></div>
     <div class="sec"><h3>Reality check</h3><p>${esc(rec.reality)}</p></div>
     <div class="sec"><h3>Next move</h3><p><b>${esc(rec.next)}</b></p></div>
+    ${rec.appeals && rec.appeals.length ? `<p class="small muted" style="text-align:center">Reconsidered after you made your case${rec.original && rec.original.verdict ? ". First answer: " + esc(SisEngine.label(rec.original.verdict, rec.name || R())) : ""}.</p>` : ""}
+    ${!decided && rec.verdict !== "green" && (rec.appeals || []).length < 3 ? `<button class="btn block hear" id="hearBtn">But Hear Me Out... 😭</button>` : ""}
     ${decided ? `<p class="small muted" style="text-align:center">You decided: ${DECISIONS[decided]}. You can change it in Purchase history.</p><button class="btn block" id="rClose">Close</button>` : actions}
     <p class="fine">The math decides the verdict. ${rec.ai ? "The jokes were written by Claude." : "The jokes are built in."}</p>`, el => {
     el.querySelectorAll("[data-r]").forEach(b => (b.onclick = () => { if (b.disabled) return; el.querySelectorAll("[data-r]").forEach(x => (x.disabled = true)); closeSheet(); setDecision(rec.id, b.dataset.r, b.dataset.c); }));
     const c = el.querySelector("#rClose"); c && (c.onclick = closeSheet);
-  });
+    const h = el.querySelector("#hearBtn"); h && (h.onclick = () => hearMeOut(rec));
+  }, { label: (rec.name || R()) + "'s answer" });
+}
+function hearMeOut(rec) {
+  openSheet(`<div class="label">But Hear Me Out... 😭</div><h2>Okay. Make your case.</h2><p class="small muted">New facts can change my answer. Just insisting can't. The math decides.</p>
+    ${rec.kind !== "need" ? `<div class="switch"><div class="grow"><b id="lb-hneed">It's actually a need</b><div class="small muted">Food, kids, medicine, work, safety, bills.</div></div><button class="tog" role="switch" id="hNeed" aria-checked="false" aria-labelledby="lb-hneed"></button></div>` : ""}
+    <div class="field"><label for="hPrice">The real price is <span class="muted">(optional)</span></label><input id="hPrice" inputmode="decimal" placeholder="${esc(rec.price)}"><span class="help">On sale, a coupon, or you found it cheaper.</span></div>
+    <div class="field"><label for="hAside">Money set aside just for this <span class="muted">(optional)</span></label><input id="hAside" inputmode="decimal" placeholder="0"><span class="help">Gift money, a refund, or savings you put away for exactly this. Not your regular spending money.</span></div>
+    <div class="field"><label for="hNote">Anything else I should know?</label><textarea id="hNote" maxlength="300" placeholder="My old ones literally have a hole in them..."></textarea></div>
+    <button class="btn coral block" id="hGo">Reconsider</button><button class="btn block" id="hBack">Never mind</button>`, el => {
+    const nt = el.querySelector("#hNeed"); nt && (nt.onclick = () => nt.setAttribute("aria-checked", nt.getAttribute("aria-checked") !== "true"));
+    el.querySelector("#hBack").onclick = () => showResult(S.sis.history.find(r => r.id === rec.id) || rec);
+    el.querySelector("#hGo").onclick = () => {
+      const need = !!(nt && nt.getAttribute("aria-checked") === "true"), pRaw = el.querySelector("#hPrice").value.trim(), aRaw = el.querySelector("#hAside").value.trim(), note = el.querySelector("#hNote").value.trim().slice(0, 300);
+      const price = pRaw ? SisEngine.parsePrice(pRaw) : null, aside = aRaw ? SisEngine.parsePrice(aRaw) : null;
+      if (pRaw && price === null) { toast("That price doesn't look right."); el.querySelector("#hPrice").focus(); return; }
+      if (aRaw && aside === null) { toast("That amount doesn't look right."); el.querySelector("#hAside").focus(); return; }
+      if (!need && !price && !aside && !note) { toast("Tell me something new first. 👀"); return; }
+      reconsider(rec, { need, price, aside: aside || 0, note });
+    };
+  }, { label: "But hear me out" });
+}
+let reconsidering = false;
+async function reconsider(rec, f) {
+  if (reconsidering) return; reconsidering = true;
+  const i = S.sis.history.findIndex(r => r.id === rec.id); if (i < 0) { reconsidering = false; return; }
+  const cur = S.sis.history[i];
+  const input = { id: cur.id, item: cur.item, price: f.price || cur.price, why: cur.why, kind: f.need ? "need" : cur.kind, urgency: cur.urgency, link: cur.link };
+  sisRoll();
+  const now = new Date(), n = SisEngine.numbers(S.sis.budget, input.price, now, f.aside), d = SisEngine.decide(input, n, S.sis.history, S.sis.rules, now);
+  const base = { reality: SisEngine.reality(input, n, d).join(" "), next: SisEngine.nextMove(input, n, d) };
+  openSheet(`<div class="loadbox"><div class="sis-ava">${avatar("needinfo")}</div><h2>${esc(R())} is reviewing your case...</h2></div>`, null, { label: "Reconsidering" });
+  const facts = [f.need ? "it's actually a need" : "", f.price ? "the real price is " + SisEngine.fmt(f.price) : "", f.aside ? SisEngine.fmt(f.aside) + " set aside just for this" : ""].filter(Boolean).join("; ");
+  const ai = await aiRoast(input, n, d, base, { note: f.note, facts, from: cur.verdict, changed: d.verdict !== cur.verdict });
+  const r = Object.assign({}, cur, { original: cur.original || { verdict: cur.verdict, roast: cur.roast, price: cur.price, kind: cur.kind },
+    appeals: (cur.appeals || []).concat({ at: Date.now(), note: f.note, from: cur.verdict, to: d.verdict }),
+    price: input.price, kind: input.kind, verdict: d.verdict, reasons: d.reasons, cooldown: d.cooldown, n: snapN(n),
+    roast: ai ? ai.roast : appealRoast(cur.verdict, d.verdict), reality: ai ? ai.reality : base.reality, next: ai && input.kind !== "need" ? ai.next : base.next, ai: !!ai, updated: Date.now() });
+  S.sis.history[i] = r; save(); reconsidering = false; renderMoney(); showResult(r);
 }
 function needInfoSheet() {
-  openSheet(`<div class="speaker"><div class="sis-ava">${avatar("needinfo")}</div><b>${esc(R())}</b></div><div class="roast">I can't read you yet because I don't know your numbers. Give me your weekly spending money and I'll get to work. 👀</div><div class="verdict needinfo">${SisEngine.label("needinfo")}</div><button class="btn main block" id="niGo">Add my budget</button>`, el => (el.querySelector("#niGo").onclick = () => { closeSheet(); budgetSheet(); }));
+  openSheet(`<div class="speaker"><div class="sis-ava">${avatar("needinfo")}</div><b>${esc(R())}</b></div><div class="roast">I can't read you yet because I don't know your numbers. Give me your spending money and I'll get to work. 👀</div><div class="verdict needinfo">${SisEngine.label("needinfo")}</div><button class="btn main block" id="niGo">Add my budget</button>`, el => (el.querySelector("#niGo").onclick = () => { closeSheet(); budgetSheet(); }));
 }
 
 /* ---- budget editor ---- */
 const BUDGET_FIELDS = [
-  ["weekly", "Weekly spending money", "What you plan to spend on non-bill stuff this week. Required."],
-  ["spent", "Already spent this week", "Resets every Monday. Anything you mark \"bought\" here gets added for you."],
+  ["weekly", "Spending money for each period", "What you plan to spend on non-bill stuff each period. Required."],
+  ["spent", "Already spent this period", "Starts over each new period (your totals are kept under Past periods). Anything you mark \"bought\" here gets added for you."],
   ["balance", "Money in your account right now", "Optional. Only used to make sure bills are covered. Never treated as spending money."],
   ["bills", "Bills due before payday (not paid yet)", "Optional. Rent, phone, car, anything still coming out."],
   ["savings", "Savings to set aside before payday", "Optional. A purchase that would eat into this gets a Hold Up."],
@@ -1253,12 +1683,20 @@ const BUDGET_FIELDS = [
 ];
 function budgetSheet() {
   const b = S.sis.budget;
+  const CYC = [["weekly", "Weekly"], ["biweekly", "Every 2 weeks"], ["monthly", "Monthly"], ["custom", "Custom"]];
   openSheet(`<div class="label">Your budget</div><h2 class="big-title">Give me your real numbers</h2><p class="small muted">I only use what you type here. Nothing is connected to your bank.</p>
+    <div class="field"><span class="flabel" id="cycLbl">How often does your budget start over?</span><div class="chips2" id="bf-cycle" role="radiogroup" aria-labelledby="cycLbl">${CYC.map(([v, l]) => `<button class="chip2" role="radio" data-v="${v}" aria-checked="${(b.cycle || "weekly") === v}">${l}</button>`).join("")}</div></div>
+    <div class="field" id="bf-cdwrap" ${b.cycle === "custom" ? "" : "hidden"}><label for="bf-cdays">Every how many days?</label><input id="bf-cdays" inputmode="numeric" value="${esc(b.customDays || 10)}"></div>
+    <div class="field"><label for="bf-anchor">Reset date</label><input id="bf-anchor" type="date" value="${esc(b.anchor || SisEngine.periodInfo(b, Date.now()).key)}"><span class="help">A day your budget starts over, like your payday. It repeats from there. Changing this starts a new period.</span></div>
     ${BUDGET_FIELDS.map(([k, l, h]) => `<div class="field"><label for="bf-${k}">${l}</label><input id="bf-${k}" inputmode="decimal" value="${b[k] === null || b[k] === undefined ? "" : esc(b[k])}" placeholder="${k === "weekly" ? "150" : ""}"><span class="help">${h}</span></div>`).join("")}
     <div class="field"><label for="bf-payday">Next payday</label><input id="bf-payday" type="date" value="${esc(b.payday || "")}"><span class="help">Optional. Helps me know how long your money has to last.</span></div>
     <button class="btn main block" id="bfSave">Save budget</button>`, el => {
+    let cyc = b.cycle || "weekly";
+    el.querySelector("#bf-cycle").onclick = e => { const c = e.target.closest("[data-v]"); if (!c) return; cyc = c.dataset.v; el.querySelectorAll("#bf-cycle .chip2").forEach(x => x.setAttribute("aria-checked", x === c)); el.querySelector("#bf-cdwrap").hidden = cyc !== "custom"; };
     el.querySelector("#bfSave").onclick = () => {
       const nb = Object.assign({}, S.sis.budget);
+      nb.cycle = cyc; nb.anchor = el.querySelector("#bf-anchor").value || "";
+      if (cyc === "custom") { const cd = Math.round(Number(el.querySelector("#bf-cdays").value)); if (!(cd >= 1 && cd <= 90)) { toast("Pick between 1 and 90 days."); el.querySelector("#bf-cdays").focus(); return; } nb.customDays = cd; }
       for (const [k, l] of BUDGET_FIELDS) {
         const raw = el.querySelector("#bf-" + k).value.trim().replace(/[$,]/g, "");
         if (raw === "") { nb[k] = k === "spent" ? 0 : null; continue; }
@@ -1266,9 +1704,9 @@ function budgetSheet() {
         if (!isFinite(v) || v < 0) { toast(l + " needs to be a number of 0 or more."); el.querySelector("#bf-" + k).focus(); return; }
         nb[k] = SisEngine.r2(v);
       }
-      if (nb.weekly === null) { toast("Weekly spending money is the one I really need."); el.querySelector("#bf-weekly").focus(); return; }
-      nb.payday = el.querySelector("#bf-payday").value || ""; nb.updated = Date.now(); nb.week = wkNow();
-      S.sis.budget = nb; save(); closeSheet(); renderMoney(); toast("Budget saved.");
+      if (nb.weekly === null) { toast("Spending money is the one number I really need."); el.querySelector("#bf-weekly").focus(); return; }
+      nb.payday = el.querySelector("#bf-payday").value || ""; nb.updated = Date.now(); nb.changed = Date.now();
+      S.sis.budget = nb; sisRoll(); save(); closeSheet(); renderMoney(); toast("Budget saved.");
     };
   });
 }
@@ -1295,7 +1733,7 @@ function companionSheet() {
       const nm = name.value.trim().slice(0, 24); if (!nm) { toast("Give them a name."); name.focus(); return; }
       const custom = el.querySelector("#cCustom").value.trim().slice(0, 500);
       if (persona === "custom" && !custom) { toast("Tell me how your custom companion should talk."); el.querySelector("#cCustom").focus(); return; }
-      Object.assign(S.sis, { name: nm, persona, intensity, custom }); save(); closeSheet(); renderAll(); toast(nm + " is ready for you.");
+      Object.assign(S.sis, { name: nm, persona, intensity, custom, settingsAt: Date.now() }); save(); closeSheet(); renderAll(); toast(nm + " is ready for you.");
     };
   });
 }
@@ -1320,14 +1758,14 @@ $("#history").addEventListener("click", e => {
       const i = S.sis.history.findIndex(x => x.id === r.id); let nr = Object.assign({}, S.sis.history[i], { item, price });
       if ((nr.decision || "") !== dec) { nr.decision = dec || null; nr.decidedAt = Date.now(); if (dec === "cooldown") nr.until = Date.now() + SisEngine.COOLDOWNS["48h"]; else delete nr.until; if (dec === "jail") nr.jailAt = Date.now();
         if ((dec === "skipped" || dec === "jail") && !nr.rewarded) { nr.rewarded = true; S.shells += 15; S.earned += 15; } }
-      sisRoll(); const out = SisEngine.reconcile(nr, S.sis.budget, wkNow()); S.sis.history[i] = out.rec; S.sis.budget = out.budget;
+      nr.updated = Date.now(); sisRoll(); const out = SisEngine.reconcile(nr, S.sis.budget, wkNow()); S.sis.history[i] = out.rec; S.sis.budget = out.budget; touchBudget();
       save(); closeSheet(); renderAll(); toast("Saved.");
     };
     const del = el.querySelector("#hDel");
     del.onclick = () => { if (!del.dataset.sure) { del.dataset.sure = 1; del.textContent = "Tap again to delete"; return; }
       const i = S.sis.history.findIndex(x => x.id === r.id); sisRoll();
       const out = SisEngine.reconcile(Object.assign({}, S.sis.history[i], { decision: null }), S.sis.budget, wkNow()); S.sis.budget = out.budget;
-      S.sis.history.splice(i, 1); save(); closeSheet(); renderAll(); toast("Deleted."); };
+      S.sis.deleted = (S.sis.deleted || []).concat(r.id).slice(-2000); S.sis.history.splice(i, 1); touchBudget(); save(); closeSheet(); renderAll(); toast("Deleted."); };
   });
 });
 
@@ -1378,28 +1816,147 @@ $("#bragBtn").onclick = async () => {
     const blob = await makeShareImage(); if (!el.isConnected) return;
     if (shareURL) URL.revokeObjectURL(shareURL); shareURL = URL.createObjectURL(blob);
     el.querySelector("#shareImg").src = shareURL;
-    const sv = el.querySelector("#shSave"), help = el.querySelector("#shHelp");
-    if (downloads) { sv.disabled = false; help.textContent = "In the Claude phone app, Save opens your share sheet so you can text it or post it."; }
-    else { sv.hidden = true; help.textContent = "Press and hold the picture to save it, then post or text it."; }
-    sv.onclick = async () => { try { await downloads.save({ filename: "my-critter-cove.png", data: blob }); toast("Ready to share."); } catch (e) { if (e && e.code === "declined") return; toast("Couldn't save here. Press and hold the picture instead."); } };
+    const sv = el.querySelector("#shSave"), help = el.querySelector("#shHelp"), file = (() => { try { return new File([blob], "my-critter-cove.png", { type: "image/png" }); } catch (e) { return null; } })();
+    const canShare = !downloads && file && navigator.canShare && navigator.canShare({ files: [file] });
+    sv.disabled = false;
+    sv.textContent = canShare ? "Share image" : downloads ? "Save or share image" : "Download image";
+    help.textContent = downloads ? "In the Claude phone app, Save opens your share sheet so you can text it or post it." : canShare ? "Opens your phone's share sheet." : "Saves the picture so you can post or text it. You can also press and hold the picture.";
+    sv.onclick = async () => {
+      try {
+        if (canShare) { await navigator.share({ files: [file], text: caption() }); return; }
+        if (await saveFile("my-critter-cove.png", blob)) toast(downloads ? "Ready to share." : "Picture saved.");
+      } catch (e) { if (e && (e.code === "declined" || e.name === "AbortError")) return; toast("Couldn't save here. Press and hold the picture instead."); }
+    };
     el.querySelector("#shCopy").onclick = async () => { try { await navigator.clipboard.writeText(caption()); toast("Caption copied."); } catch (e) { toast(caption()); } };
-  });
+  }, { label: "Share my island" });
 };
 window.__makeShareImage = makeShareImage;
 
 /* ================= settings ================= */
 function applyPrefs() { document.documentElement.classList.toggle("calm", !!S.calm); document.documentElement.classList.toggle("big", !!S.big); }
-$("#gearBtn").onclick = () => openSheet(`<div class="label">Settings</div>
-  <div class="field"><label for="sName">Your name (for posts and the share card)</label><input id="sName" value="${esc(S.name)}" maxlength="20"></div>
-  <div><div class="switch"><div class="grow"><b>Sounds</b><div class="small muted">Soft plinks when you finish.</div></div><button class="tog" role="switch" data-k="sound" aria-checked="${S.sound}" aria-label="Sounds"></button></div>
-  <div class="switch"><div class="grow"><b>Extra calm</b><div class="small muted">No confetti or wobbling critters.</div></div><button class="tog" role="switch" data-k="calm" aria-checked="${S.calm}" aria-label="Extra calm"></button></div>
-  <div class="switch"><div class="grow"><b>Bigger text</b></div><button class="tog" role="switch" data-k="big" aria-checked="${S.big}" aria-label="Bigger text"></button></div></div>
+function saveFile(name, blob) {
+  if (downloads) return downloads.save({ filename: name, data: blob }).then(() => true, e => { if (e && e.code === "declined") return false; throw e; });
+  return new Promise((res, rej) => { try { const u = URL.createObjectURL(blob), a = document.createElement("a"); a.href = u; a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(u), 4000); res(true); } catch (e) { rej(e); } });
+}
+function hasSafety() { try { return !!localStorage.getItem(SAFETY_KEY); } catch (e) { return false; } }
+$("#gearBtn").onclick = settingsSheet;
+function settingsSheet() {
+  const where = syncState === "account" ? "Saving to your Claude account, so it follows you to other devices." : syncState === "error" ? "Saving on this device. Your Claude account couldn't be reached just now." : "Saving on this device only. Download a backup now and then so you never lose progress.";
+  openSheet(`<div class="label">Settings</div>
+  <button class="btn shell block" id="sTasks">My tasks and routines</button>
+  <div class="field"><label for="sName">Your name (for news and the share card)</label><input id="sName" value="${esc(S.name)}" maxlength="20"></div>
+  <div>
+    <div class="switch"><div class="grow"><b id="lb-sound">Sounds</b><div class="small muted">Soft plinks when you finish.</div></div><button class="tog" role="switch" data-k="sound" aria-checked="${S.sound}" aria-labelledby="lb-sound"></button></div>
+    <div class="switch"><div class="grow"><b id="lb-calm">Low stimulation</b><div class="small muted">No confetti, no moving critters, no waves.</div></div><button class="tog" role="switch" data-k="calm" aria-checked="${S.calm}" aria-labelledby="lb-calm"></button></div>
+    <div class="switch"><div class="grow"><b id="lb-quick">Skip reward pop-ups</b><div class="small muted">After a task, show a small note instead of a full screen.</div></div><button class="tog" role="switch" data-k="quick" aria-checked="${S.quick}" aria-labelledby="lb-quick"></button></div>
+    <div class="switch"><div class="grow"><b id="lb-big">Bigger text</b></div><button class="tog" role="switch" data-k="big" aria-checked="${S.big}" aria-labelledby="lb-big"></button></div>
+  </div>
+  <div class="sec"><h3>Backup</h3><p class="small muted">${where}</p>
+    <div class="btns"><button class="btn" id="sExport">Download backup</button><button class="btn" id="sImport">Restore from backup</button></div>
+    <input type="file" id="sFile" accept="application/json,.json" hidden>
+    ${hasSafety() ? `<button class="link" id="sUndo">Undo my last restore</button>` : ""}
+    <p class="small muted">Your backup file includes your money records. Keep it somewhere private.</p></div>
   <p class="small muted">Money settings (your budget, who roasts you and how hard) live in the Money tab.</p>
-  <p class="small muted">Tip: open this on your phone and use "Add to Home Screen" so the island is one tap away.</p>
+  <p class="small muted">Critter Cove is a helper for everyday tasks and spending. It isn't medical treatment.</p>
   <button class="btn main block" id="sSave">Save</button>`, el => {
-  el.querySelectorAll(".tog").forEach(t => (t.onclick = () => { const k = t.dataset.k; S[k] = !S[k]; t.setAttribute("aria-checked", S[k]); save(); applyPrefs(); }));
-  el.querySelector("#sSave").onclick = () => { S.name = el.querySelector("#sName").value.trim().slice(0, 20); save(); closeSheet(); renderAll(); };
-});
+    el.querySelectorAll(".tog").forEach(t => (t.onclick = () => { const k = t.dataset.k; S[k] = !S[k]; t.setAttribute("aria-checked", S[k]); save(); applyPrefs(); renderIsland(); }));
+    el.querySelector("#sSave").onclick = () => { S.name = el.querySelector("#sName").value.trim().slice(0, 20); save(); closeSheet(); renderAll(); };
+    el.querySelector("#sTasks").onclick = () => tasksSheet();
+    el.querySelector("#sExport").onclick = async () => {
+      const blob = new Blob([CoreEngine.makeBackup(S, Date.now())], { type: "application/json" });
+      try { if (await saveFile("critter-cove-backup-" + today() + ".json", blob)) toast("Backup saved."); } catch (e) { toast("Couldn't save the backup here. Try again from a browser."); }
+    };
+    const file = el.querySelector("#sFile");
+    el.querySelector("#sImport").onclick = () => file.click();
+    file.onchange = () => { const f = file.files && file.files[0]; if (!f) return; if (f.size > 5e6) { toast("That file is too big to be a Critter Cove backup."); return; }
+      const rd = new FileReader(); rd.onload = () => restoreSheet(String(rd.result || "")); rd.onerror = () => toast("That file couldn't be read."); rd.readAsText(f); };
+    const u = el.querySelector("#sUndo"); u && (u.onclick = () => { try { const prev = localStorage.getItem(SAFETY_KEY); if (!prev) return; S = prepare(JSON.parse(prev)); localStorage.removeItem(SAFETY_KEY); save(); applyPrefs(); closeSheet(); renderAll(); toast("Restore undone. You're back where you were."); } catch (e) { toast("Couldn't undo. Your current progress is unchanged."); } });
+  }, { label: "Settings" });
+}
+function restoreSheet(text) {
+  const res = CoreEngine.readBackup(text, prepare);
+  if (!res.ok) { openSheet(`<div class="label">Restore from backup</div><h2>That didn't work</h2><p>${esc(res.error)}</p><p class="small muted">Nothing was changed.</p><button class="btn block" id="rOk">Okay</button>`, el => (el.querySelector("#rOk").onclick = closeSheet)); return; }
+  const s = res.summary, when = s.exportedAt ? new Date(s.exportedAt).toLocaleString() : "unknown date";
+  openSheet(`<div class="label">Restore from backup</div><h2>Replace your progress with this backup?</h2>
+    <dl class="nums"><dt>Saved</dt><dd>${esc(when)}</dd><dt>Critters</dt><dd>${s.critters}</dd><dt>Shells</dt><dd>${s.shells}</dd><dt>Zones open</dt><dd>${s.zones}</dd><dt>Tiny things done</dt><dd>${s.tasks}</dd><dt>Your own tasks</dt><dd>${s.customTasks}</dd><dt>Purchases checked</dt><dd>${s.purchases}</dd></dl>
+    <p class="small muted">Your current progress will be kept as a safety copy on this device, so you can undo this from Settings.</p>
+    <button class="btn main block" id="rGo">Replace my progress</button><button class="btn block" id="rNo">Cancel</button>`, el => {
+    el.querySelector("#rNo").onclick = closeSheet;
+    el.querySelector("#rGo").onclick = () => {
+      try { localStorage.setItem(SAFETY_KEY, JSON.stringify(S)); } catch (e) { toast("Not enough space for a safety copy. Download a backup first, then try again."); return; }
+      S = res.data; S.at = Date.now(); save(); applyPrefs(); closeSheet(); renderAll(); toast("Backup restored.");
+    };
+  }, { label: "Restore from backup" });
+}
+
+/* ---- my tasks ---- */
+const WHEN = [["any", "Any time"], ["morning", "Morning"], ["day", "Daytime"], ["night", "Night"]];
+const REPEAT = [["daily", "Every day"], ["weekdays", "Weekdays"], ["weekly", "Certain days"], ["once", "Just once"]];
+const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const MINS = [1, 2, 5, 10, 15, 30];
+function taskSummary(t) {
+  const r = t.repeat === "weekly" ? (t.days.length ? t.days.map(d => DAYS[d]).join(", ") : "No days picked") : (REPEAT.find(x => x[0] === t.repeat) || [, ""])[1];
+  return [r, (WHEN.find(x => x[0] === t.when) || [, ""])[1], fmtMins(t.mins), t.priority === "high" ? "Important" : "", t.repeat === "once" && t.completedAt ? "Done" : "", t.paused ? "Paused" : ""].filter(Boolean).join(" · ");
+}
+function tasksSheet() {
+  const rooms = Object.keys(ROOMS);
+  openSheet(`<div class="label">My tasks and routines</div><h2>Your own tasks</h2>
+    <p class="small muted">These come first when they're due. Leave this empty and the app keeps suggesting tasks for you.</p>
+    <div id="myTasks"></div>
+    <button class="btn shell block" id="tAdd">Add a task</button>
+    <details class="adv"><summary>Suggested tasks</summary>
+      <p class="small muted">Turn off anything that doesn't fit your home or your life.</p>
+      <div class="switch"><div class="grow"><b id="lb-sm">Morning reset</b></div><button class="tog" role="switch" data-g="morning" aria-checked="${S.suggest.morning !== false}" aria-labelledby="lb-sm"></button></div>
+      <div class="switch"><div class="grow"><b id="lb-sn">Night reset</b></div><button class="tog" role="switch" data-g="night" aria-checked="${S.suggest.night !== false}" aria-labelledby="lb-sn"></button></div>
+      ${rooms.map((r, i) => `<div class="switch"><div class="grow"><b id="lb-r${i}">${esc(r)}</b></div><button class="tog" role="switch" data-r="${esc(r)}" aria-checked="${(S.suggest.rooms || {})[r] !== false}" aria-labelledby="lb-r${i}"></button></div>`).join("")}
+    </details>
+    <button class="btn block" id="tClose">Done</button>`, el => {
+    const list = () => { el.querySelector("#myTasks").innerHTML = S.custom.length ? S.custom.map(t => `<button class="hrow" data-tid="${esc(t.id)}"><div class="grow"><b>${esc(t.text)}</b>${t.cat ? ` <span class="dchip">${esc(t.cat)}</span>` : ""}<div class="small muted">${esc(taskSummary(t))}</div></div><span class="muted">Edit</span></button>`).join("") : `<div class="empty">No tasks of your own yet.</div>`; };
+    list();
+    el.querySelector("#myTasks").onclick = e => { const b = e.target.closest("[data-tid]"); if (b) taskEditSheet(S.custom.find(t => t.id === b.dataset.tid)); };
+    el.querySelector("#tAdd").onclick = () => taskEditSheet(null);
+    el.querySelectorAll(".tog").forEach(t => (t.onclick = () => {
+      const on = t.getAttribute("aria-checked") !== "true"; t.setAttribute("aria-checked", on);
+      if (t.dataset.g) S.suggest[t.dataset.g] = on; else { S.suggest.rooms = Object.assign({}, S.suggest.rooms, { [t.dataset.r]: on }); }
+      S.skip = 0; save(); renderIsland();
+    }));
+    el.querySelector("#tClose").onclick = () => { closeSheet(); renderIsland(); };
+  }, { label: "My tasks and routines" });
+}
+function taskEditSheet(task) {
+  const t = Object.assign({ id: "t" + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), text: "", when: "any", repeat: "daily", days: [], mins: 5, cat: "", priority: "normal" }, task || {});
+  const chips = (name, items, cur) => `<div class="chips2" role="radiogroup" aria-label="${name}">${items.map(([v, l]) => `<button class="chip2" role="radio" data-${name}="${v}" aria-checked="${String(v) === String(cur)}">${l}</button>`).join("")}</div>`;
+  openSheet(`<div class="label">${task ? "Edit task" : "Add a task"}</div>
+    <div class="field"><label for="te-text">What's the task?</label><input id="te-text" value="${esc(t.text)}" maxlength="100" placeholder="Feed the dog"></div>
+    <div class="field"><span class="flabel">How often?</span>${chips("rep", REPEAT, t.repeat)}<div class="chips2" id="te-days" ${t.repeat === "weekly" ? "" : "hidden"} aria-label="Which days">${DAYS.map((d, i) => `<button class="chip2" role="checkbox" data-day="${i}" aria-checked="${t.days.includes(i)}">${d}</button>`).join("")}</div></div>
+    <div class="field"><span class="flabel">When does it fit?</span>${chips("when", WHEN, t.when)}</div>
+    <div class="field"><span class="flabel">About how long?</span>${chips("mins", MINS.map(m => [m, fmtMins(m)]), t.mins)}</div>
+    <details class="adv" ${t.cat || t.priority === "high" ? "open" : ""}><summary>More options</summary>
+      <div class="field"><label for="te-cat">Category (optional)</label><input id="te-cat" value="${esc(t.cat)}" maxlength="30" placeholder="Pets, kids, car, work..."></div>
+      <div class="switch"><div class="grow"><b id="lb-imp">Important</b><div class="small muted">Shows up before everything else when it's due.</div></div><button class="tog" role="switch" id="te-imp" aria-checked="${t.priority === "high"}" aria-labelledby="lb-imp"></button></div>
+      ${task ? `<div class="switch"><div class="grow"><b id="lb-pause">Pause this task</b><div class="small muted">Keeps it saved without suggesting it.</div></div><button class="tog" role="switch" id="te-pause" aria-checked="${!!t.paused}" aria-labelledby="lb-pause"></button></div>` : ""}
+    </details>
+    <div class="btns"><button class="btn main" id="te-save">Save</button>${task ? `<button class="btn" id="te-del">Delete</button>` : ""}</div>
+    <button class="btn block" id="te-back">Back</button>`, el => {
+    const radio = attr => el.querySelectorAll(`[data-${attr}]`).forEach(b => (b.onclick = () => { el.querySelectorAll(`[data-${attr}]`).forEach(x => x.setAttribute("aria-checked", x === b)); if (attr === "rep") el.querySelector("#te-days").hidden = b.dataset.rep !== "weekly"; }));
+    radio("rep"); radio("when"); radio("mins");
+    el.querySelectorAll("[data-day]").forEach(b => (b.onclick = () => b.setAttribute("aria-checked", b.getAttribute("aria-checked") !== "true")));
+    ["#te-imp", "#te-pause"].forEach(id => { const x = el.querySelector(id); x && (x.onclick = () => x.setAttribute("aria-checked", x.getAttribute("aria-checked") !== "true")); });
+    const val = attr => (el.querySelector(`[data-${attr}][aria-checked="true"]`) || {}).dataset;
+    el.querySelector("#te-back").onclick = () => tasksSheet();
+    el.querySelector("#te-save").onclick = () => {
+      const text = el.querySelector("#te-text").value.trim().slice(0, 100);
+      if (!text) { toast("Give the task a name."); el.querySelector("#te-text").focus(); return; }
+      const rep = val("rep").rep, days = [...el.querySelectorAll('[data-day][aria-checked="true"]')].map(b => +b.dataset.day);
+      if (rep === "weekly" && !days.length) { toast("Pick at least one day."); return; }
+      const nt = CoreEngine.cleanTask(Object.assign({}, t, { text, repeat: rep, days, when: val("when").when, mins: +val("mins").mins, cat: el.querySelector("#te-cat").value.trim(), priority: el.querySelector("#te-imp").getAttribute("aria-checked") === "true" ? "high" : "normal", paused: !!(el.querySelector("#te-pause") && el.querySelector("#te-pause").getAttribute("aria-checked") === "true"), completedAt: task && task.repeat === "once" && rep === "once" ? task.completedAt : null, created: t.created || Date.now(), updated: Date.now() }));
+      const i = S.custom.findIndex(x => x.id === nt.id); if (i >= 0) S.custom[i] = nt; else S.custom.push(nt);
+      S.skip = 0; save(); renderIsland(); toast(task ? "Task updated." : "Task added."); tasksSheet();
+    };
+    const del = el.querySelector("#te-del");
+    del && (del.onclick = () => { if (!del.dataset.sure) { del.dataset.sure = 1; del.textContent = "Tap again to delete"; return; } S.custom = S.custom.filter(x => x.id !== t.id); S.tasksDeleted = (S.tasksDeleted || []).concat(t.id).slice(-500); save(); renderIsland(); toast("Task deleted."); tasksSheet(); });
+  }, { label: task ? "Edit task" : "Add a task" });
+}
 
 /* ================= fx ================= */
 let actx = null;
@@ -1414,15 +1971,43 @@ function confetti(n = 60) {
 }
 function tick() { cx.clearRect(0, 0, cvf.width, cvf.height); const r = devicePixelRatio; parts.forEach(p => { p.life++; p.vy += .32 * r; p.vx *= .985; p.x += p.vx; p.y += p.vy; cx.globalAlpha = Math.max(0, 1 - p.life / 160); cx.fillStyle = p.c; cx.beginPath(); cx.arc(p.x, p.y, p.s, 0, 7); cx.fill(); }); cx.globalAlpha = 1; parts = parts.filter(p => p.life < 160); raf = parts.length ? requestAnimationFrame(tick) : (cx.clearRect(0, 0, cvf.width, cvf.height), 0); }
 let toastT = 0;
-function toast(msg) { const h = $("#toastHost"); h.innerHTML = '<div class="toast" role="status">' + esc(msg) + "</div>"; clearTimeout(toastT); toastT = setTimeout(() => (h.innerHTML = ""), 3200); }
-function openSheet(html, onMount) {
-  stopTimer();
-  const h = $("#sheetHost"); h.innerHTML = '<div class="scrim"><div class="sheet" role="dialog" aria-modal="true"><div class="grab"></div>' + html + "</div></div>";
-  const scrim = h.firstChild; scrim.addEventListener("click", e => { if (e.target === scrim) closeSheet(); });
-  onMount && onMount(scrim.firstChild); const f = scrim.querySelector("button.btn:not([disabled]), input"); f && f.focus({ preventScroll: true });
+function toast(msg) { const h = $("#toastHost"); h.innerHTML = '<div class="toast" role="status">' + esc(msg) + "</div>"; clearTimeout(toastT); toastT = setTimeout(() => (h.innerHTML = ""), 3600); }
+/* Pop-up sheets: labelled for screen readers, the page behind is inert, Tab stays inside, focus goes back where it came from. */
+let sheetCtx = null;
+const BEHIND = ["header.top", "main", "nav.tabs"];
+function openSheet(html, onMount, opts) {
+  opts = opts || {};
+  const prev = sheetCtx; if (prev && prev.onClose) prev.onClose();
+  const opener = prev ? prev.opener : document.activeElement;
+  const h = $("#sheetHost");
+  h.innerHTML = '<div class="scrim"><div class="sheet" role="dialog" aria-modal="true" tabindex="-1"><div class="grab" aria-hidden="true"></div>' + html + "</div></div>";
+  const scrim = h.firstChild, sheet = scrim.firstChild;
+  const head = sheet.querySelector("h2, .label");
+  sheet.setAttribute("aria-label", opts.label || (head ? head.textContent.trim().slice(0, 80) : "Dialog"));
+  BEHIND.forEach(s => { const e = $(s); if (e) e.inert = true; });
+  sheetCtx = { opener, onClose: opts.onClose };
+  scrim.addEventListener("mousedown", e => { if (e.target === scrim) closeSheet(); });
+  onMount && onMount(sheet);
+  const f = sheet.querySelector("button.btn:not([disabled]):not([hidden]), input:not([type=file]), textarea, button"); (f || sheet).focus({ preventScroll: true });
 }
-function closeSheet() { stopTimer(); $("#sheetHost").innerHTML = ""; }
-document.addEventListener("keydown", e => { if (e.key === "Escape") closeSheet(); });
+function closeSheet() {
+  const c = sheetCtx; sheetCtx = null;
+  $("#sheetHost").innerHTML = "";
+  BEHIND.forEach(s => { const e = $(s); if (e) e.inert = false; });
+  if (c && c.onClose) c.onClose();
+  if (c && c.opener && document.contains(c.opener) && !c.opener.closest("[hidden]")) c.opener.focus({ preventScroll: true });
+}
+document.addEventListener("keydown", e => {
+  if (!sheetCtx) return;
+  if (e.key === "Escape") { e.preventDefault(); closeSheet(); return; }
+  if (e.key === "Tab") {
+    const sheet = $("#sheetHost .sheet"); if (!sheet) return;
+    const f = [...sheet.querySelectorAll("button, input, textarea, select, summary, a[href], [tabindex]:not([tabindex='-1'])")].filter(x => !x.disabled && x.offsetParent !== null && !x.closest("[hidden]"));
+    if (!f.length) return;
+    if (e.shiftKey && (document.activeElement === f[0] || document.activeElement === sheet)) { e.preventDefault(); f[f.length - 1].focus(); }
+    else if (!e.shiftKey && document.activeElement === f[f.length - 1]) { e.preventDefault(); f[0].focus(); }
+  }
+});
 
 /* ================= tabs + boot ================= */
 const TABS = ["island", "critters", "money"];
@@ -1433,7 +2018,7 @@ function welcome() {
   if (!S.lastCollect) S.lastCollect = Date.now();
   S.lastVisit = Date.now(); if (S.zones > ZONES.length) S.zones = ZONES.length; save();
   if (first) {
-    openSheet(`<div class="hero">${critterSVG(CRITTERS[0])}</div><div class="stack"><div class="label">Welcome to Critter Cove</div><h2 class="big-title">You washed up on a messy island.</h2><p class="muted">Every tiny chore you do at home fixes up the island and lures in weird little critters. There are ${CRITTERS.length} of them. They're messy.</p><p class="muted">The app picks what to do. You just tap <b>Done</b>.</p></div><button class="btn main huge block" id="wOk">Show me the first tiny thing</button>`, el => (el.querySelector("#wOk").onclick = closeSheet));
+    openSheet(`<div class="hero">${critterSVG(CRITTERS[0])}</div><div class="stack"><div class="label">Welcome to Critter Cove</div><h2 class="big-title">You washed up on a messy island.</h2><p class="muted">Every tiny chore you do at home fixes up the island and lures in weird little critters. There are ${CRITTERS.length} of them. They're messy.</p><p class="muted">The app picks one tiny thing at a time. You just tap <b>Done</b>. Hard to start? Start for 30 seconds. Too much? Tap I'm overwhelmed.</p><p class="small muted">You can add your own tasks any time in Settings.</p></div><button class="btn main huge block" id="wOk">Show me the first tiny thing</button>`, el => (el.querySelector("#wOk").onclick = closeSheet));
   } else if (away > 2 * DAY) {
     S.shells += 20; S.earned += 20; save(); renderAll();
     const c = CRITTERS.filter(x => S.crew[x.id]), who = c.length ? pick(c).name : "Trash Panda Pete";
