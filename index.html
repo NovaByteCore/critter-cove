@@ -123,6 +123,22 @@ main .wrap{ padding-block:4px 110px; }
 details.adv{ border-top:1px solid var(--line); padding-top:8px; }
 details.adv summary{ cursor:pointer; font-weight:700; min-height:44px; display:flex; align-items:center; }
 .island [data-critter]:focus-visible{ outline:3px solid var(--ink); }
+/* timer + reminders */
+.tctl{ display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:8px; }
+.tctl .btn{ font-size:15px; padding:10px 8px; }
+.stackbtn{ display:flex; flex-direction:column; gap:10px; }
+.btn.tstart{ background:var(--sea); color:var(--on-fill); }
+.presets{ display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:8px; }
+.addline{ display:flex; gap:8px; } .addline input{ flex:1; min-width:0; border:1px solid var(--line); background:var(--sunk); border-radius:12px; padding:12px; min-height:48px; }
+.nbanners{ display:flex; flex-direction:column; gap:8px; }
+.nbanners:empty{ display:none; }
+.nbanner{ display:flex; flex-wrap:wrap; gap:10px; align-items:center; background:var(--surface); border:2px solid var(--sea-dk); border-radius:18px; padding:12px 14px; }
+.nbanner .grow{ flex:1; min-width:180px; }
+.nbtns{ display:flex; gap:6px; flex-wrap:wrap; }
+.intro{ flex-direction:row; flex-wrap:wrap; align-items:center; }
+.intro .grow{ flex:1; min-width:180px; }
+.rbtn[role=checkbox][aria-checked="true"]{ border-color:var(--moss); background:var(--sunk); }
+.rbtn[role=checkbox] b::before{ content:"☐ "; } .rbtn[role=checkbox][aria-checked="true"] b::before{ content:"☑ "; }
 /* big sis check */
 :root{ --bad:#A9442E; --good:#3E6B2E; --rare:#2B6764; }
 @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --bad:#F2A08C; --good:#A9D493; --rare:#8FCFCB; } }
@@ -283,6 +299,8 @@ nav.tabs button[aria-current="page"] svg{ background:var(--shell); border-radius
   <div class="island" id="island"><div id="map"></div><div id="bubbleHost"></div></div>
   <div class="next-zone" id="nextZone"></div>
 
+  <div class="nbanners" id="nbanners" aria-live="polite"></div>
+  <div class="card intro" id="notifIntro" hidden><div class="grow"><div class="label">New</div><b>Reminders you control</b><div class="small muted">Pick what you want reminders for, when, and how sassy. Or skip it.</div></div><div class="rbtns"><button class="btn shell" id="introGo">Set up</button><button class="btn" id="introNo">Not now</button></div></div>
   <div class="card resume" id="resume" hidden></div>
   <div class="task" id="task">
     <div class="row"><div class="label grow" id="taskWhen">Next tiny thing</div><div id="taskMeta"></div></div>
@@ -290,7 +308,7 @@ nav.tabs button[aria-current="page"] svg{ background:var(--shell); border-radius
     <button class="btn main huge block" id="doneBtn">Done</button>
     <button class="btn main huge block" id="readyBtn" hidden>I'm ready</button>
     <button class="btn shell block" id="addTaskBtn" hidden>Add my own tasks</button>
-    <div class="starts" id="starts"><span class="small muted" id="startsLbl">Hard to start? Just start for:</span><div class="startrow" role="group" aria-labelledby="startsLbl"><button class="btn sm" data-secs="30">30 sec</button><button class="btn sm" data-secs="120">2 min</button><button class="btn sm" data-secs="300">5 min</button><button class="btn sm wide" data-secs="full" id="fullBtn">Whole thing</button></div></div>
+    <div class="starts" id="starts"><span class="small muted" id="startsLbl">Hard to start? Use the cleaning timer:</span><div class="startrow" role="group" aria-labelledby="startsLbl"><button class="btn sm tstart wide" data-secs="default" id="defBtn">▶ Start timer</button><button class="btn sm" data-secs="30">30 sec</button><button class="btn sm" data-secs="120">2 min</button><button class="btn sm" data-secs="more">More lengths</button></div></div>
     <div class="sub" id="taskLinks"><button class="link" id="skipBtn">Not this one</button><button class="link" id="smallBtn">Smaller, please</button><button class="link" id="laterBtn">Later</button><button class="link" id="overBtn">I'm overwhelmed</button></div>
     <div class="ladder" id="ladder" role="group" aria-label="Today's goal chests"></div>
     <div class="goaltext" id="goalText"></div>
@@ -789,7 +807,21 @@ const CoreEngine = (() => {
     o.custom = arr(o.custom).map(cleanTask).filter(Boolean).slice(0, 200);
     o.tasksDeleted = arr(o.tasksDeleted).filter(x => typeof x === "string").slice(-500);
     const at = obj(o.activeTimer);
-    o.activeTimer = (str(at.t, 140) && num(at.end, 0, 1e14, 0)) ? { key: str(at.key, 140), t: str(at.t, 140), where: str(at.where, 40), micro: at.micro === true, custom: at.custom ? str(at.custom, 40) : null, end: num(at.end, 0, 1e14, 0), total: num(at.total, 1000, 36e5, 3e5) } : null;
+    o.activeTimer = (str(at.t, 140) && num(at.end, 0, 1e14, 0)) ? { key: str(at.key, 140), t: str(at.t, 140), where: str(at.where, 40), micro: at.micro === true, custom: at.custom ? str(at.custom, 40) : null, mode: oneOf(at.mode, ["clean", "break"], "clean"),
+      end: num(at.end, 0, 1e14, 0), total: num(at.total, 1000, 4 * 36e5, 3e5), pausedLeft: numOrNull(at.pausedLeft, 0, 4 * 36e5), halfSent: at.halfSent === true, endSent: at.endSent === true, endedAt: num(at.endedAt, 0, 1e14, 0), resumeSent: at.resumeSent === true } : null;
+    const tp = obj(o.timerPrefs), ta = obj(tp.alerts);
+    o.timerPrefs = { defaultSecs: Math.round(num(tp.defaultSecs, 30, 4 * 3600, 300)), breakMins: Math.round(num(tp.breakMins, 1, 60, 5)),
+      alerts: { end: ta.end !== false, half: ta.half === true, encourage: ta.encourage !== false, breakEnd: ta.breakEnd !== false, resume: ta.resume !== false } };
+    const nf = obj(o.notif), CATS = ["chores", "routines", "timer", "focus", "cooldowns", "bills", "checkin", "critters"], cats = {};
+    CATS.forEach(c => (cats[c] = obj(nf.cats)[c] !== false));
+    const q = obj(nf.quiet), hhmm = v => { const m = /^(\d{1,2}):(\d{2})$/.exec(String(v || "")); return m && +m[1] < 24 && +m[2] < 60 ? m[1].padStart(2, "0") + ":" + m[2] : null; };
+    o.notif = { setupDone: nf.setupDone === true, introSeen: nf.introSeen === true, enabled: nf.enabled !== false, personality: oneOf(nf.personality, ["gentle", "bestie", "drag"], "bestie"),
+      cats, quiet: { on: q.on === true, start: hhmm(q.start) || "22:00", end: hhmm(q.end) || "08:00" }, snoozeMins: Math.round(num(nf.snoozeMins, 1, 240, 10)), sound: nf.sound !== false, reschedule: nf.reschedule !== false,
+      system: oneOf(nf.system, ["unasked", "granted", "denied", "unsupported"], "unasked"),
+      reminders: arr(nf.reminders).map(r => { r = obj(r); const id = str(r.id, 40), title = str(r.title, 80).trim(); if (!id || !title) return null;
+        return { id, title, cat: oneOf(r.cat, CATS, "chores"), time: hhmm(r.time) || "09:00", freq: oneOf(r.freq, ["once", "daily", "weekdays", "days", "weekly", "custom"], "daily"),
+          days: arr(r.days).filter(x => Number.isInteger(x) && x >= 0 && x <= 6), date: isDay(r.date) ? r.date : "", every: Math.round(num(r.every, 1, 60, 2)), start: isDay(r.start) ? r.start : "", on: r.on !== false, updated: num(r.updated, 0, 1e14, 0) }; }).filter(Boolean).slice(0, 100),
+      log: (() => { const l = {}; Object.entries(obj(nf.log)).slice(-400).forEach(([k, v]) => { v = obj(v); l[str(k, 90)] = { firedAt: num(v.firedAt, 0, 1e14, 0), snoozeUntil: num(v.snoozeUntil, 0, 1e14, 0), done: v.done === true, skipped: v.skipped === true, at: num(v.at, 0, 1e14, 0) }; }); return l; })() };
     ["sound", "calm", "big", "quick"].forEach(k => (o[k] = o[k] === undefined ? (k === "sound") : o[k] === true));
     o.nahAmt = num(o.nahAmt, 0, 1e7, 0);
     if (o.sis) {
@@ -843,6 +875,64 @@ const CoreEngine = (() => {
     return m;
   }
 
+  /* ---------- cleaning timer: everything is computed from timestamps, so a locked screen or sleeping tab can't drift ---------- */
+  const tLeft = (t, now) => t.pausedLeft !== null && t.pausedLeft !== undefined ? t.pausedLeft : Math.max(0, t.end - now);
+  function tStart(task, secs, now, mode) { return { key: task.key || task.t, t: task.t, where: task.where || "", micro: !!task.micro, custom: task.custom || null, mode: mode || "clean", total: secs * 1000, end: now + secs * 1000, pausedLeft: null, halfSent: false, endSent: false, endedAt: 0, resumeSent: false }; }
+  const tPause = (t, now) => (t.pausedLeft !== null && t.pausedLeft !== undefined) ? t : Object.assign({}, t, { pausedLeft: Math.max(0, t.end - now) });
+  const tResume = (t, now) => (t.pausedLeft === null || t.pausedLeft === undefined) ? t : Object.assign({}, t, { end: now + t.pausedLeft, pausedLeft: null });
+  const tRestart = (t, now) => Object.assign({}, t, { end: now + t.total, pausedLeft: null, halfSent: false, endSent: false, endedAt: 0 });
+  const tMore = (t, ms, now) => Object.assign({}, t, { mode: "clean", total: ms, end: now + ms, pausedLeft: null, halfSent: false, endSent: false, endedAt: 0 });
+  /* Which alerts are due right now (each one fires once). */
+  function tEvents(t, now) {
+    const left = tLeft(t, now), paused = t.pausedLeft !== null && t.pausedLeft !== undefined, ev = [];
+    if (!paused && t.mode === "clean" && !t.halfSent && t.total >= 120000 && left > 0 && left <= t.total / 2) ev.push("half");
+    if (!paused && left <= 0 && !t.endSent) ev.push(t.mode === "break" ? "breakEnd" : "end");
+    if (t.mode === "break" && t.endSent && !t.resumeSent && t.endedAt && now - t.endedAt >= 5 * M) ev.push("resume");
+    return ev;
+  }
+
+  /* ---------- reminders ---------- */
+  const toMin = hhmm => { const m = /^(\d{1,2}):(\d{2})$/.exec(String(hhmm || "")); return m && +m[1] < 24 && +m[2] < 60 ? (+m[1]) * 60 + (+m[2]) : null; };
+  const dstr = d => d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  function inQuiet(q, now) {
+    if (!q || !q.on) return false;
+    const s = toMin(q.start), e = toMin(q.end); if (s === null || e === null || s === e) return false;
+    const d = new Date(now), m = d.getHours() * 60 + d.getMinutes();
+    return s < e ? (m >= s && m < e) : (m >= s || m < e);
+  }
+  function occursOn(rem, now) {
+    const d = new Date(now), day = d.getDay();
+    if (rem.freq === "once") return rem.date === dstr(d);
+    if (rem.freq === "weekdays") return day >= 1 && day <= 5;
+    if (rem.freq === "days" || rem.freq === "weekly") return (rem.days || []).includes(day);
+    if (rem.freq === "custom") {
+      if (!rem.start) return false;
+      const a = new Date(rem.start + "T00:00:00"), b = new Date(d); b.setHours(0, 0, 0, 0);
+      const diff = Math.round((b - a) / 864e5); return diff >= 0 && diff % Math.max(1, rem.every || 2) === 0;
+    }
+    return true; // daily
+  }
+  /* Decide which reminders to show now. log[key] remembers each day's reminder: shown, snoozed, done or skipped.
+     Missed reminders (app was closed at that time) are shown late only if the user allows it. */
+  function checkReminders(rems, log, now, st) {
+    const out = { fire: [], skip: [] };
+    if (!st || st.enabled === false) return out;
+    const cats = st.cats || {}, quiet = inQuiet(st.quiet, now), d = new Date(now), mins = d.getHours() * 60 + d.getMinutes();
+    (rems || []).forEach(r => {
+      if (!r.on || cats[r.cat] === false || !occursOn(r, now)) return;
+      const at = toMin(r.time); if (at === null || at > mins) return;
+      const key = r.id + "@" + dstr(d), e = (log || {})[key];
+      if (e && (e.done || e.skipped)) return;
+      if (e && e.firedAt && !(e.snoozeUntil && e.snoozeUntil <= now)) return;
+      if (quiet) return;
+      const missed = !e && mins - at > 15;
+      if (missed && st.reschedule === false) { out.skip.push(key); return; }
+      out.fire.push({ id: r.id, key, missed, snoozed: !!(e && e.snoozeUntil) });
+    });
+    return out;
+  }
+  function trimLog(log, now) { const o = {}; Object.entries(log || {}).forEach(([k, v]) => { if (v && now - Math.max(v.firedAt || 0, v.at || 0, v.snoozeUntil || 0) < 3 * 864e5) o[k] = v; }); return o; }
+
   /* Same progress, ignoring when it was saved and key order? Used to avoid two devices re-saving back and forth. */
   function canon(x) { if (Array.isArray(x)) return "[" + x.map(canon).join(",") + "]"; if (x && typeof x === "object") return "{" + Object.keys(x).sort().map(k => JSON.stringify(k) + ":" + canon(x[k])).join(",") + "}"; return JSON.stringify(x === undefined ? null : x); }
   function sameProgress(a, b) { return canon(Object.assign({}, a, { at: 0 })) === canon(Object.assign({}, b, { at: 0 })); }
@@ -870,7 +960,7 @@ const CoreEngine = (() => {
   }
   function joinFromStorage(main, chunks) { const s = JSON.parse(JSON.stringify(main)); if (s.histChunks && s.sis) s.sis.history = [].concat(...chunks.map(c => c || [])); delete s.histChunks; return s; }
 
-  return { FORMAT, phaseOf, isDue, buildQueue, chainFor, gainFor, chestFor, giftFor, clampClock, cleanRecord, cleanTask, sanitize, mergeStates, sameProgress, makeBackup, readBackup, splitForStorage, joinFromStorage };
+  return { FORMAT, tLeft, tStart, tPause, tResume, tRestart, tMore, tEvents, toMin, inQuiet, occursOn, checkReminders, trimLog, phaseOf, isDue, buildQueue, chainFor, gainFor, chestFor, giftFor, clampClock, cleanRecord, cleanTask, sanitize, mergeStates, sameProgress, makeBackup, readBackup, splitForStorage, joinFromStorage };
 })();
 /* ===CORE END=== */
 
@@ -1219,21 +1309,27 @@ $("#teaBtn").onclick = renderNews;
 function renderAll() { $("#shellCount").textContent = S.shells; renderIsland(); renderCritters(); renderMoney(); }
 const fmtMins = m => m >= 60 ? Math.round(m / 60) + " hr" : m + " min";
 function renderResume() {
-  const at = S.activeTimer, box = $("#resume");
-  if (!at) { box.hidden = true; box.innerHTML = ""; return; }
-  const left = at.end - Date.now();
-  box.hidden = false;
-  box.innerHTML = left > 0
-    ? `<div class="grow"><div class="label">You were in the middle of</div><b>${esc(at.t)}</b><div class="small muted">${Math.ceil(left / 6e4)} min left on your timer</div></div><div class="rbtns"><button class="btn shell" id="resumeBtn">Resume</button><button class="btn main" id="resumeDone">Done</button></div>`
-    : `<div class="grow"><div class="label">Timer finished</div><b>${esc(at.t)}</b><div class="small muted">You started it. That's the hard part. Did you finish?</div></div><div class="rbtns"><button class="btn main" id="resumeDone">I did it</button><button class="btn" id="resumeDrop">Not yet</button></div>`;
-  const rb = $("#resumeBtn"); rb && (rb.onclick = openTimer);
-  $("#resumeDone").onclick = () => { const a = S.activeTimer; S.activeTimer = null; completeTask({ key: a.key, t: a.t, where: a.where, micro: a.micro, custom: a.custom }, true); };
-  const dr = $("#resumeDrop"); dr && (dr.onclick = () => { S.activeTimer = null; save(); renderIsland(); toast("No problem. It'll be here when you're ready."); });
+  const a = S.activeTimer, box = $("#resume");
+  if (!a) { box.hidden = true; box.innerHTML = ""; return; }
+  const left = timerLeft(), sec = Math.ceil(left / 1000), mmss = Math.floor(sec / 60) + ":" + String(sec % 60).padStart(2, "0"), br = a.mode === "break";
+  const status = br ? (left > 0 ? "On a break · " + mmss + " left" : "Break's over") : left > 0 ? (isPaused() ? "Paused · " + mmss + " left" : mmss + " left") : "Time's up";
+  const key = status.replace(/\d/g, "") + br;
+  if (box.dataset.k === key && !box.hidden) { const st = box.querySelector(".rstat"); if (st) st.textContent = status; return; }
+  box.dataset.k = key; box.hidden = false;
+  box.innerHTML = `<div class="grow"><div class="label">${br ? "Break" : "Cleaning timer"}</div><b>${esc(a.t)}</b><div class="small muted rstat" aria-live="off">${status}</div></div><div class="rbtns">${
+    br ? (left > 0 ? `<button class="btn shell" data-rr="open">Open timer</button>` : `<button class="btn main" data-rr="back">Back to it</button><button class="btn" data-rr="stop">Done for now</button>`)
+       : `<button class="btn main" data-rr="done">I'm Done! 🎉</button><button class="btn shell" data-rr="open">${left > 0 ? "Open timer" : "More options"}</button>`}</div>`;
+  box.onclick = e => { const b = e.target.closest("[data-rr]"); if (!b) return; const x = S.activeTimer; if (!x) return;
+    if (b.dataset.rr === "open") openTimer();
+    if (b.dataset.rr === "done") { S.activeTimer = null; completeTask(taskFromTimer(x), true); }
+    if (b.dataset.rr === "back") { S.activeTimer = CoreEngine.tStart(taskFromTimer(x), S.timerPrefs.defaultSecs, Date.now(), "clean"); save(); openTimer(); renderResume(); }
+    if (b.dataset.rr === "stop") { S.activeTimer = null; save(); renderIsland(); toast("Done for now. Rest is part of it."); } };
 }
 function renderIsland() {
   $("#map").innerHTML = mapSVG();
   const z = ZONES[S.zones];
   $("#nextZone").innerHTML = z ? `<div class="row"><div class="grow">Next: <b>${esc(z.name)}</b></div><span class="muted" style="font-variant-numeric:tabular-nums">${Math.min(S.shells, z.cost)} / ${z.cost}</span></div><div class="progress" role="progressbar" aria-label="Shells toward ${esc(z.name)}" aria-valuemin="0" aria-valuemax="${z.cost}" aria-valuenow="${Math.min(S.shells, z.cost)}"><i style="width:${Math.min(100, S.shells / z.cost * 100)}%"></i></div>` : `<div class="row"><b>Whole island unlocked. You're HER.</b></div>`;
+  $("#notifIntro").hidden = !!(S.notif.introSeen || !S.lastVisit || S.notif.setupDone);
   renderResume();
   const resting = S.restUntil > Date.now(), t = resting ? null : currentTask();
   const show = (ids, on) => ids.forEach(s => ($(s).hidden = !on));
@@ -1246,7 +1342,7 @@ function renderIsland() {
     show(["#doneBtn", "#starts", "#taskLinks"], true); show(["#readyBtn", "#addTaskBtn"], false);
     $("#smallBtn").hidden = !!t.micro; $("#laterBtn").hidden = !!t.micro;
     $("#skipBtn").textContent = t.micro ? "Back to the bigger task" : "Not this one";
-    $("#fullBtn").textContent = "Whole thing (" + fmtMins(t.mins || 5) + ")"; $("#fullBtn").hidden = (t.mins || 5) <= 5;
+    $("#defBtn").textContent = "▶ Start timer · " + fmtSecs(S.timerPrefs.defaultSecs);
   } else {
     $("#taskWhen").textContent = "All clear"; $("#taskText").textContent = "You did every tiny thing for now. The critters are throwing you a party.";
     show(["#doneBtn", "#starts", "#taskLinks", "#readyBtn"], false); $("#addTaskBtn").hidden = false;
@@ -1289,7 +1385,11 @@ $("#laterBtn").onclick = () => {
   const now = Date.now(); Object.keys(S.snooze).forEach(k => { if (S.snooze[k] < now) delete S.snooze[k]; });
   S.snooze[t.key] = now + 2 * HOUR; save(); renderIsland(); toast("Okay. I'll bring it back in a couple hours. No penalty.");
 };
-$("#starts").addEventListener("click", e => { const b = e.target.closest("[data-secs]"); if (!b) return; const t = currentTask(); if (!t) return; startTimer(t, b.dataset.secs === "full" ? (t.mins || 5) * 60 : +b.dataset.secs); });
+$("#starts").addEventListener("click", e => { const b = e.target.closest("[data-secs]"); if (!b) return; const t = currentTask(); if (!t) return;
+  if (S.activeTimer) { openTimer(); return; }
+  if (b.dataset.secs === "more") timerPicker(t); else startTimer(t, b.dataset.secs === "default" ? S.timerPrefs.defaultSecs : +b.dataset.secs); });
+$("#introGo").onclick = () => { S.notif.introSeen = true; save(); notifSetupSheet(false); };
+$("#introNo").onclick = () => { S.notif.introSeen = true; S.notif.setupDone = true; save(); renderIsland(); toast("Okay. It's in Settings → Notifications whenever you want it."); };
 $("#readyBtn").onclick = () => { S.restUntil = 0; save(); renderIsland(); };
 $("#addTaskBtn").onclick = () => tasksSheet();
 $("#overBtn").onclick = () => {
@@ -1304,29 +1404,259 @@ $("#overBtn").onclick = () => {
 };
 
 /* ================= timer ================= */
-let ticker = null, wake = null;
-function stopTicker() { if (ticker) { clearInterval(ticker); ticker = null; } try { wake && wake.release(); } catch (e) {} wake = null; }
-function startTimer(t, secs) {
-  S.activeTimer = { key: t.key || t.t, t: t.t, where: t.where || "", micro: !!t.micro, custom: t.custom || null, end: Date.now() + secs * 1000, total: secs * 1000 };
-  save(); renderIsland(); openTimer();
+const PRESETS = [[30, "30 sec", "Quick start"], [120, "2 min", "Mini clean"], [300, "5 min", "Tidy"], [600, "10 min", "Reset"], [900, "15 min", "Cleaning sprint"], [1200, "20 min", "Deep-clean session"]];
+const ENCOURAGE = ["You're doing it. That's the whole trick.", "Tiny progress is still progress.", "Put on a song. Keep going.", "Look at you, actually doing the thing.", "Halfway feels like nothing. Then it's done.", "The critters are cheering. Quietly. They're critters.", "If you stop now, it still counts. But you won't. 😌"];
+const fmtSecs = s => s < 60 ? s + " sec" : (s % 60 ? Math.floor(s / 60) + " min " + (s % 60) + " sec" : (s / 60) + " min");
+const timerLeft = () => S.activeTimer ? CoreEngine.tLeft(S.activeTimer, Date.now()) : 0;
+const isPaused = () => !!(S.activeTimer && S.activeTimer.pausedLeft !== null && S.activeTimer.pausedLeft !== undefined);
+let wake = null, ticker = null;
+function releaseWake() { try { wake && wake.release(); } catch (e) {} wake = null; }
+function holdWake() { try { if (!wake && navigator.wakeLock) navigator.wakeLock.request("screen").then(w => (wake = w)).catch(() => {}); } catch (e) {} }
+function startTimer(t, secs, mode) {
+  S.activeTimer = CoreEngine.tStart(t, secs, Date.now(), mode); save(); renderIsland(); openTimer();
+}
+function taskFromTimer(a) { return { key: a.key, t: a.t, where: a.where, micro: a.micro, custom: a.custom }; }
+/* Timer alerts run here whether or not the timer screen is open. They are messages, never pop-ups. */
+function timerTick() {
+  const a = S.activeTimer; if (!a) { releaseWake(); return; }
+  const now = Date.now(), ev = CoreEngine.tEvents(a, now), al = S.timerPrefs.alerts, catOn = S.notif.enabled && S.notif.cats.timer !== false;
+  ev.forEach(e => {
+    if (e === "half") { a.halfSent = true; if (al.half && catOn) notify("timer", "Halfway there on: " + a.t, { quiet: true }); }
+    if (e === "end") { a.endSent = true; a.endedAt = now; if (al.end && catOn) notify("timer", "Time's up on: " + a.t + ". Did you do it?", { quiet: !document.hidden && !!$("#tDone") }); else ding(true); }
+    if (e === "breakEnd") { a.endSent = true; a.endedAt = now; if (al.breakEnd && catOn) notify("timer", "Break's over. Ready to get back to " + a.t + "?"); else ding(); }
+    if (e === "resume") { a.resumeSent = true; if (al.resume && catOn) notify("timer", "Still on break? " + a.t + " is waiting. No rush, just checking in."); }
+  });
+  if (ev.length) save();
+  drawTimer(); if (!$("#sheetHost .sheet") || $("#tDone")) renderResume();
+}
+function drawTimer() {
+  const el = $("#sheetHost .sheet[data-timer]"), a = S.activeTimer; if (!el || !a) return;
+  const left = timerLeft(), s = Math.ceil(left / 1000), done = left <= 0, br = a.mode === "break";
+  el.querySelector("#tnum").textContent = Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0");
+  el.querySelector("#arc").setAttribute("stroke-dashoffset", String(276.5 * (1 - left / a.total)));
+  el.querySelector("#tPause").textContent = isPaused() ? "Resume" : "Pause";
+  el.querySelector("#tRun").hidden = done; el.querySelector("#tEnd").hidden = !done;
+  el.querySelector("#tEndClean").hidden = br; el.querySelector("#tEndBreak").hidden = !br;
+  const msg = el.querySelector("#tmsg");
+  if (done) msg.textContent = br ? "Break's over. Back to it, or done for now?" : "Time's up! You started, and that's the hard part.";
+  else if (isPaused()) msg.textContent = "Paused. Take your time.";
+  else if (br) msg.textContent = "Break time. Breathe, snack, stretch.";
+  else if (S.timerPrefs.alerts.encourage) { const i = Math.floor((a.total - left) / 60000) % ENCOURAGE.length; if (msg.dataset.i !== String(i)) { msg.dataset.i = i; msg.textContent = ENCOURAGE[i]; } }
+  else msg.textContent = "";
 }
 function openTimer() {
-  const at = S.activeTimer; if (!at) return;
-  const total = at.total, label = total < 6e4 ? Math.round(total / 1000) + " seconds" : Math.round(total / 6e4) + " minute" + (total >= 12e4 ? "s" : "");
-  openSheet(`<div class="label">Just start · ${label}</div><h2 class="big-title">${esc(at.t)}</h2><div class="ring" aria-hidden="true"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" fill="none" stroke="var(--sunk)" stroke-width="9"/><circle id="arc" cx="50" cy="50" r="44" fill="none" stroke="var(--moss)" stroke-width="9" stroke-linecap="round" stroke-dasharray="276.5" stroke-dashoffset="0"/></svg><div class="num" id="tnum"></div></div><p class="muted" style="text-align:center" id="tmsg" aria-live="polite">Go. Tap Done whenever you finish. Stopping early is allowed.</p><button class="btn main huge block" id="tDone">Done</button><div class="btns"><button class="btn" id="tHide">Hide, keep it running</button><button class="btn" id="tStop">Stop timer</button></div>`, el => {
-    try { navigator.wakeLock && navigator.wakeLock.request("screen").then(w => (wake = w)).catch(() => {}); } catch (e) {}
-    el.querySelector("#tDone").onclick = () => { const a = S.activeTimer; S.activeTimer = null; closeSheet(); if (a) completeTask({ key: a.key, t: a.t, where: a.where, micro: a.micro, custom: a.custom }, true); };
+  const a = S.activeTimer; if (!a) return;
+  const br = a.mode === "break";
+  openSheet(`<div class="label">${br ? "Break" : "Cleaning timer"} · ${fmtSecs(Math.round(a.total / 1000))}</div><h2 class="big-title">${esc(br ? "Break from: " + a.t : a.t)}</h2>
+    <div class="ring" aria-hidden="true"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" fill="none" stroke="var(--sunk)" stroke-width="9"/><circle id="arc" cx="50" cy="50" r="44" fill="none" stroke="${br ? "var(--shell)" : "var(--moss)"}" stroke-width="9" stroke-linecap="round" stroke-dasharray="276.5" stroke-dashoffset="0"/></svg><div class="num" id="tnum" role="timer" aria-live="off"></div></div>
+    <p class="muted" style="text-align:center;min-height:1.5em" id="tmsg" aria-live="polite"></p>
+    <div id="tRun" class="stackbtn">
+      ${br ? "" : `<button class="btn main huge block" id="tDone">I'm Done! 🎉</button>`}
+      <div class="tctl"><button class="btn" id="tPause">Pause</button><button class="btn" id="tRestart">Restart</button><button class="btn" id="tStop">End session</button></div>
+      <button class="link" id="tHide" style="align-self:center">Hide timer, keep it running</button>
+    </div>
+    <div id="tEnd" class="stackbtn" hidden>
+      <div id="tEndClean" class="stackbtn"><button class="btn main huge block" id="tDone2">I'm Done! 🎉</button>
+        <div class="tctl"><button class="btn shell" id="tMore">Five More Minutes</button><button class="btn" id="tBreak">Take a Break (${S.timerPrefs.breakMins} min)</button><button class="btn" id="tSwitch">Switch Tasks</button></div></div>
+      <div id="tEndBreak" class="stackbtn"><button class="btn main huge block" id="tBack">Back to it</button><button class="btn block" id="tStop2">Done for now</button></div>
+    </div>`, el => {
+    el.dataset.timer = "1"; holdWake();
+    const finish = () => { const x = S.activeTimer; S.activeTimer = null; closeSheet(); if (x) completeTask(taskFromTimer(x), true); };
+    const d1 = el.querySelector("#tDone"); d1 && (d1.onclick = finish); el.querySelector("#tDone2").onclick = finish;
+    el.querySelector("#tPause").onclick = () => { S.activeTimer = isPaused() ? CoreEngine.tResume(S.activeTimer, Date.now()) : CoreEngine.tPause(S.activeTimer, Date.now()); save(); drawTimer(); };
+    el.querySelector("#tRestart").onclick = () => { S.activeTimer = CoreEngine.tRestart(S.activeTimer, Date.now()); save(); drawTimer(); };
+    const end = msg => { S.activeTimer = null; save(); closeSheet(); renderIsland(); toast(msg); };
+    el.querySelector("#tStop").onclick = () => end("Session ended. Whatever you did still counts as starting.");
+    el.querySelector("#tStop2").onclick = () => end("Done for now. Rest is part of it.");
     el.querySelector("#tHide").onclick = () => { closeSheet(); renderIsland(); };
-    el.querySelector("#tStop").onclick = () => { S.activeTimer = null; save(); closeSheet(); renderIsland(); };
-    let rang = false;
-    const draw = () => { const a = S.activeTimer; if (!a || !el.isConnected) return stopTicker(); const left = Math.max(0, a.end - Date.now()), s = Math.ceil(left / 1000);
-      el.querySelector("#tnum").textContent = Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0");
-      el.querySelector("#arc").setAttribute("stroke-dashoffset", String(276.5 * (1 - left / a.total)));
-      if (left <= 0 && !rang) { rang = true; ding(true); el.querySelector("#tmsg").textContent = "Time! You started, and that's the hard part. Keep going or tap Done."; } };
-    draw(); ticker = setInterval(draw, 250);
-  }, { label: "Timer", onClose: stopTicker });
+    el.querySelector("#tMore").onclick = () => { S.activeTimer = CoreEngine.tMore(S.activeTimer, 5 * 60000, Date.now()); save(); closeSheet(); openTimer(); };
+    el.querySelector("#tBreak").onclick = () => { const x = S.activeTimer; S.activeTimer = CoreEngine.tStart(taskFromTimer(x), S.timerPrefs.breakMins * 60, Date.now(), "break"); save(); closeSheet(); openTimer(); };
+    el.querySelector("#tBack").onclick = () => { const x = S.activeTimer; S.activeTimer = CoreEngine.tStart(taskFromTimer(x), S.timerPrefs.defaultSecs, Date.now(), "clean"); save(); closeSheet(); openTimer(); };
+    el.querySelector("#tSwitch").onclick = () => { S.activeTimer = null; S.skip++; save(); closeSheet(); renderIsland(); toast("Switched. Here's something else. Start the timer again whenever you want."); };
+    drawTimer();
+  }, { label: "Cleaning timer", onClose: () => { if (!S.activeTimer) releaseWake(); } });
 }
-setInterval(() => { if (S.activeTimer && !$("#sheetHost").firstChild) renderResume(); }, 15000);
+function timerPicker(t) {
+  openSheet(`<div class="label">Cleaning timer</div><h2>${esc(t.t)}</h2><p class="small muted">Pick a length. Your default is ${fmtSecs(S.timerPrefs.defaultSecs)}.</p>
+    <div class="presets">${PRESETS.map(([sec, l, h]) => `<button class="rbtn" data-sec="${sec}"><b>${l}</b><span>${h}${sec === S.timerPrefs.defaultSecs ? " · your default" : ""}</span></button>`).join("")}</div>
+    <div class="field"><label for="tpCustom">Custom length (minutes)</label><div class="addline"><input id="tpCustom" inputmode="decimal" placeholder="25"><button class="btn" id="tpGo">Start</button></div></div>
+    <div class="switch"><div class="grow"><b id="lb-tpdef">Make my pick the default</b><div class="small muted">Used by the main Start timer button.</div></div><button class="tog" role="switch" id="tpDef" aria-checked="false" aria-labelledby="lb-tpdef"></button></div>`, el => {
+    const def = el.querySelector("#tpDef"); def.onclick = () => def.setAttribute("aria-checked", def.getAttribute("aria-checked") !== "true");
+    const go = secs => { if (def.getAttribute("aria-checked") === "true") { S.timerPrefs.defaultSecs = secs; } closeSheet(); startTimer(t, secs); };
+    el.querySelector(".presets").onclick = e => { const b = e.target.closest("[data-sec]"); if (b) go(+b.dataset.sec); };
+    el.querySelector("#tpGo").onclick = () => { const m = Number(el.querySelector("#tpCustom").value.replace(",", ".")); if (!(m >= 0.5 && m <= 240)) { toast("Pick between half a minute and 240 minutes."); el.querySelector("#tpCustom").focus(); return; } go(Math.round(m * 60)); };
+  }, { label: "Choose a timer length" });
+}
+ticker = setInterval(timerTick, 1000);
+document.addEventListener("visibilitychange", () => { if (!document.hidden) timerTick(); });
+
+/* ================= notifications ================= */
+const NCATS = [["chores", "Chores"], ["routines", "Routines"], ["timer", "Cleaning timer alerts"], ["focus", "Focus sessions"], ["cooldowns", "Spending cooldowns"], ["bills", "Bills"], ["checkin", "Budget check-ins"], ["critters", "Critter rewards"]];
+const NFREQ = [["once", "Once"], ["daily", "Daily"], ["weekdays", "Weekdays"], ["days", "Selected days"], ["weekly", "Weekly"], ["custom", "Every few days"]];
+const VOICE = {
+  gentle: { pre: ["Gentle reminder:", "Just a soft nudge:", "Whenever you're ready:"], post: ["Even a tiny start counts.", "No pressure.", "You've got this."] },
+  bestie: { pre: ["Babe.", "Bestie, hi.", "Okay so,"], post: ["Five minutes, then we gossip. 😌", "I believe in you. Mostly.", "Go go go. I'll wait."] },
+  drag: { pre: ["Excuse me.", "Ma'am.", "Not to be dramatic, but"], post: ["Don't make me come over there. 😭", "I can see you scrolling.", "Be so for real right now."] }
+};
+const voiced = text => { const v = VOICE[S.notif.personality] || VOICE.bestie, pre = pick(v.pre), t = /[,]$|but$/.test(pre) ? text.charAt(0).toLowerCase() + text.slice(1) : text; return pre + " " + t + " " + pick(v.post); };
+const sysOK = () => "Notification" in window && Notification.permission === "granted" && S.notif.system === "granted";
+/* Shows a message inside the app (and as a browser notification when allowed and the tab is in the background).
+   This only works while Critter Cove is open; it can't reach you when the app is closed. */
+function notify(cat, text, opts) {
+  opts = opts || {};
+  if (!S.notif.enabled || S.notif.cats[cat] === false) return;
+  if (CoreEngine.inQuiet(S.notif.quiet, Date.now()) && !opts.always) return;
+  if (S.notif.sound && S.sound && !S.calm) ding(cat === "timer");
+  if (document.hidden && sysOK()) { try { new Notification("Critter Cove", { body: text, tag: opts.tag || cat, silent: !S.notif.sound }); } catch (e) {} }
+  if (!opts.quiet && !opts.banner) toast(text);
+}
+function showBanner(item) {
+  const host = $("#nbanners"); if (!host || host.querySelector(`[data-key="${CSS.escape(item.key)}"]`)) return;
+  const div = document.createElement("div"); div.className = "nbanner"; div.dataset.key = item.key; div.setAttribute("role", "status");
+  div.innerHTML = `<div class="grow"><div class="label">${item.missed ? "Missed reminder" : "Reminder"}</div><b>${esc(item.text)}</b></div><div class="nbtns"><button class="btn sm main" data-a="done">Done</button><button class="btn sm" data-a="snooze">Snooze ${S.notif.snoozeMins} min</button><button class="btn sm" data-a="dismiss" aria-label="Dismiss reminder">✕</button></div>`;
+  div.onclick = e => { const b = e.target.closest("[data-a]"); if (!b) return; const L = S.notif.log, k = item.key; L[k] = Object.assign({}, L[k]);
+    if (b.dataset.a === "snooze") { L[k].snoozeUntil = Date.now() + S.notif.snoozeMins * 6e4; toast("Snoozed for " + S.notif.snoozeMins + " minutes."); } else { L[k].done = true; L[k].snoozeUntil = 0; }
+    L[k].at = Date.now(); save(); div.remove(); };
+  host.prepend(div);
+}
+function checkNotifications() {
+  const now = Date.now(), N = S.notif; if (!N) return;
+  const r = CoreEngine.checkReminders(N.reminders, N.log, now, N);
+  let changed = false;
+  r.skip.forEach(k => { N.log[k] = { skipped: true, at: now }; changed = true; });
+  r.fire.forEach(f => { const rem = N.reminders.find(x => x.id === f.id); if (!rem) return; N.log[f.key] = { firedAt: now, at: now }; changed = true;
+    const text = voiced(rem.title); notify(rem.cat, text, { banner: true, tag: f.key }); showBanner({ key: f.key, text, missed: f.missed }); });
+  // automatic ones, controlled by their category switch
+  if (N.enabled && !CoreEngine.inQuiet(N.quiet, now)) {
+    if (N.cats.cooldowns !== false && S.sis) S.sis.history.filter(x => x.decision === "cooldown" && x.until && x.until <= now).forEach(x => { const k = "cool:" + x.id; if (N.log[k]) return; N.log[k] = { firedAt: now, at: now }; changed = true; const t = voiced("Your cooldown on " + x.item + " is over. Still want it?"); notify("cooldowns", t, { banner: true, tag: k }); showBanner({ key: k, text: t }); });
+    if (N.cats.critters !== false && Object.keys(S.crew).length && S.lastCollect && now - S.lastCollect >= 12 * HOUR) { const k = "gift:" + S.lastCollect; if (!N.log[k]) { N.log[k] = { firedAt: now, at: now }; changed = true; notify("critters", "Your crew filled their gift bags. " + giftAmount() + " shells waiting on the island."); } }
+  }
+  N.log = CoreEngine.trimLog(N.log, now);
+  if (changed) save();
+}
+setInterval(checkNotifications, 20000);
+document.addEventListener("visibilitychange", () => { if (!document.hidden) checkNotifications(); });
+
+async function askSystemPermission() {
+  if (!("Notification" in window)) { S.notif.system = "unsupported"; save(); return "unsupported"; }
+  if (Notification.permission === "granted") { S.notif.system = "granted"; save(); return "granted"; }
+  if (Notification.permission === "denied") { S.notif.system = "denied"; save(); return "denied"; }
+  let res = "denied"; try { res = await Notification.requestPermission(); } catch (e) {}
+  S.notif.system = res === "granted" ? "granted" : "denied"; save(); return S.notif.system; // asked once; never asked again automatically
+}
+const QUICK_REMINDERS = [
+  ["morning", "Morning reset", "routines", "08:45", "daily", []],
+  ["night", "Night reset", "routines", "20:45", "daily", []],
+  ["checkin", "Weekly money check-in", "checkin", "19:00", "weekly", [0]],
+  ["chore", "One tiny chore", "chores", "17:30", "weekdays", []]
+];
+function addQuickReminder(id) { const q = QUICK_REMINDERS.find(x => x[0] === id); if (!q || S.notif.reminders.some(r => r.id === "q-" + id)) return; S.notif.reminders.push({ id: "q-" + id, title: q[1], cat: q[2], time: q[3], freq: q[4], days: q[5], on: true, updated: Date.now() }); }
+function notifSetupSheet(fromOnboarding) {
+  const picks = new Set(["morning", "night", "checkin"]);
+  openSheet(`<div class="label">Reminders</div><h2 class="big-title">Want a few reminders?</h2><p class="muted">Pick any, or skip. You can change all of this later in Settings → Notifications.</p>
+    <div class="rescue" id="nqPicks">${QUICK_REMINDERS.map(([id, t, , time, freq, days]) => `<button class="rbtn" role="checkbox" data-q="${id}" aria-checked="${picks.has(id)}"><b>${esc(t)}</b><span>${esc(remSummary({ time, freq, days }))}</span></button>`).join("")}
+      <button class="rbtn" role="checkbox" data-q="cool" aria-checked="true"><b>When a spending cooldown is over</b><span>Automatic</span></button>
+      <button class="rbtn" role="checkbox" data-q="gift" aria-checked="true"><b>When critters have gifts</b><span>Automatic</span></button></div>
+    <div class="field"><span class="flabel">Reminder personality</span><div class="chips2" id="nqVoice">${[["gentle", "Gentle"], ["bestie", "Playful Bestie"], ["drag", "Drag Me"]].map(([v, l]) => `<button class="chip2" role="radio" data-v="${v}" aria-checked="${S.notif.personality === v}">${l}</button>`).join("")}</div></div>
+    <p class="small muted">Reminders show up while Critter Cove is open. ${"Notification" in window ? "You can also allow browser notifications so they show when this tab is in the background." : ""}</p>
+    <button class="btn main block" id="nqOn">Turn these on</button><button class="btn block" id="nqSkip">Skip for now</button>`, el => {
+    el.querySelector("#nqPicks").onclick = e => { const b = e.target.closest("[data-q]"); if (b) b.setAttribute("aria-checked", b.getAttribute("aria-checked") !== "true"); };
+    el.querySelector("#nqVoice").onclick = e => { const b = e.target.closest("[data-v]"); if (!b) return; S.notif.personality = b.dataset.v; el.querySelectorAll("#nqVoice .chip2").forEach(x => x.setAttribute("aria-checked", x === b)); save(); };
+    el.querySelector("#nqSkip").onclick = () => { S.notif.setupDone = true; S.notif.introSeen = true; save(); closeSheet(); renderIsland(); toast("No reminders. You can set them up any time in Settings."); };
+    el.querySelector("#nqOn").onclick = async () => {
+      const on = id => el.querySelector(`[data-q="${id}"]`).getAttribute("aria-checked") === "true";
+      QUICK_REMINDERS.forEach(([id]) => { if (on(id)) addQuickReminder(id); });
+      S.notif.cats.cooldowns = on("cool"); S.notif.cats.critters = on("gift");
+      S.notif.enabled = true; S.notif.setupDone = true; S.notif.introSeen = true; save();
+      closeSheet(); renderIsland();
+      const res = S.notif.system === "unasked" && "Notification" in window ? await askSystemPermission() : S.notif.system;
+      toast(res === "granted" ? "Reminders on. You'll get them in the app and as browser notifications." : "Reminders on. They'll show up while Critter Cove is open.");
+    };
+  }, { label: "Set up reminders" });
+}
+function remSummary(r) {
+  const d = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"], t = (() => { const m = CoreEngine.toMin(r.time); if (m === null) return r.time; const h = Math.floor(m / 60), mm = String(m % 60).padStart(2, "0"); return (h % 12 || 12) + ":" + mm + (h < 12 ? "am" : "pm"); })();
+  const f = r.freq === "once" ? (r.date ? "On " + new Date(r.date + "T12:00").toLocaleDateString(undefined, { month: "short", day: "numeric" }) : "Once") : r.freq === "weekdays" ? "Weekdays" : (r.freq === "days" || r.freq === "weekly") ? ((r.days || []).map(x => d[x]).join(", ") || "No days picked") : r.freq === "custom" ? "Every " + (r.every || 2) + " days" : "Every day";
+  return f + " at " + t;
+}
+function notifSheet() {
+  const N = S.notif, perm = !("Notification" in window) ? "unsupported" : Notification.permission;
+  const sysLine = perm === "granted" ? "Browser notifications are allowed, so reminders also show when this tab is in the background." : perm === "denied" || N.system === "denied" ? "Browser notifications are blocked. To allow them, change this site's notification setting in your browser. I won't keep asking." : perm === "unsupported" ? "This browser (or the Claude app) can't show system notifications here, so reminders show inside Critter Cove." : "";
+  const tog = (id, label, on, help) => `<div class="switch"><div class="grow"><b id="lb-${id}">${label}</b>${help ? `<div class="small muted">${help}</div>` : ""}</div><button class="tog" role="switch" data-n="${id}" aria-checked="${on}" aria-labelledby="lb-${id}"></button></div>`;
+  openSheet(`<div class="label">Settings → Notifications</div><h2>Your reminders, your rules</h2><p class="small muted">Changes save automatically.</p>
+    ${tog("enabled", "Reminders", N.enabled, "Turn everything off with one switch. The cleaning timer keeps working either way.")}
+    <div class="sec"><h3>Your reminders</h3><div id="nList"></div><button class="btn shell block" id="nAdd">Add a reminder</button></div>
+    <div class="sec"><h3>Personality</h3><div class="chips2" id="nVoice">${[["gentle", "Gentle"], ["bestie", "Playful Bestie"], ["drag", "Drag Me"]].map(([v, l]) => `<button class="chip2" role="radio" data-v="${v}" aria-checked="${N.personality === v}">${l}</button>`).join("")}</div><p class="small muted" id="nSample"></p></div>
+    <details class="adv"><summary>What I remind you about</summary>${NCATS.map(([c, l]) => tog("cat-" + c, l, N.cats[c] !== false)).join("")}</details>
+    <details class="adv"><summary>Cleaning timer alerts</summary>
+      ${tog("ta-end", "When the timer ends", S.timerPrefs.alerts.end)}${tog("ta-half", "Halfway reminder", S.timerPrefs.alerts.half)}${tog("ta-encourage", "Encouraging messages while cleaning", S.timerPrefs.alerts.encourage, "Shown quietly on the timer, never as pop-ups.")}${tog("ta-breakEnd", "When a break ends", S.timerPrefs.alerts.breakEnd)}${tog("ta-resume", "Reminder to come back after a break", S.timerPrefs.alerts.resume)}
+      <div class="field"><label for="nBreak">Break length (minutes)</label><input id="nBreak" inputmode="numeric" value="${S.timerPrefs.breakMins}"></div>
+      <div class="field"><span class="flabel">Default timer length</span><div class="chips2" id="nDef">${PRESETS.map(([sec, l]) => `<button class="chip2" role="radio" data-sec="${sec}" aria-checked="${S.timerPrefs.defaultSecs === sec}">${l}</button>`).join("")}</div><span class="help">${PRESETS.some(p => p[0] === S.timerPrefs.defaultSecs) ? "" : "Current default: " + fmtSecs(S.timerPrefs.defaultSecs) + " (custom)"}</span></div>
+    </details>
+    <details class="adv"><summary>Quiet hours, snooze and sound</summary>
+      ${tog("quiet", "Quiet hours", N.quiet.on, "No reminders during these hours.")}
+      <div class="fields two"><div class="field"><label for="nQs">From</label><input id="nQs" type="time" value="${N.quiet.start}"></div><div class="field"><label for="nQe">Until</label><input id="nQe" type="time" value="${N.quiet.end}"></div></div>
+      <div class="field"><span class="flabel">Snooze for</span><div class="chips2" id="nSnz">${[5, 10, 15, 30].map(m => `<button class="chip2" role="radio" data-m="${m}" aria-checked="${N.snoozeMins === m}">${m} min</button>`).join("")}<input id="nSnzC" inputmode="numeric" aria-label="Custom snooze minutes" placeholder="Custom" value="${[5, 10, 15, 30].includes(N.snoozeMins) ? "" : N.snoozeMins}" style="max-width:110px"></div></div>
+      ${tog("sound", "Reminder sound", N.sound, "Only plays when the app is open and sound is supported.")}
+      ${tog("reschedule", "Show missed reminders later", N.reschedule, "If the app was closed at reminder time, show it when you open the app (same day).")}
+    </details>
+    <div class="sec"><h3>Where reminders show up</h3><p class="small muted">Inside Critter Cove while it's open. ${esc(sysLine)} Critter Cove can't reach you when it's fully closed.</p>
+      ${perm === "default" && N.system !== "denied" ? `<button class="btn block" id="nPerm">Allow browser notifications</button>` : ""}</div>
+    <button class="btn main block" id="nClose">Done</button>`, el => {
+    const list = () => { el.querySelector("#nList").innerHTML = N.reminders.length ? N.reminders.map(r => `<div class="item"><button class="hrow grow" data-rid="${esc(r.id)}" style="border:0;padding:4px 0"><div class="grow"><b>${esc(r.title)}</b><div class="small muted">${esc(remSummary(r))} · ${esc((NCATS.find(c => c[0] === r.cat) || [, ""])[1])}</div></div><span class="muted">Edit</span></button><button class="tog" role="switch" data-ron="${esc(r.id)}" aria-checked="${r.on}" aria-label="${esc(r.title)} on or off"></button></div>`).join("") : `<div class="empty">No reminders yet.</div>`; };
+    const sample = () => (el.querySelector("#nSample").textContent = "Sounds like: “" + voiced("Time for your night reset.") + "”");
+    list(); sample();
+    el.querySelector("#nList").onclick = e => { const t = e.target.closest("[data-ron]"); if (t) { const r = N.reminders.find(x => x.id === t.dataset.ron); r.on = !r.on; r.updated = Date.now(); t.setAttribute("aria-checked", r.on); save(); return; } const b = e.target.closest("[data-rid]"); if (b) reminderSheet(N.reminders.find(x => x.id === b.dataset.rid)); };
+    el.querySelector("#nAdd").onclick = () => reminderSheet(null);
+    el.querySelectorAll("[data-n]").forEach(t => (t.onclick = () => {
+      const on = t.getAttribute("aria-checked") !== "true", k = t.dataset.n; t.setAttribute("aria-checked", on);
+      if (k === "enabled" || k === "sound" || k === "reschedule") N[k] = on; else if (k === "quiet") N.quiet.on = on;
+      else if (k.startsWith("cat-")) N.cats[k.slice(4)] = on; else if (k.startsWith("ta-")) S.timerPrefs.alerts[k.slice(3)] = on;
+      save();
+    }));
+    el.querySelector("#nVoice").onclick = e => { const b = e.target.closest("[data-v]"); if (!b) return; N.personality = b.dataset.v; el.querySelectorAll("#nVoice .chip2").forEach(x => x.setAttribute("aria-checked", x === b)); save(); sample(); };
+    el.querySelector("#nDef").onclick = e => { const b = e.target.closest("[data-sec]"); if (!b) return; S.timerPrefs.defaultSecs = +b.dataset.sec; el.querySelectorAll("#nDef .chip2").forEach(x => x.setAttribute("aria-checked", x === b)); save(); renderIsland(); };
+    el.querySelector("#nBreak").onchange = e => { const v = Math.round(Number(e.target.value)); if (v >= 1 && v <= 60) { S.timerPrefs.breakMins = v; save(); } else { toast("Pick a break between 1 and 60 minutes."); e.target.value = S.timerPrefs.breakMins; } };
+    ["#nQs", "#nQe"].forEach((id, i) => (el.querySelector(id).onchange = e => { if (e.target.value) { N.quiet[i ? "end" : "start"] = e.target.value; save(); } }));
+    el.querySelector("#nSnz").onclick = e => { const b = e.target.closest("[data-m]"); if (!b) return; N.snoozeMins = +b.dataset.m; el.querySelectorAll("#nSnz .chip2").forEach(x => x.setAttribute("aria-checked", x === b)); el.querySelector("#nSnzC").value = ""; save(); };
+    el.querySelector("#nSnzC").onchange = e => { const v = Math.round(Number(e.target.value)); if (v >= 1 && v <= 240) { N.snoozeMins = v; el.querySelectorAll("#nSnz .chip2").forEach(x => x.setAttribute("aria-checked", false)); save(); } else if (e.target.value) { toast("Pick between 1 and 240 minutes."); e.target.value = ""; } };
+    const pb = el.querySelector("#nPerm"); pb && (pb.onclick = async () => { const r = await askSystemPermission(); toast(r === "granted" ? "Browser notifications allowed." : "Okay. I won't ask again."); pb.remove(); });
+    el.querySelector("#nClose").onclick = () => { closeSheet(); renderIsland(); };
+  }, { label: "Notification settings" });
+}
+function reminderSheet(rem) {
+  const r = Object.assign({ id: "r" + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), title: "", cat: "chores", time: "09:00", freq: "daily", days: [], date: today(), every: 2, start: today(), on: true }, rem || {});
+  const D = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  openSheet(`<div class="label">${rem ? "Edit reminder" : "Add a reminder"}</div>
+    <div class="field"><label for="re-t">Remind me to…</label><input id="re-t" maxlength="80" value="${esc(r.title)}" placeholder="Take out the trash"></div>
+    <div class="field"><span class="flabel">Type</span><div class="chips2" id="re-cat">${NCATS.filter(c => !["timer", "critters"].includes(c[0])).map(([v, l]) => `<button class="chip2" role="radio" data-v="${v}" aria-checked="${r.cat === v}">${l}</button>`).join("")}</div></div>
+    <div class="field"><label for="re-time">Time</label><input id="re-time" type="time" value="${r.time}"></div>
+    <div class="field"><span class="flabel">How often?</span><div class="chips2" id="re-freq">${NFREQ.map(([v, l]) => `<button class="chip2" role="radio" data-v="${v}" aria-checked="${r.freq === v}">${l}</button>`).join("")}</div>
+      <div class="chips2" id="re-days" ${["days", "weekly"].includes(r.freq) ? "" : "hidden"} aria-label="Which days">${D.map((d, i) => `<button class="chip2" role="checkbox" data-day="${i}" aria-checked="${r.days.includes(i)}">${d}</button>`).join("")}</div>
+      <div class="field" id="re-datew" ${r.freq === "once" ? "" : "hidden"}><label for="re-date">Date</label><input id="re-date" type="date" value="${r.date || today()}"></div>
+      <div class="fields two" id="re-cw" ${r.freq === "custom" ? "" : "hidden"}><div class="field"><label for="re-every">Every how many days?</label><input id="re-every" inputmode="numeric" value="${r.every}"></div><div class="field"><label for="re-start">Starting</label><input id="re-start" type="date" value="${r.start || today()}"></div></div></div>
+    <div class="btns"><button class="btn main" id="re-save">Save</button>${rem ? `<button class="btn" id="re-del">Delete</button>` : ""}</div><button class="btn block" id="re-back">Back</button>`, el => {
+    let cat = r.cat, freq = r.freq;
+    const radio = (id, set) => (el.querySelector(id).onclick = e => { const b = e.target.closest("[data-v]"); if (!b) return; el.querySelectorAll(id + " .chip2").forEach(x => x.setAttribute("aria-checked", x === b)); set(b.dataset.v); });
+    radio("#re-cat", v => (cat = v));
+    radio("#re-freq", v => { freq = v; el.querySelector("#re-days").hidden = !["days", "weekly"].includes(v); el.querySelector("#re-datew").hidden = v !== "once"; el.querySelector("#re-cw").hidden = v !== "custom"; });
+    el.querySelector("#re-days").onclick = e => { const b = e.target.closest("[data-day]"); if (!b) return; if (freq === "weekly") el.querySelectorAll("#re-days .chip2").forEach(x => x.setAttribute("aria-checked", x === b)); else b.setAttribute("aria-checked", b.getAttribute("aria-checked") !== "true"); };
+    el.querySelector("#re-back").onclick = notifSheet;
+    el.querySelector("#re-save").onclick = () => {
+      const title = el.querySelector("#re-t").value.trim().slice(0, 80), time = el.querySelector("#re-time").value, days = [...el.querySelectorAll('#re-days [aria-checked="true"]')].map(b => +b.dataset.day);
+      if (!title) { toast("What should I remind you about?"); el.querySelector("#re-t").focus(); return; }
+      if (!/^\d{1,2}:\d{2}$/.test(time)) { toast("Pick a time."); return; }
+      if (["days", "weekly"].includes(freq) && !days.length) { toast("Pick at least one day."); return; }
+      const every = Math.round(Number(el.querySelector("#re-every").value)); if (freq === "custom" && !(every >= 1 && every <= 60)) { toast("Pick every 1 to 60 days."); return; }
+      const nr = { id: r.id, title, cat, time, freq, days: freq === "weekly" ? days.slice(0, 1) : days, date: el.querySelector("#re-date").value || today(), every: every || 2, start: el.querySelector("#re-start").value || today(), on: r.on !== false, updated: Date.now() };
+      const i = S.notif.reminders.findIndex(x => x.id === nr.id); if (i >= 0) S.notif.reminders[i] = nr; else S.notif.reminders.push(nr);
+      if (rem && rem.time !== nr.time) Object.keys(S.notif.log).forEach(k => { if (k.startsWith(nr.id + "@")) delete S.notif.log[k]; });
+      save(); toast(rem ? "Reminder updated." : "Reminder added."); notifSheet();
+    };
+    const del = el.querySelector("#re-del");
+    del && (del.onclick = () => { if (!del.dataset.sure) { del.dataset.sure = 1; del.textContent = "Tap again to delete"; return; } S.notif.reminders = S.notif.reminders.filter(x => x.id !== r.id); save(); toast("Reminder deleted."); notifSheet(); });
+  }, { label: rem ? "Edit reminder" : "Add a reminder" });
+}
 
 /* ================= money: Big Sis Check ================= */
 const PERSONAS = {
@@ -1843,7 +2173,7 @@ $("#gearBtn").onclick = settingsSheet;
 function settingsSheet() {
   const where = syncState === "account" ? "Saving to your Claude account, so it follows you to other devices." : syncState === "error" ? "Saving on this device. Your Claude account couldn't be reached just now." : "Saving on this device only. Download a backup now and then so you never lose progress.";
   openSheet(`<div class="label">Settings</div>
-  <button class="btn shell block" id="sTasks">My tasks and routines</button>
+  <div class="btns"><button class="btn shell" id="sTasks">My tasks and routines</button><button class="btn shell" id="sNotif">Notifications</button></div>
   <div class="field"><label for="sName">Your name (for news and the share card)</label><input id="sName" value="${esc(S.name)}" maxlength="20"></div>
   <div>
     <div class="switch"><div class="grow"><b id="lb-sound">Sounds</b><div class="small muted">Soft plinks when you finish.</div></div><button class="tog" role="switch" data-k="sound" aria-checked="${S.sound}" aria-labelledby="lb-sound"></button></div>
@@ -1862,6 +2192,7 @@ function settingsSheet() {
     el.querySelectorAll(".tog").forEach(t => (t.onclick = () => { const k = t.dataset.k; S[k] = !S[k]; t.setAttribute("aria-checked", S[k]); save(); applyPrefs(); renderIsland(); }));
     el.querySelector("#sSave").onclick = () => { S.name = el.querySelector("#sName").value.trim().slice(0, 20); save(); closeSheet(); renderAll(); };
     el.querySelector("#sTasks").onclick = () => tasksSheet();
+    el.querySelector("#sNotif").onclick = () => notifSheet();
     el.querySelector("#sExport").onclick = async () => {
       const blob = new Blob([CoreEngine.makeBackup(S, Date.now())], { type: "application/json" });
       try { if (await saveFile("critter-cove-backup-" + today() + ".json", blob)) toast("Backup saved."); } catch (e) { toast("Couldn't save the backup here. Try again from a browser."); }
@@ -2018,7 +2349,7 @@ function welcome() {
   if (!S.lastCollect) S.lastCollect = Date.now();
   S.lastVisit = Date.now(); if (S.zones > ZONES.length) S.zones = ZONES.length; save();
   if (first) {
-    openSheet(`<div class="hero">${critterSVG(CRITTERS[0])}</div><div class="stack"><div class="label">Welcome to Critter Cove</div><h2 class="big-title">You washed up on a messy island.</h2><p class="muted">Every tiny chore you do at home fixes up the island and lures in weird little critters. There are ${CRITTERS.length} of them. They're messy.</p><p class="muted">The app picks one tiny thing at a time. You just tap <b>Done</b>. Hard to start? Start for 30 seconds. Too much? Tap I'm overwhelmed.</p><p class="small muted">You can add your own tasks any time in Settings.</p></div><button class="btn main huge block" id="wOk">Show me the first tiny thing</button>`, el => (el.querySelector("#wOk").onclick = closeSheet));
+    openSheet(`<div class="hero">${critterSVG(CRITTERS[0])}</div><div class="stack"><div class="label">Welcome to Critter Cove</div><h2 class="big-title">You washed up on a messy island.</h2><p class="muted">Every tiny chore you do at home fixes up the island and lures in weird little critters. There are ${CRITTERS.length} of them. They're messy.</p><p class="muted">The app picks one tiny thing at a time. You just tap <b>Done</b>. Hard to start? Start for 30 seconds. Too much? Tap I'm overwhelmed.</p><p class="small muted">You can add your own tasks any time in Settings.</p></div><button class="btn main huge block" id="wOk">Show me the first tiny thing</button><button class="link" id="wRem" style="align-self:center">Set up reminders first (optional)</button>`, el => { el.querySelector("#wOk").onclick = () => { S.notif.introSeen = true; save(); closeSheet(); renderIsland(); }; el.querySelector("#wRem").onclick = () => notifSetupSheet(true); });
   } else if (away > 2 * DAY) {
     S.shells += 20; S.earned += 20; save(); renderAll();
     const c = CRITTERS.filter(x => S.crew[x.id]), who = c.length ? pick(c).name : "Trash Panda Pete";

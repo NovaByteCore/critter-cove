@@ -1,8 +1,8 @@
 {
- "when": "2026-10-27T18:24:18.180Z",
+ "when": "2026-10-27T19:49:22.494Z",
  "url": "file:///home/claude/critter-cove/index.html",
- "pass": 31,
- "total": 31,
+ "pass": 43,
+ "total": 44,
  "results": [
   {
    "name": "first visit: welcome, then completing a task pays shells, opens a chest and finds a critter",
@@ -26,6 +26,26 @@
   },
   {
    "name": "30-second start: hide, resume card survives reload, finish via resume",
+   "pass": true
+  },
+  {
+   "name": "timer: pause, resume, restart and end session work, and stay accurate",
+   "pass": true
+  },
+  {
+   "name": "timer: screen lock or sleeping tab doesn't make it drift",
+   "pass": true
+  },
+  {
+   "name": "timer end choices: five more minutes, take a break, back to it, switch tasks",
+   "pass": true
+  },
+  {
+   "name": "timer: custom length and saving it as the default",
+   "pass": true
+  },
+  {
+   "name": "timer: double tap on I'm Done gives one reward",
    "pass": true
   },
   {
@@ -94,6 +114,39 @@
   },
   {
    "name": "sync: account progress is merged, never overwritten by an older device",
+   "pass": true
+  },
+  {
+   "name": "onboarding: reminders can be picked or skipped, and skipping never nags again",
+   "pass": true
+  },
+  {
+   "name": "existing users see the new reminders card once",
+   "pass": true
+  },
+  {
+   "name": "every notification setting can be changed later and survives reload",
+   "pass": true
+  },
+  {
+   "name": "reminders show at their time, snooze brings them back, quiet hours hold them",
+   "pass": false,
+   "error": "didn't fire"
+  },
+  {
+   "name": "missed reminders: shown later when allowed, skipped when not",
+   "pass": true
+  },
+  {
+   "name": "all notifications off: the cleaning timer still works fully",
+   "pass": true
+  },
+  {
+   "name": "browser notification permission is asked only when the user chooses, and never re-asked after no",
+   "pass": true
+  },
+  {
+   "name": "existing progress is untouched by the new settings",
    "pass": true
   },
   {

@@ -21,6 +21,8 @@ async function open(opts = {}) {
   if (!opts.keepWelcome && await p.$("#wOk")) await p.click("#wOk");
   return p;
 }
+const secsOn = async p => { const [m, s] = (await p.textContent("#tnum")).split(":").map(Number); return m * 60 + s; };
+const near = (v, want, tol = 3) => Math.abs(v - want) <= tol;
 const saved = p => p.evaluate(k => JSON.parse(localStorage.getItem(k)), KEY);
 const closeSheetIfAny = async p => { for (const id of ["#restBtn", "#zOk", "#wOk", "#rOk"]) if (await p.$(id)) { await p.click(id); return; } };
 const base = (extra = {}) => Object.assign({ v: 5, at: Date.now(), shells: 0, earned: 0, tasks: 0, zones: 1, crew: {}, lastVisit: Date.now(), lastCollect: Date.now(), done: {}, goals: {}, week: [] }, extra);
@@ -79,15 +81,71 @@ async function t(name, fn) {
     const p = await open({ state: base(), clock: "2026-10-27T13:00:00" });
     const task = await p.textContent("#taskText");
     await p.click('[data-secs="30"]'); await p.waitForTimeout(100);
-    ok(/30 seconds/.test(await p.textContent(".sheet .label")), "timer label");
+    ok(/Cleaning timer · 30 sec/.test(await p.textContent(".sheet .label")), "timer label");
     await p.click("#tHide"); ok(await p.isVisible("#resume"), "no resume card");
     await p.reload(); await p.waitForTimeout(200); ok(await p.isVisible("#resume"), "resume card lost on reload");
-    await p.click("#resumeBtn"); await p.waitForTimeout(100); ok(await p.$("#tDone"), "resume didn't reopen timer");
-    await p.clock.fastForward("00:00:40"); await p.waitForTimeout(400);
-    ok(/You started/.test(await p.textContent("#tmsg")), "time-up message missing");
-    await p.click("#tDone"); await p.waitForTimeout(150);
+    await p.click('[data-rr="open"]'); await p.waitForTimeout(100); ok(await p.$("#tDone"), "resume didn't reopen timer");
+    await p.clock.fastForward(40000); await p.waitForTimeout(1200);
+    ok(/Time's up/.test(await p.textContent("#tmsg")), "time-up message missing: " + await p.textContent("#tmsg"));
+    ok((await saved(p)).tasks === 0, "timer ending gave a reward by itself");
+    await p.click("#tDone2"); await p.waitForTimeout(150);
     const s = await saved(p); ok(s.tasks === 1 && !s.activeTimer, "not completed via timer");
     ok(Object.values(s.done)[0].includes(task), "wrong task completed");
+  });
+
+  await t("timer: pause, resume, restart and end session work, and stay accurate", async () => {
+    const p = await open({ state: base({ timerPrefs: { defaultSecs: 600 } }), clock: "2026-10-27T13:00:00" });
+    ok(/10 min/.test(await p.textContent("#defBtn")), "default not shown on button");
+    await p.click("#defBtn"); await p.waitForTimeout(150);
+    await p.clock.fastForward(60000); await p.waitForTimeout(1100);
+    ok(near(await secsOn(p), 540), "after 1 min: " + await p.textContent("#tnum"));
+    await p.click("#tPause"); const held = await secsOn(p); await p.clock.fastForward(120000); await p.waitForTimeout(1100);
+    ok((await secsOn(p)) === held && (await p.textContent("#tPause")) === "Resume", "pause didn't hold: " + await p.textContent("#tnum"));
+    await p.reload(); await p.waitForTimeout(300);
+    ok(/Paused · \d+:\d\d left/.test(await p.textContent("#resume")), "pause lost on reload: " + await p.textContent("#resume"));
+    await p.click('[data-rr="open"]'); ok((await secsOn(p)) === held, "paused time changed after reload");
+    await p.click("#tPause"); await p.clock.fastForward(30000); await p.waitForTimeout(1100);
+    ok(near(await secsOn(p), held - 30), "resume wrong: " + await p.textContent("#tnum"));
+    await p.click("#tRestart"); await p.waitForTimeout(1100); ok(near(await secsOn(p), 600), "restart wrong: " + await p.textContent("#tnum"));
+    await p.click("#tStop"); const s = await saved(p); ok(!s.activeTimer && s.tasks === 0, "end session should stop with no reward");
+  });
+
+  await t("timer: screen lock or sleeping tab doesn't make it drift", async () => {
+    const p = await open({ state: base(), clock: "2026-10-27T13:00:00" });
+    await p.click('[data-secs="more"]'); await p.click('[data-sec="300"]'); await p.waitForTimeout(150);
+    const before = await secsOn(p), nowMs = await p.evaluate(() => Date.now());
+    await p.clock.pauseAt(new Date(nowMs + 500)); await p.clock.fastForward(180000); await p.clock.resume(); await p.waitForTimeout(1100);
+    ok(near(await secsOn(p), before - 181, 3), "drifted: " + before + " -> " + await p.textContent("#tnum"));
+  });
+
+  await t("timer end choices: five more minutes, take a break, back to it, switch tasks", async () => {
+    const p = await open({ state: base({ timerPrefs: { breakMins: 3 } }), clock: "2026-10-27T13:00:00" });
+    const task = await p.textContent("#taskText");
+    await p.click('[data-secs="30"]'); await p.clock.fastForward(31000); await p.waitForTimeout(1100);
+    await p.click("#tMore"); await p.waitForTimeout(1100); ok(near(await secsOn(p), 300), "five more: " + await p.textContent("#tnum"));
+    await p.clock.fastForward(301000); await p.waitForTimeout(1100);
+    await p.click("#tBreak"); await p.waitForTimeout(150); ok(/Break · 3 min/.test(await p.textContent(".sheet .label")), "break length wrong");
+    await p.clock.fastForward(181000); await p.waitForTimeout(1100); ok(/Break's over/.test(await p.textContent("#tmsg")), "break end message");
+    await p.click("#tBack"); await p.waitForTimeout(150); ok(/Cleaning timer/.test(await p.textContent(".sheet .label")) && (await p.textContent(".sheet h2")) === task, "back to it");
+    await p.clock.fastForward(301000); await p.waitForTimeout(1100);
+    await p.click("#tSwitch"); await p.waitForTimeout(150);
+    const s = await saved(p); ok(!s.activeTimer && s.tasks === 0, "switch should not reward");
+    ok((await p.textContent("#taskText")) !== task, "switch didn't change the task");
+  });
+
+  await t("timer: custom length and saving it as the default", async () => {
+    const p = await open({ state: base() });
+    await p.click('[data-secs="more"]'); await p.fill("#tpCustom", "abc"); await p.click("#tpGo");
+    ok(/half a minute/.test(await p.textContent(".toast")), "bad custom length accepted");
+    await p.fill("#tpCustom", "25"); await p.click("#tpDef"); await p.click("#tpGo"); await p.waitForTimeout(150);
+    ok(/25 min/.test(await p.textContent(".sheet .label")), "custom length not used");
+    await p.click("#tStop"); ok(/25 min/.test(await p.textContent("#defBtn")), "default not saved");
+    await p.reload(); await p.waitForTimeout(200); ok(/25 min/.test(await p.textContent("#defBtn")), "default lost after reload");
+  });
+
+  await t("timer: double tap on I'm Done gives one reward", async () => {
+    const p = await open({ state: base() }); await p.click('[data-secs="30"]'); await p.waitForTimeout(100);
+    await p.dblclick("#tDone"); await p.waitForTimeout(300); ok((await saved(p)).tasks === 1, "tasks " + (await saved(p)).tasks);
   });
 
   await t("I'm overwhelmed: rescue picks one tiny thing; rest mode; ready again", async () => {
@@ -262,6 +320,93 @@ async function t(name, fn) {
     const last = await p.evaluate(() => { const s = window.__sets.filter(x => x[0].endsWith("/cove")).pop(); return s && JSON.parse(s[1].json); });
     ok(last && last.shells >= 999 && last.tasks >= 300 && last.zones === 6, "account progress lost: " + JSON.stringify(last && { shells: last.shells, tasks: last.tasks }));
     ok(last.crew.pete && last.crew.gary, "critters from both devices not kept");
+  });
+
+  await t("onboarding: reminders can be picked or skipped, and skipping never nags again", async () => {
+    const p = await open({ keepWelcome: true }); await p.click("#wRem");
+    ok(/Want a few reminders/.test(await p.textContent(".sheet")), "no reminder step");
+    await p.click("#nqSkip"); await p.waitForTimeout(100);
+    let s = await saved(p); ok(s.notif.setupDone && s.notif.reminders.length === 0, "skip didn't stick");
+    await p.reload(); await p.waitForTimeout(200); ok(await p.isHidden("#notifIntro"), "intro card shown after skipping");
+    const q = await open({ keepWelcome: true }); await q.click("#wRem"); await q.click('[data-q="chore"]'); await q.click('#nqVoice [data-v="drag"]'); await q.click("#nqOn"); await q.waitForTimeout(200);
+    s = await saved(q); ok(s.notif.reminders.length === 4 && s.notif.personality === "drag", "picks not saved: " + s.notif.reminders.length);
+  });
+
+  await t("existing users see the new reminders card once", async () => {
+    const p = await open({ state: base() });
+    ok(await p.isVisible("#notifIntro"), "no intro card for existing user"); await p.click("#introNo");
+    await p.reload(); await p.waitForTimeout(200); ok(await p.isHidden("#notifIntro"), "intro card came back");
+  });
+
+  await t("every notification setting can be changed later and survives reload", async () => {
+    const p = await open({ state: base({ notif: { setupDone: true, introSeen: true } }) });
+    await p.click("#gearBtn"); await p.click("#sNotif");
+    await p.click('#nVoice [data-v="gentle"]');
+    for (const d of await p.$$("details.adv")) await d.evaluate(x => (x.open = true));
+    await p.click('[data-n="cat-bills"]'); await p.click('[data-n="ta-half"]'); await p.click('[data-n="ta-encourage"]');
+    await p.click('[data-n="quiet"]'); await p.fill("#nQs", "21:30"); await p.fill("#nQe", "07:15"); await p.locator("#nQe").dispatchEvent("change"); await p.locator("#nQs").dispatchEvent("change");
+    await p.fill("#nSnzC", "45"); await p.locator("#nSnzC").dispatchEvent("change");
+    await p.click('[data-n="sound"]'); await p.click('[data-n="reschedule"]');
+    await p.fill("#nBreak", "7"); await p.locator("#nBreak").dispatchEvent("change"); await p.click('#nDef [data-sec="900"]');
+    await p.click("#nAdd"); await p.fill("#re-t", "Pay phone bill"); await p.click('#re-cat [data-v="bills"]'); await p.fill("#re-time", "18:00");
+    await p.click('#re-freq [data-v="days"]'); await p.click('#re-days [data-day="1"]'); await p.click('#re-days [data-day="3"]'); await p.click("#re-save");
+    await p.reload(); await p.waitForTimeout(200);
+    const n = (await saved(p)).notif, tp = (await saved(p)).timerPrefs;
+    ok(n.personality === "gentle" && n.cats.bills === false && n.quiet.on && n.quiet.start === "21:30" && n.quiet.end === "07:15", "basics: " + JSON.stringify({ p: n.personality, b: n.cats.bills, q: n.quiet }));
+    ok(n.snoozeMins === 45 && n.sound === false && n.reschedule === false, "snooze/sound/reschedule");
+    ok(tp.alerts.half === true && tp.alerts.encourage === false && tp.breakMins === 7 && tp.defaultSecs === 900, "timer prefs " + JSON.stringify(tp));
+    ok(n.reminders.length === 1 && n.reminders[0].days.join() === "1,3" && n.reminders[0].cat === "bills", "reminder");
+    await p.click("#gearBtn"); await p.click("#sNotif"); await p.click("#nList [data-rid]"); await p.fill("#re-t", "Pay the phone bill"); await p.click("#re-save");
+    await p.click('#nList [data-ron]'); await p.click("#nList [data-rid]"); await p.click("#re-del"); await p.click("#re-del");
+    ok((await saved(p)).notif.reminders.length === 0, "delete failed");
+  });
+
+  await t("reminders show at their time, snooze brings them back, quiet hours hold them", async () => {
+    const st = base({ notif: { setupDone: true, introSeen: true, snoozeMins: 10, quiet: { on: true, start: "22:00", end: "08:00" }, reminders: [{ id: "r1", title: "Start the dishwasher", cat: "chores", time: "13:05", freq: "daily", on: true }, { id: "r2", title: "Late one", cat: "chores", time: "22:30", freq: "daily", on: true }] } });
+    const p = await open({ state: st, clock: "2026-10-27T13:00:00" });
+    ok(!(await p.$(".nbanner")), "fired early");
+    await p.clock.fastForward(6 * 60000); await p.waitForTimeout(500); await p.evaluate(() => document.dispatchEvent(new Event("visibilitychange")));
+    await p.waitForTimeout(200); ok(/Start the dishwasher/.test(await p.textContent("#nbanners")), "didn't fire");
+    await p.click('.nbanner [data-a="snooze"]'); ok(!(await p.$(".nbanner")), "banner stayed");
+    await p.clock.fastForward(11 * 60000); await p.evaluate(() => document.dispatchEvent(new Event("visibilitychange"))); await p.waitForTimeout(200);
+    ok(/Start the dishwasher/.test(await p.textContent("#nbanners")), "snooze didn't bring it back");
+    await p.click('.nbanner [data-a="done"]');
+    await p.clock.fastForward(9.5 * 3600e3); await p.evaluate(() => document.dispatchEvent(new Event("visibilitychange"))); await p.waitForTimeout(200);
+    ok(!/Late one/.test(await p.textContent("#nbanners")), "fired during quiet hours");
+  });
+
+  await t("missed reminders: shown later when allowed, skipped when not", async () => {
+    const rem = [{ id: "m", title: "Water the plants", cat: "chores", time: "09:00", freq: "daily", on: true }];
+    const p = await open({ state: base({ notif: { setupDone: true, introSeen: true, reschedule: true, reminders: rem } }), clock: "2026-10-27T13:00:00" });
+    await p.waitForTimeout(300); await p.evaluate(() => document.dispatchEvent(new Event("visibilitychange"))); await p.waitForTimeout(200);
+    ok(/Missed reminder/.test(await p.textContent("#nbanners")), "missed not shown");
+    const q = await open({ state: base({ notif: { setupDone: true, introSeen: true, reschedule: false, reminders: rem } }), clock: "2026-10-27T13:00:00" });
+    await q.evaluate(() => document.dispatchEvent(new Event("visibilitychange"))); await q.waitForTimeout(200);
+    ok(!(await q.$(".nbanner")), "missed shown even though turned off");
+  });
+
+  await t("all notifications off: the cleaning timer still works fully", async () => {
+    const p = await open({ state: base({ notif: { setupDone: true, introSeen: true, enabled: false } }), clock: "2026-10-27T13:00:00" });
+    await p.click('[data-secs="30"]'); await p.clock.fastForward(31000); await p.waitForTimeout(1100);
+    ok(/Time's up/.test(await p.textContent("#tmsg")), "timer didn't finish");
+    await p.click("#tDone2"); await p.waitForTimeout(150); ok((await saved(p)).tasks === 1, "couldn't finish task");
+  });
+
+  await t("browser notification permission is asked only when the user chooses, and never re-asked after no", async () => {
+    const init = `window.__asks=0;window.Notification=function(){};Notification.permission='default';Notification.requestPermission=async()=>{window.__asks++;Notification.permission='denied';return 'denied'};`;
+    const p = await open({ keepWelcome: true, init });
+    ok(await p.evaluate(() => window.__asks) === 0, "asked without the user choosing");
+    await p.click("#wRem"); await p.click("#nqOn"); await p.waitForTimeout(200);
+    ok(await p.evaluate(() => window.__asks) === 1, "not asked after choosing");
+    await p.click("#gearBtn"); await p.click("#sNotif");
+    ok(!(await p.$("#nPerm")) && /won't keep asking/.test(await p.textContent(".sheet")), "offered to ask again");
+  });
+
+  await t("existing progress is untouched by the new settings", async () => {
+    const old = { v: 5, at: Date.now(), shells: 538, earned: 2900, tasks: 47, zones: 9, crew: { pete: { found: 1, friend: 2 }, unc: { found: 1, friend: 1 } }, custom: [{ id: "t1", text: "Feed dog" }], lastVisit: Date.now(), lastCollect: Date.now(), done: {}, goals: {}, sis: { budget: { weekly: 300 }, history: [{ id: "h", item: "Book", price: 25, at: 1, decision: "bought" }] } };
+    const p = await open({ state: old }); const s = await saved(p);
+    ok(s.shells === 538 && s.tasks === 47 && s.zones === 9 && Object.keys(s.crew).length === 2 && s.custom.length === 1 && s.sis.history.length === 1, "progress changed");
+    ok(s.notif && s.timerPrefs && s.timerPrefs.defaultSecs === 300, "new settings missing defaults");
   });
 
   await t("accessibility: pop-ups are named, hold focus, close with Escape and return focus", async () => {

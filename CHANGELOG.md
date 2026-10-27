@@ -32,5 +32,19 @@
 **Sharing**
 - On GitHub Pages, Share uses the phone's share sheet or downloads the picture.
 
+**Cleaning timer**
+- Presets: 30 sec, 2, 5, 10, 15, 20 min, or custom; pick your default.
+- Pause, Resume, Restart, End session; stays accurate if the screen locks.
+- When time's up: I'm Done! 🎉, Five More Minutes, Take a Break (custom break length), Switch Tasks.
+- Finishing the timer never rewards by itself; you confirm with I'm Done.
+- Optional alerts: timer end, halfway, encouraging messages, break over, come back after a break.
+
+**Notifications**
+- Optional setup during onboarding (skippable); a one-time card for existing users.
+- Settings → Notifications: one master switch, your own reminders (add, edit, delete, switch on/off), time, days and frequency (once, daily, weekdays, selected days, weekly, every few days), categories, personality (Gentle, Playful Bestie, Drag Me), quiet hours, snooze length, sound, missed reminders. Changes save automatically.
+- Automatic reminders when a spending cooldown ends and when critter gifts are full.
+- Browser notification permission is only asked when you choose, and never again after a no.
+- What works where, and what doesn't (app closed): `docs/NOTIFICATIONS.md`.
+
 **Tests**
-- 38 unit tests (`npm test`) and 31 browser tests (`npm run test:e2e`).
+- 43 unit tests (`npm test`) and 44 browser tests (`npm run test:e2e`).

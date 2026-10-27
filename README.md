@@ -5,7 +5,8 @@ A one-tap chore game for ADHD brains. Tiny tasks rebuild a messy creature island
 ## What's in it
 
 - **One task, one tap.** The app picks the next tiny thing based on time of day (morning reset, room of the day, night reset). Tap **Done**.
-- **Hard to start?** Start for 30 seconds, 2 minutes or 5 minutes. The timer keeps running if you leave, and a "you were in the middle of…" card brings you back.
+- **Cleaning timer:** 30 sec to 20 min or custom, with your own default. Pause, resume, restart, end. When time's up: I'm Done!, Five More Minutes, Take a Break, or Switch Tasks. It keeps running if you leave, and a card on the island brings you back.
+- **Reminders you control:** optional, set up in onboarding or Settings → Notifications. See `docs/NOTIFICATIONS.md` for what works where (they only work while the app is open).
 - **Too much?** "Smaller, please" gives a 30-second version, "Later" hides a task for two hours, and "I'm overwhelmed" offers one tiny rescue step or permission to rest. None of these cost anything.
 - **Your own tasks:** add tasks that repeat daily, on weekdays, on certain days or just once, with a time of day, length, category and an Important flag. Turn off suggested routines or rooms that don't fit your life.
 - **Daily goal chests** at 1, 3 and 5 tiny things. The fifth always brings a new critter.

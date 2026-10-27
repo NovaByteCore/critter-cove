@@ -188,3 +188,58 @@ test("set-aside money for one purchase counts, insisting alone doesn't", () => {
   assert.equal(billsCap.available, 100); assert.equal(E.decide(bag, billsCap, [], {}, now).verdict, "red"); // still can't touch bill money
   assert.match(E.reality(bag, gift, E.decide(bag, gift, [], {}, now)).join(" "), /\$700 you set aside/);
 });
+
+/* ---------- cleaning timer ---------- */
+test("timer math: pause, resume, restart, five more, alerts once each", () => {
+  const t0 = 1e12, task = { key: "k", t: "Wipe counter" };
+  let tm = C.tStart(task, 600, t0);
+  assert.equal(C.tLeft(tm, t0 + 60000), 540000);
+  tm = C.tPause(tm, t0 + 60000); assert.equal(C.tLeft(tm, t0 + 999999), 540000); // paused: time doesn't move
+  tm = C.tResume(tm, t0 + 200000); assert.equal(C.tLeft(tm, t0 + 230000), 510000);
+  assert.deepEqual(plain(C.tEvents(tm, t0 + 300000)), []);
+  assert.deepEqual(plain(C.tEvents(tm, t0 + 500000)), ["half"]);
+  tm.halfSent = true; assert.deepEqual(plain(C.tEvents(tm, t0 + 760000)), ["end"]);
+  tm.endSent = true; assert.deepEqual(plain(C.tEvents(tm, t0 + 770000)), []); // end alert only once
+  tm = C.tRestart(tm, t0 + 800000); assert.equal(C.tLeft(tm, t0 + 800000), 600000); assert.equal(tm.endSent, false);
+  tm = C.tMore(tm, 300000, t0 + 900000); assert.equal(C.tLeft(tm, t0 + 900000), 300000);
+  const br = Object.assign(C.tStart(task, 300, t0, "break"), { endSent: true, endedAt: t0 + 300000 });
+  assert.deepEqual(plain(C.tEvents(br, t0 + 400000)), []); assert.deepEqual(plain(C.tEvents(br, t0 + 600001)), ["resume"]);
+  assert.deepEqual(plain(C.tEvents(C.tStart(task, 60, t0), t0 + 40000)), []); // no halfway alert for very short timers
+});
+
+/* ---------- reminders ---------- */
+test("reminder schedules: daily, weekdays, selected days, weekly, once, every N days", () => {
+  const tue = at("2026-10-27T12:00:00"), sat = at("2026-10-31T12:00:00");
+  assert.ok(C.occursOn({ freq: "daily" }, sat));
+  assert.ok(C.occursOn({ freq: "weekdays" }, tue) && !C.occursOn({ freq: "weekdays" }, sat));
+  assert.ok(C.occursOn({ freq: "days", days: [2, 6] }, sat) && !C.occursOn({ freq: "days", days: [1] }, tue));
+  assert.ok(C.occursOn({ freq: "once", date: "2026-10-27" }, tue) && !C.occursOn({ freq: "once", date: "2026-10-28" }, tue));
+  assert.ok(C.occursOn({ freq: "custom", every: 3, start: "2026-10-24" }, tue) && !C.occursOn({ freq: "custom", every: 3, start: "2026-10-25" }, tue));
+  assert.ok(!C.occursOn({ freq: "custom", every: 3, start: "2026-11-01" }, tue)); // hasn't started yet
+});
+test("quiet hours, including ones that cross midnight", () => {
+  const q = { on: true, start: "22:00", end: "08:00" };
+  assert.ok(C.inQuiet(q, at("2026-10-27T23:10:00")) && C.inQuiet(q, at("2026-10-27T07:59:00")));
+  assert.ok(!C.inQuiet(q, at("2026-10-27T08:00:00")) && !C.inQuiet({ ...q, on: false }, at("2026-10-27T23:00:00")));
+  assert.ok(C.inQuiet({ on: true, start: "13:00", end: "15:00" }, at("2026-10-27T14:00:00")));
+});
+test("which reminders fire: time reached, once per day, snooze, done, categories, master switch, missed", () => {
+  const rems = [{ id: "a", title: "Dishes", cat: "chores", time: "13:00", freq: "daily", on: true }, { id: "b", title: "Bills", cat: "bills", time: "12:00", freq: "daily", on: true }, { id: "c", title: "Off", cat: "chores", time: "09:00", freq: "daily", on: false }];
+  const st = { enabled: true, cats: {}, reschedule: true }, now = at("2026-10-27T13:05:00");
+  let r = C.checkReminders(rems, {}, now, st);
+  assert.deepEqual(plain(r.fire.map(f => [f.id, f.missed])), [["a", false], ["b", true]]);
+  assert.equal(C.checkReminders(rems, { "a@2026-10-27": { firedAt: now }, "b@2026-10-27": { done: true } }, now + 6e4, st).fire.length, 0);
+  assert.equal(C.checkReminders(rems, { "a@2026-10-27": { firedAt: now, snoozeUntil: now + 6e5 } }, now + 6e5 + 1, st).fire.filter(f => f.id === "a").length, 1);
+  assert.equal(C.checkReminders(rems, {}, now, { ...st, cats: { bills: false } }).fire.length, 1);
+  assert.equal(C.checkReminders(rems, {}, now, { ...st, enabled: false }).fire.length, 0);
+  r = C.checkReminders(rems, {}, now, { ...st, reschedule: false });
+  assert.deepEqual(plain(r.fire.map(f => f.id)), ["a"]); assert.deepEqual(plain(r.skip), ["b@2026-10-27"]);
+  assert.equal(C.checkReminders(rems, {}, at("2026-10-27T23:30:00"), { ...st, quiet: { on: true, start: "22:00", end: "08:00" } }).fire.length, 0);
+});
+test("notification and timer settings are validated and old saves get safe defaults", () => {
+  const s = prep({ notif: { personality: "evil", snoozeMins: 9999, quiet: { on: true, start: "25:99" }, reminders: [{ id: "x", title: "<b>Hi</b>", time: "7:30", freq: "weird", days: [1, 9] }, { title: "no id" }] }, timerPrefs: { defaultSecs: 5, alerts: { half: true } } });
+  assert.equal(s.notif.personality, "bestie"); assert.equal(s.notif.snoozeMins, 240); assert.equal(s.notif.quiet.start, "22:00");
+  assert.equal(s.notif.reminders.length, 1); assert.equal(s.notif.reminders[0].freq, "daily"); assert.equal(s.notif.reminders[0].days.join(), "1");
+  assert.equal(s.timerPrefs.defaultSecs, 30); assert.equal(s.timerPrefs.alerts.half, true); assert.equal(s.timerPrefs.alerts.end, true);
+  const old = prep({ shells: 5 }); assert.equal(old.notif.enabled, true); assert.equal(old.notif.setupDone, false); assert.equal(old.timerPrefs.defaultSecs, 300);
+});
