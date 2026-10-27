@@ -51,6 +51,12 @@ async function t(name, fn) {
     ok((await saved(p)).tasks === 1, "tasks " + (await saved(p)).tasks);
   });
 
+  await t("double tap counts once even with reward pop-ups turned off", async () => {
+    const p = await open({ state: base({ quick: true }) }); await p.dblclick("#doneBtn"); await p.waitForTimeout(300);
+    ok((await saved(p)).tasks === 1, "tasks " + (await saved(p)).tasks);
+    await p.click("#doneBtn"); await p.waitForTimeout(100); ok((await saved(p)).tasks === 2, "a normal second tap after a pause was ignored");
+  });
+
   await t("Not this one, Smaller please and back again", async () => {
     const p = await open({ state: base() });
     const a = await p.textContent("#taskText"); await p.click("#skipBtn"); const b = await p.textContent("#taskText");
@@ -96,7 +102,7 @@ async function t(name, fn) {
 
   await t("three daily chests open at 1, 3 and 5; the fifth guarantees a critter", async () => {
     const p = await open({ state: base({ tasks: 3 }) });
-    for (let i = 0; i < 5; i++) { await p.click("#doneBtn"); await p.waitForTimeout(120); await closeSheetIfAny(p); }
+    for (let i = 0; i < 5; i++) { await p.click("#doneBtn"); await p.waitForTimeout(300); await closeSheetIfAny(p); }
     const s = await saved(p), k = Object.keys(s.goals)[0];
     ok(s.goals[k].length === 3, "chests " + JSON.stringify(s.goals));
     ok(/All 3 chests/.test(await p.textContent("#goalText")), "goal text");

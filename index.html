@@ -1128,7 +1128,7 @@ function rollCritter(force) {
 }
 let completing = false;
 function completeTask(task, viaTimer) {
-  if (completing || !task) return; completing = true; setTimeout(() => (completing = false), 400);
+  if (completing || !task) return; completing = true; setTimeout(() => (completing = false), 250); // blocks accidental double taps only
   const key = task.key || task.t;
   if (doneToday().includes(key)) { renderIsland(); return; }
   const doneList = doneToday().concat(key);

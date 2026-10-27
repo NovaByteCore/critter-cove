@@ -33,4 +33,4 @@
 - On GitHub Pages, Share uses the phone's share sheet or downloads the picture.
 
 **Tests**
-- 38 unit tests (`npm test`) and 30 browser tests (`npm run test:e2e`).
+- 38 unit tests (`npm test`) and 31 browser tests (`npm run test:e2e`).

@@ -61,4 +61,4 @@ Re-running the same audit script on the new code (`tests/audit/audit-results-mai
 | Console errors / sideways scroll (320–1280 px) | None | None |
 | Double-tap Done | Counted once | Counted once |
 
-Bugs #1–#10 above are fixed on the branch. Each fix has a matching automated test (see `tests/`).
+Bugs #1–#10 above are fixed on the branch. Each fix has a matching automated test (see `tests/`). One more issue turned up while testing: the new double-tap guard briefly ignored a fast second tap; it now only blocks taps under 0.25 s, with a test for it.
