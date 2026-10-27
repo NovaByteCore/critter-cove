@@ -322,6 +322,21 @@ async function t(name, fn) {
     ok(last.crew.pete && last.crew.gary, "critters from both devices not kept");
   });
 
+  await t("upgrade inside Claude: an old account save keeps critters, shells, tasks and its weekly budget, and skips the welcome", async () => {
+    const old = { v: 4, at: Date.now() - 3600e3, shells: 20, earned: 20, tasks: 1, zones: 1, crew: { crab: { found: Date.now() - 4e6, friend: 1 } }, done: {}, goals: {}, lastVisit: Date.now() - 3600e3, lastCollect: Date.now() - 4e6, nospend: [], checkins: [], parked: [], nah: 0, nahAmt: 0, budget: 75, sound: true, calm: false, big: false, memes: true, week: [] };
+    const remote = { json: JSON.stringify(old), at: old.at };
+    const init = `(()=>{const remote=${JSON.stringify(remote)};window.__sets=[];const docs={};
+      const mk=path=>({get:()=>new Promise(r=>setTimeout(()=>r(path.endsWith('/cove')?{exists:true,data:()=>remote}:{exists:false,data:()=>null}),400)),set:async d=>{window.__sets.push([path,d])},onSnapshot:()=>()=>{}});
+      window.claude={use:async n=>n==='db'?{doc:p=>docs[p]||(docs[p]=mk(p))}:n==='user'?{id:async()=>'u1'}:null};})()`;
+    const p = await open({ init, keepWelcome: true }); await p.waitForTimeout(1200);
+    ok(!(await p.$("#wOk")), "first-time welcome still showing for a returning player");
+    ok((await p.textContent("#shellCount")).trim() === "20", "shells");
+    await p.click("nav button[data-tab=money]"); ok(/\$75/.test(await p.textContent("#sisAvail")), "old weekly budget not carried over: " + await p.textContent("#sisAvail"));
+    await p.waitForTimeout(1500);
+    const last = await p.evaluate(() => { const s = window.__sets.filter(x => x[0].endsWith("/cove")).pop(); return s && JSON.parse(s[1].json); });
+    ok(last && last.crew.crab && last.tasks === 1 && last.shells === 20 && last.sis.budget.weekly === 75, "account copy changed: " + JSON.stringify(last && { s: last.shells, t: last.tasks }));
+  });
+
   await t("onboarding: reminders can be picked or skipped, and skipping never nags again", async () => {
     const p = await open({ keepWelcome: true }); await p.click("#wRem");
     ok(/Want a few reminders/.test(await p.textContent(".sheet")), "no reminder step");

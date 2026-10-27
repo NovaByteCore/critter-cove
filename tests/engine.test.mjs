@@ -145,3 +145,12 @@ test("migrate keeps old saves and moves parked items into cooldowns", () => {
   const partial = E.migrate({ sis: { name: "Auntie", budget: { weekly: 90 } } }, 0);
   assert.equal(partial.sis.name, "Auntie"); assert.equal(partial.sis.budget.weekly, 90); assert.equal(partial.sis.budget.spent, 0); assert.deepEqual(plain(partial.sis.history), []);
 });
+
+test("migrate carries an old Mr. Receipts weekly budget the user set into Big Sis", () => {
+  const s = E.migrate({ v: 4, shells: 20, budget: 75, nahAmt: 12 }, 0);
+  assert.equal(s.sis.budget.weekly, 75); assert.equal(s.shells, 20); assert.equal(s.nahAmt, 12);
+  assert.equal(E.migrate({ v: 4, budget: 60 }, 0).sis.budget.weekly, null, "60 was the old built-in default, not a choice");
+  assert.equal(E.migrate({ v: 4, budget: 0 }, 0).sis.budget.weekly, null, "a zero budget means not set");
+  assert.equal(E.migrate({ v: 4, budget: "abc" }, 0).sis.budget.weekly, null);
+  assert.equal(E.migrate({ sis: { budget: { weekly: 90 } }, budget: 60 }, 0).sis.budget.weekly, 90, "never overwrites a Big Sis budget");
+});

@@ -684,6 +684,10 @@ const SisEngine = (() => {
       s.sis = DEFAULT_SIS();
       (s.parked || []).forEach((p, i) => { const price = parsePrice(p.amt); if (!price) return; s.sis.history.push({ id: "old" + i + "-" + (p.until || 0), item: String(p.item || "Something").slice(0, 80), price, why: "", kind: "want", urgency: "whenever", at: (p.until || now) - 2 * D, verdict: "yellow", reasons: [], decision: "cooldown", until: p.until || now, roast: "", reality: "", next: "" }); });
       s.parked = [];
+      /* Mr. Receipts era saves kept a weekly fun budget as a plain number. Carry over one the user set.
+         60 was that version's built-in starting value, so it isn't treated as a choice: Big Sis asks instead of guessing. */
+      const oldBudget = parseFloat(s.budget);
+      if (isFinite(oldBudget) && oldBudget > 0 && oldBudget < 1e7 && oldBudget !== 60) { s.sis.budget.weekly = Math.round(oldBudget * 100) / 100; s.sis.budget.changed = Math.max(1, +s.at || 0); }
     } else {
       const d = DEFAULT_SIS();
       s.sis = Object.assign(d, s.sis, { budget: Object.assign(d.budget, s.sis.budget || {}) });
@@ -1020,7 +1024,12 @@ async function connect() {
     window.__coveDb = db; dbBase = "data/users/" + id + "/"; dbRef = db.doc(dbBase + "cove");
     const remote = await loadRemote();
     // Merge, never overwrite: whatever this device did while loading is kept alongside the account's progress.
-    if (remote) { S = prepare(CoreEngine.mergeStates(S, prepare(remote))); persistLocal(); applyPrefs(); renderAll(); }
+    if (remote) {
+      const acct = prepare(remote), returning = acct.tasks > 0 || acct.lastVisit > 0 || Object.keys(acct.crew).length > 0;
+      S = prepare(CoreEngine.mergeStates(S, acct)); persistLocal(); applyPrefs(); renderAll();
+      // A returning player on a new device saw "Welcome" before their account loaded. Take it away; they're not new.
+      const w = $("#sheetHost .sheet"); if (returning && w && w.dataset.first) closeSheet();
+    }
     syncState = "account";
     await flush();
     dbRef.onSnapshot(async snap => {
@@ -2349,7 +2358,7 @@ function welcome() {
   if (!S.lastCollect) S.lastCollect = Date.now();
   S.lastVisit = Date.now(); if (S.zones > ZONES.length) S.zones = ZONES.length; save();
   if (first) {
-    openSheet(`<div class="hero">${critterSVG(CRITTERS[0])}</div><div class="stack"><div class="label">Welcome to Critter Cove</div><h2 class="big-title">You washed up on a messy island.</h2><p class="muted">Every tiny chore you do at home fixes up the island and lures in weird little critters. There are ${CRITTERS.length} of them. They're messy.</p><p class="muted">The app picks one tiny thing at a time. You just tap <b>Done</b>. Hard to start? Start for 30 seconds. Too much? Tap I'm overwhelmed.</p><p class="small muted">You can add your own tasks any time in Settings.</p></div><button class="btn main huge block" id="wOk">Show me the first tiny thing</button><button class="link" id="wRem" style="align-self:center">Set up reminders first (optional)</button>`, el => { el.querySelector("#wOk").onclick = () => { S.notif.introSeen = true; save(); closeSheet(); renderIsland(); }; el.querySelector("#wRem").onclick = () => notifSetupSheet(true); });
+    openSheet(`<div class="hero">${critterSVG(CRITTERS[0])}</div><div class="stack"><div class="label">Welcome to Critter Cove</div><h2 class="big-title">You washed up on a messy island.</h2><p class="muted">Every tiny chore you do at home fixes up the island and lures in weird little critters. There are ${CRITTERS.length} of them. They're messy.</p><p class="muted">The app picks one tiny thing at a time. You just tap <b>Done</b>. Hard to start? Start for 30 seconds. Too much? Tap I'm overwhelmed.</p><p class="small muted">You can add your own tasks any time in Settings.</p></div><button class="btn main huge block" id="wOk">Show me the first tiny thing</button><button class="link" id="wRem" style="align-self:center">Set up reminders first (optional)</button>`, el => { el.dataset.first = "1"; el.querySelector("#wOk").onclick = () => { S.notif.introSeen = true; save(); closeSheet(); renderIsland(); }; el.querySelector("#wRem").onclick = () => notifSetupSheet(true); });
   } else if (away > 2 * DAY) {
     S.shells += 20; S.earned += 20; save(); renderAll();
     const c = CRITTERS.filter(x => S.crew[x.id]), who = c.length ? pick(c).name : "Trash Panda Pete";
