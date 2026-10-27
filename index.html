@@ -37,6 +37,7 @@
 .calm *, .calm *::before, .calm *::after{ animation:none!important; transition:none!important; }
 @media (prefers-reduced-motion: reduce){ *, *::before, *::after{ animation:none!important; transition:none!important; } }
 
+[hidden]{ display:none!important; }
 html,body{ height:100%; }
 body{ background:var(--bg); color:var(--ink); font-family:var(--f-body); font-size:var(--fs); line-height:1.45; -webkit-tap-highlight-color:transparent; }
 body::before{ content:""; position:fixed; inset:0 0 auto; height:env(safe-area-inset-top,0px); z-index:10; background:var(--bg); }
@@ -106,6 +107,52 @@ main .wrap{ padding-block:4px 110px; }
 .gift b{ font-family:var(--f-display); font-weight:600; font-size:18px; display:block; }
 .gift[disabled]{ cursor:default; }
 
+/* big sis check */
+:root{ --bad:#A9442E; --good:#3E6B2E; }
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --bad:#F2A08C; --good:#A9D493; } }
+:root[data-theme="dark"]{ --bad:#F2A08C; --good:#A9D493; }
+.sis-head{ display:flex; gap:12px; align-items:center; }
+.sis-head .grow{ flex:1; min-width:0; }
+.sis-head h2{ font-size:24px; }
+.sis-ava{ width:64px; height:64px; border-radius:50%; background:var(--sunk); overflow:hidden; flex:none; border:2px solid var(--line); }
+.sis-ava svg{ width:100%; height:100%; display:block; }
+.sis-who{ display:flex; align-items:center; justify-content:space-between; gap:8px; background:var(--sunk); border:0; border-radius:12px; padding:10px 12px; font-size:14px; text-align:left; min-height:44px; width:100%; }
+.sis-who b{ font-weight:700; }
+.avail{ display:flex; gap:12px; align-items:flex-end; background:var(--sunk); border-radius:16px; padding:12px 14px; flex-wrap:wrap; }
+.avail .grow{ flex:1; min-width:0; }
+.money{ font-family:var(--f-display); font-weight:700; font-size:34px; line-height:1.1; font-variant-numeric:tabular-nums; }
+.flabel{ font-weight:700; font-size:14px; }
+.chips2{ display:flex; gap:8px; flex-wrap:wrap; }
+.chip2{ border:2px solid var(--line); background:var(--surface); border-radius:99px; padding:8px 14px; font-weight:700; min-height:44px; }
+.chip2[aria-checked="true"]{ background:var(--ink); color:var(--bg); border-color:var(--ink); }
+.stats{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.stat{ gap:4px; }
+.stat b{ font-family:var(--f-display); font-size:26px; display:block; font-variant-numeric:tabular-nums; }
+.verdict{ border-radius:16px; padding:12px 14px; font-family:var(--f-display); font-weight:700; font-size:20px; text-align:center; color:var(--on-fill); }
+.verdict.green{ background:var(--moss); } .verdict.yellow{ background:var(--shell); } .verdict.red{ background:var(--coral); } .verdict.needinfo{ background:var(--sunk); color:var(--ink); }
+.roast{ font-size:18px; line-height:1.45; background:var(--sunk); border-radius:4px 18px 18px 18px; padding:12px 14px; }
+.speaker{ display:flex; gap:10px; align-items:center; }
+.speaker .sis-ava{ width:48px; height:48px; }
+.nums{ display:grid; grid-template-columns:1fr auto; gap:6px 12px; font-size:15px; font-variant-numeric:tabular-nums; margin:0; }
+.nums dt{ color:var(--muted); } .nums dd{ margin:0; font-weight:700; text-align:right; }
+.bad{ color:var(--bad); } .good{ color:var(--good); }
+.sec{ display:flex; flex-direction:column; gap:4px; }
+.sec h3{ font-size:12px; font-family:var(--f-body); font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); }
+.loadbox{ display:flex; flex-direction:column; align-items:center; gap:14px; padding:16px 0 8px; text-align:center; }
+.loadbox .sis-ava{ width:96px; height:96px; animation:bob2 1.2s ease-in-out infinite; }
+@keyframes bob2{ 50%{ transform:translateY(-6px) rotate(-3deg); } }
+.vchip{ font-size:12px; font-weight:700; padding:2px 8px; border-radius:99px; white-space:nowrap; color:var(--on-fill); }
+.vchip.green{ background:var(--moss); } .vchip.yellow{ background:var(--shell); } .vchip.red{ background:var(--coral); }
+.dchip{ font-size:12px; font-weight:700; padding:2px 8px; border-radius:99px; white-space:nowrap; background:var(--sunk); color:var(--muted); }
+.hrow{ display:flex; gap:10px; align-items:center; width:100%; text-align:left; background:none; border:0; border-top:1px solid var(--line); padding:12px 0; min-height:56px; }
+.hrow:first-child{ border-top:0; }
+.hrow .grow{ flex:1; min-width:0; overflow-wrap:anywhere; }
+.hrow .meta{ display:flex; gap:6px; flex-wrap:wrap; margin-top:4px; align-items:center; }
+.plist{ display:flex; flex-direction:column; gap:8px; }
+.plist p{ background:var(--sunk); border-radius:12px; padding:10px 12px; font-size:15px; }
+.field textarea{ border:1px solid var(--line); background:var(--sunk); border-radius:12px; padding:12px; width:100%; box-sizing:border-box; min-height:90px; resize:vertical; font:inherit; color:inherit; }
+.field .help{ font-size:13px; color:var(--muted); }
+.fine{ font-size:12px; color:var(--muted); text-align:center; }
 /* news */
 .news{ display:flex; flex-direction:column; gap:10px; }
 .news .head{ display:flex; gap:10px; align-items:flex-start; }
@@ -249,22 +296,30 @@ nav.tabs button[aria-current="page"] svg{ background:var(--shell); border-radius
 
 <section class="view" id="v-money" hidden>
   <div class="card">
+    <div class="sis-head"><div class="sis-ava" id="sisAva"></div><div class="grow"><h2 id="sisTitle">Big Sis Check 💸</h2><p class="muted small">Before you spend that money, come talk to me.</p></div></div>
+    <button class="sis-who" id="sisWho"></button>
+    <div class="avail"><div class="grow"><div class="label">Available to spend</div><div class="money" id="sisAvail">Not set</div><div class="small muted" id="sisAvailSub"></div></div><button class="btn" id="budgetBtn">Edit budget</button></div>
+    <div class="field"><label for="buyItem">What are we buying? 👀</label><input id="buyItem" placeholder="Another pair of sneakers" maxlength="80" autocomplete="off"></div>
+    <div class="field"><label for="buyAmt">How much is it?</label><input id="buyAmt" inputmode="decimal" placeholder="95" autocomplete="off"></div>
+    <div class="field"><label for="buyWhy">Why do you want it? <span class="muted">(optional)</span></label><input id="buyWhy" placeholder="It was on my For You page" maxlength="140" autocomplete="off"></div>
+    <div class="field"><span class="flabel" id="kindLbl">Is this a need or a want?</span><div class="chips2" id="kindChips" role="radiogroup" aria-labelledby="kindLbl"></div></div>
+    <div class="field"><span class="flabel" id="urgLbl">How urgently do you need it?</span><div class="chips2" id="urgChips" role="radiogroup" aria-labelledby="urgLbl"></div></div>
+    <button class="link" id="linkToggle" style="align-self:flex-start">+ Add a product link (optional)</button>
+    <div class="field" id="linkField" hidden><label for="buyLink">Product link</label><input id="buyLink" inputmode="url" placeholder="https://" autocomplete="off"></div>
+    <button class="btn coral huge block" id="checkBtn">Should I Buy This? 👀</button>
+  </div>
+  <div class="stats">
+    <div class="card stat"><b id="avoidAmt">$0</b><span class="small muted">avoided spending. Not savings, just money you didn't spend.</span></div>
+    <div class="card stat"><b id="jailCount">0</b><span class="small muted">in Wishlist Jail</span></div>
+  </div>
+  <div class="card" id="coolCard"><div class="label">Cooling off</div><div id="cooldowns"></div></div>
+  <div class="card" id="jailCard"><div class="label">Wishlist Jail</div><p class="small muted">Congratulations. We successfully stopped you from acting brand new today.</p><div id="jail"></div></div>
+  <div class="card" id="patternCard"><div class="label">Your spending patterns</div><div id="patterns" class="plist"></div></div>
+  <div class="card"><div class="label">Purchase history</div><div id="history"></div></div>
+  <div class="card">
     <div class="label">No‑spend days this week</div>
     <div class="week" id="nsWeek"></div>
     <button class="btn main block" id="nsBtn">Today I bought nothing fun</button>
-  </div>
-  <div class="card">
-    <div class="label">Before you buy</div>
-    <h2 id="askTitle">Ask Mr. Receipts first</h2>
-    <div class="fields two">
-      <div class="field"><label for="buyItem">What is it?</label><input id="buyItem" placeholder="A fourth water bottle"></div>
-      <div class="field"><label for="buyAmt">Price</label><input id="buyAmt" inputmode="decimal" placeholder="24.99"></div>
-    </div>
-    <button class="btn coral block" id="courtBtn">Roast me first</button>
-  </div>
-  <div class="card" id="parkedCard">
-    <div class="label">Cooling off · 48 hours</div>
-    <div id="parked"></div>
   </div>
   <div class="card">
     <div class="label">Weekly check‑in</div>
@@ -274,6 +329,7 @@ nav.tabs button[aria-current="page"] svg{ background:var(--shell); border-radius
     <button class="btn shell block" id="ciBtn">Do this week's check‑in</button>
   </div>
 </section>
+
 </div></main>
 
 <nav class="tabs" aria-label="Sections"><div class="in">
@@ -406,46 +462,187 @@ const YOU_NEWS = ["{you} actually did {n} tiny thing{s} today. Grandma Goose she
 const REACTS = [["😭", 900, 9000], ["💀", 300, 4000], ["🙏🏾", 100, 2500], ["👀", 50, 1200]];
 const PRAISE = ["Look at you, adulting on purpose.", "The dishes fear you now.", "Your future self says thanks.", "Tiny thing. Big win.", "That counts. It all counts.", "Main character behavior."];
 
-/* Money roasts, aimed at YOU */
-const R = () => (S.roaster || "Mr. Receipts");
-const VERDICTS = {
-  tiny: { mood: "ok", items: [["It's cheap, fine", "But you're still not slick"], ["You can have it", "Don't come back in an hour for one more thing"], ["Small purchase", "Big confidence for somebody with a $14 balance"]] },
-  some: { mood: "meh", items: [["You have one at home", "Go look. It's on the floor."], ["You're not buying it", "You're buying the feeling. Again."], ["The way you said 'I need it'", "With your whole chest 😭"], ["Put the phone down", "Slowly. Nobody has to get hurt."]] },
-  big: { mood: "shock", items: [["You had a budget", "And chose violence"], ["Your bank account", "Just filed a police report"], ["That's not a need", "That's a want in a trench coat"], ["You really about to", "Spend bill money on vibes?"]] },
-  over: { mood: "rage", items: [["You're over budget", "And STILL in the cart?"], ["Your account said", "Please. I have a family."], ["Over budget", "Close the app. Then close the cart."], ["Ma'am", "Be so for real right now"]] }
-};
-const ROASTS = [
-  "You said you'd \"just look.\" You lied to both of us.",
-  "You don't need it. You need a nap and a snack.",
-  "Remember the last thing you \"needed\"? It's in the closet with the tags still on.",
-  "You got 3 of those already. I counted. I keep receipts.",
-  "That's not self-care. That's self-sabotage with free shipping.",
-  "Your future self called. She's broke and she's mad at you.",
-  "\"Add to cart\" is not a personality.",
-  "Every time you say \"it's only $20,\" a wallet somewhere cries.",
-  "You can't even find the last one you bought.",
-  "You're one \"treat yourself\" away from cereal for dinner."
-];
+/* Companion name used across the app */
+const R = () => (S.sis && S.sis.name) || "Big Sis";
 const PROUD = ["Look at you. Financially literate. Who knew.", "Your wallet just exhaled.", "I'm proud. Don't make it weird.", "See? You CAN close the app."];
 
+/* ===ENGINE START=== Big Sis Check financial engine. Pure functions only: no DOM, no app state, no AI. Tested in tests/engine.test.mjs */
+const SisEngine = (() => {
+  const D = 864e5, H = 36e5;
+  const RULES = { approvePct: 25, holdPct: 60, unsureShift: -5, lateStart: 22, lateEnd: 4, repeatDays: 14, impulseHours: 24, impulseCount: 3 };
+  const COOLDOWNS = { "24h": D, "48h": 2 * D, "7d": 7 * D };
+  const r2 = x => Math.round(x * 100) / 100;
+  const num = v => (v === "" || v === null || v === undefined || !isFinite(+v)) ? null : +v;
+  const fmt = n => { const v = Math.abs(r2(n)); return (n < 0 ? "-$" : "$") + (v % 1 ? v.toFixed(2) : String(v)); };
+  const norm = s => String(s || "").toLowerCase().replace(/[^a-z0-9 ]/g, "").replace(/\s+/g, " ").trim();
+
+  function parsePrice(v) {
+    if (v === null || v === undefined) return null;
+    const s = String(v).replace(/[$,\s]/g, "");
+    if (!/^\d*\.?\d+$/.test(s)) return null;
+    const n = r2(parseFloat(s));
+    return n > 0 && n < 1e7 ? n : null;
+  }
+  function weekKey(now) { const x = new Date(now); x.setHours(0, 0, 0, 0); x.setDate(x.getDate() - ((x.getDay() + 6) % 7)); return x.getFullYear() + "-" + String(x.getMonth() + 1).padStart(2, "0") + "-" + String(x.getDate()).padStart(2, "0"); }
+
+  /* All the money math. Money in the account is never treated as spendable on its own:
+     available = weekly plan minus what's spent, capped by (balance - unpaid bills) when a balance is given. */
+  function numbers(b, price, now) {
+    b = b || {};
+    const weekly = num(b.weekly), spent = num(b.spent) || 0, balance = num(b.balance), bills = num(b.bills) || 0, savings = num(b.savings) || 0;
+    const missing = weekly === null ? ["weekly"] : [];
+    const remaining = weekly === null ? null : r2(weekly - spent);
+    const billsRoom = balance === null ? null : r2(balance - bills);
+    const savingsRoom = balance === null ? null : r2(balance - bills - savings);
+    let available = remaining;
+    if (available !== null && billsRoom !== null) available = r2(Math.min(available, billsRoom));
+    const after = available === null ? null : r2(available - price);
+    const pct = available === null ? null : available > 0 ? r2(price / available * 100) : Infinity;
+    const hitsBills = billsRoom === null ? null : price > billsRoom;
+    const hitsSavings = savingsRoom === null ? null : (savings > 0 && !hitsBills && price > savingsRoom);
+    const billsUnknown = balance === null && bills > 0;
+    let daysToPayday = null;
+    if (b.payday) { const p = new Date(b.payday + "T00:00:00"); if (!isNaN(p)) { const t = new Date(now); t.setHours(0, 0, 0, 0); const d = Math.round((p - t) / D); daysToPayday = d >= 0 ? d : null; } }
+    return { weekly, spent, remaining, balance, bills, savings, billsRoom, savingsRoom, available, price, after, pct, hitsBills, hitsSavings, billsUnknown, daysToPayday, missing };
+  }
+
+  /* The verdict comes only from numbers and rules, never from the personality. */
+  function decide(input, n, history, rules, now) {
+    rules = Object.assign({}, RULES, rules || {});
+    const t = +now, hr = new Date(now).getHours();
+    const need = input.kind === "need", unsure = input.kind === "unsure";
+    const late = hr >= rules.lateStart || hr < rules.lateEnd;
+    const key = norm(input.item), hist = history || [];
+    const repeat = hist.filter(r => r.id !== input.id && norm(r.item) === key && t - r.at < rules.repeatDays * D).length;
+    const impulseRun = hist.filter(r => r.id !== input.id && r.kind !== "need" && t - r.at < rules.impulseHours * H).length;
+    const reasons = [];
+    if (n.missing.length) return { verdict: "needinfo", reasons: ["missing"], late, repeat, impulseRun, cooldown: null };
+    let v;
+    if (n.hitsBills) { v = need ? "yellow" : "red"; reasons.push("bills"); }
+    else if (n.price > n.available) { v = need ? "yellow" : "red"; reasons.push("over"); }
+    else if (need) { v = "green"; reasons.push("need-fits"); }
+    else {
+      const shift = unsure ? rules.unsureShift : 0;
+      v = n.pct <= rules.approvePct + shift ? "green" : n.pct <= rules.holdPct + shift ? "yellow" : "red";
+      reasons.push(v === "green" ? "fits" : v === "yellow" ? "chunk" : "most");
+      if (v === "green" && n.hitsSavings) { v = "yellow"; reasons.push("savings"); }
+      if (v === "green" && impulseRun >= rules.impulseCount - 1) { v = "yellow"; reasons.push("impulse-run"); }
+    }
+    if (n.billsUnknown) reasons.push("bills-unknown");
+    if (late && !need) reasons.push("late");
+    if (repeat >= 2 && !need) reasons.push("repeat");
+    const cooldown = need ? null : v === "red" ? "7d" : v === "yellow" ? ((reasons.includes("impulse-run") || late) ? "24h" : "48h") : null;
+    return { verdict: v, reasons, late, repeat, impulseRun, cooldown };
+  }
+
+  function label(verdict, name) {
+    return { green: "🟢 " + String(name || "Big Sis").toUpperCase() + " APPROVED", yellow: "🟡 HOLD UP, BESTIE", red: "🔴 ABSOLUTELY NOT", needinfo: "⚪ I NEED YOUR NUMBERS" }[verdict];
+  }
+
+  function nextMove(input, n, d) {
+    const need = input.kind === "need";
+    if (d.verdict === "needinfo") return "Add your weekly spending money so I can actually run the numbers.";
+    if (d.reasons.includes("bills")) return need ? "Cover your bills first, then get only the part you truly need, or the cheapest version." : "Pay your upcoming bills first. Look at this again after payday" + (n.daysToPayday ? " (" + n.daysToPayday + " day" + (n.daysToPayday === 1 ? "" : "s") + ")." : ".");
+    if (d.verdict === "red") {
+      if (need) return "Get the cheapest version that does the job, or only what you need right now.";
+      if (n.weekly && n.price > n.weekly) return "Save " + fmt(Math.ceil(n.price / 4)) + " a week toward it. In 4 weeks it's yours without wrecking a week.";
+      return "Put it in Wishlist Jail for 7 days and look again after payday.";
+    }
+    if (d.verdict === "yellow") {
+      if (need) return "Get it, but go for the less expensive option if there is one.";
+      if (d.reasons.includes("impulse-run")) return "That's a lot of wants in one day. Wait 24 hours before buying anything else.";
+      if (d.reasons.includes("savings")) return "Hit your savings goal first, then buy it if it still fits.";
+      return "Wait 48 hours. If you still want it then, it fits.";
+    }
+    return need ? "Get what you need. That's what the money is for." : "Buy it if you still want it. It fits your budget.";
+  }
+
+  function reality(input, n, d) {
+    const s = [];
+    if (d.verdict === "needinfo") return ["I can't check this yet because I don't know how much you have to spend this week.", "Tap Edit budget and add your weekly spending money. I won't guess."];
+    const avail = Math.max(0, n.available);
+    if (n.price > n.available) s.push("It costs " + fmt(n.price) + " and you have " + fmt(avail) + " available, so you'd be " + fmt(n.price - avail) + " short.");
+    else s.push("This uses " + (n.pct < 1 ? "less than 1" : Math.round(n.pct)) + "% of your " + fmt(n.available) + " available and leaves " + fmt(n.after) + ".");
+    if (n.hitsBills) s.push("It would dip into the " + fmt(n.bills) + " you need for bills before payday.");
+    else if (n.billsUnknown) s.push("You have " + fmt(n.bills) + " in bills coming and I don't know your account balance, so I can't confirm they're covered.");
+    if (n.hitsSavings) s.push("It would cut into the " + fmt(n.savings) + " you planned to save.");
+    if (n.daysToPayday && n.after !== null && n.after >= 0 && s.length < 4) s.push("That " + fmt(n.after) + " has to last " + n.daysToPayday + " more day" + (n.daysToPayday === 1 ? "" : "s") + " until payday.");
+    if (input.kind === "need" && s.length < 4) s.push("Since this is a need, the goal is covering it without hurting your bills.");
+    if (d.reasons.includes("repeat") && s.length < 4) s.push("You've checked this same item " + (d.repeat + 1) + " times in two weeks.");
+    if (d.reasons.includes("impulse-run") && s.length < 4) s.push("This is want number " + (d.impulseRun + 1) + " in the last 24 hours.");
+    if (d.reasons.includes("late") && s.length < 4) s.push("It's late, and late-night carts hit different.");
+    return s.slice(0, 4);
+  }
+
+  /* Avoided spending: only records the user explicitly said no to. One record counts once. */
+  const avoided = history => r2((history || []).filter(r => r.decision === "skipped" || r.decision === "jail").reduce((a, r) => a + (r.price || 0), 0));
+
+  /* Keeps "already spent" in sync with records marked bought, without double counting. */
+  function reconcile(rec, budget, wk) {
+    const r = Object.assign({}, rec), b = Object.assign({}, budget);
+    if (r.countedWeek && r.countedWeek !== wk) return { rec: r, budget: b };
+    const want = r.decision === "bought" ? r.price : 0, have = r.counted || 0;
+    if (want !== have) { b.spent = r2(Math.max(0, (num(b.spent) || 0) + want - have)); r.counted = want; r.countedWeek = want ? wk : null; }
+    return { rec: r, budget: b };
+  }
+  function rollWeek(budget, wk) { const b = Object.assign({}, budget); if (b.week !== wk) { if (b.week) b.spent = 0; b.week = wk; } return b; }
+
+  function patterns(history, now) {
+    const h = history || [], out = [];
+    if (h.length < 3) return out;
+    const late = h.filter(r => { const x = new Date(r.at).getHours(); return x >= 22 || x < 4; }).length;
+    if (late >= 2 && late / h.length >= 0.3) out.push(late + " of your " + h.length + " checks happened after 10pm. Late-night shopping is a pattern for you.");
+    const counts = {}; h.forEach(r => { const k = norm(r.item); counts[k] = (counts[k] || 0) + 1; });
+    const rep = Object.entries(counts).filter(([, c]) => c >= 2).sort((a, b) => b[1] - a[1])[0];
+    if (rep) { const name = h.find(r => norm(r.item) === rep[0]).item; out.push("You've checked \"" + name + "\" " + rep[1] + " times. If you keep coming back to it, save up for it on purpose."); }
+    const decided = h.filter(r => r.decision && r.decision !== "cooldown"), said = decided.filter(r => r.decision === "skipped" || r.decision === "jail").length;
+    if (decided.length >= 3) out.push("You said no to " + said + " of the " + decided.length + " things you made a call on.");
+    const wants = h.filter(r => r.kind !== "need" && +now - r.at < 7 * D).length;
+    if (wants >= 4) out.push(wants + " wants checked in the last 7 days.");
+    return out.slice(0, 3);
+  }
+
+  const DEFAULT_SIS = () => ({ name: "Big Sis", persona: "bigsis", custom: "", intensity: 2, budget: { weekly: null, spent: 0, balance: null, bills: null, savings: null, payday: "", emergency: null, week: null, updated: 0 }, history: [], rules: {} });
+  /* Upgrades older saves without losing anything. */
+  function migrate(state, now) {
+    const s = Object.assign({}, state);
+    if (!s.sis || typeof s.sis !== "object") {
+      s.sis = DEFAULT_SIS();
+      (s.parked || []).forEach((p, i) => { const price = parsePrice(p.amt); if (!price) return; s.sis.history.push({ id: "old" + i + "-" + (p.until || 0), item: String(p.item || "Something").slice(0, 80), price, why: "", kind: "want", urgency: "whenever", at: (p.until || now) - 2 * D, verdict: "yellow", reasons: [], decision: "cooldown", until: p.until || now, roast: "", reality: "", next: "" }); });
+      s.parked = [];
+    } else {
+      const d = DEFAULT_SIS();
+      s.sis = Object.assign(d, s.sis, { budget: Object.assign(d.budget, s.sis.budget || {}) });
+      if (!Array.isArray(s.sis.history)) s.sis.history = [];
+    }
+    if (![1, 2, 3].includes(s.sis.intensity)) s.sis.intensity = 2;
+    return s;
+  }
+
+  return { RULES, COOLDOWNS, r2, num, fmt, norm, parsePrice, weekKey, numbers, decide, label, nextMove, reality, avoided, reconcile, rollWeek, patterns, migrate, DEFAULT_SIS };
+})();
+/* ===ENGINE END=== */
+
 /* ================= state ================= */
-const DEF = () => ({ v: 4, at: 0, name: "", shells: 0, earned: 0, tasks: 0, zones: 1, crew: {}, sinceFind: 0, done: {}, goals: {}, micro: null, skip: 0, run: 0, runAt: 0, lastCollect: 0, lastVisit: 0, nospend: [], checkins: [], parked: [], nah: 0, nahAmt: 0, budget: 60, sound: true, calm: false, big: false, memes: true, week: [] });
+const DEF = () => ({ v: 4, at: 0, name: "", shells: 0, earned: 0, tasks: 0, zones: 1, crew: {}, sinceFind: 0, done: {}, goals: {}, micro: null, skip: 0, run: 0, runAt: 0, lastCollect: 0, lastVisit: 0, nospend: [], checkins: [], parked: [], nah: 0, nahAmt: 0, budget: 60, sis: null, sound: true, calm: false, big: false, memes: true, week: [] });
 let S = DEF();
 const LSK = "critter-cove-v3";
 try { const raw = localStorage.getItem(LSK); if (raw) S = Object.assign(DEF(), JSON.parse(raw)); } catch (e) {}
+S = SisEngine.migrate(S, Date.now());
 let dbRef = null, writing = false, pending = false, saveT = 0;
 function save() { S.at = Date.now(); try { localStorage.setItem(LSK, JSON.stringify(S)); } catch (e) {} if (dbRef) { clearTimeout(saveT); saveT = setTimeout(flush, 800); } }
 async function flush() { if (!dbRef) return; if (writing) { pending = true; return; } writing = true; try { await dbRef.set({ json: JSON.stringify(S), at: S.at }); } catch (e) {} writing = false; if (pending) { pending = false; flush(); } }
-let downloads = null;
+let downloads = null, sampleFn = null;
 async function connect() {
   try {
     if (!window.claude || !claude.use) return;
     claude.use("downloads").then(d => (downloads = d)).catch(() => {});
+    claude.use("sample").then(f => (sampleFn = f)).catch(() => {});
     const [db, user] = await Promise.all([claude.use("db"), claude.use("user")]);
     if (!db || !user) return; const id = await user.id(); if (!id) return;
     dbRef = db.doc("data/users/" + id + "/cove");
     const snap = await dbRef.get();
-    if (snap.exists && snap.data().json && (snap.data().at || 0) > (S.at || 0)) { S = Object.assign(DEF(), JSON.parse(snap.data().json)); try { localStorage.setItem(LSK, JSON.stringify(S)); } catch (e) {} applyPrefs(); renderAll(); }
+    if (snap.exists && snap.data().json && (snap.data().at || 0) > (S.at || 0)) { S = SisEngine.migrate(Object.assign(DEF(), JSON.parse(snap.data().json)), Date.now()); try { localStorage.setItem(LSK, JSON.stringify(S)); } catch (e) {} applyPrefs(); renderAll(); }
     else if (S.at) flush();
   } catch (e) { dbRef = null; }
 }
@@ -768,75 +965,380 @@ function timerSheet(t) {
   });
 }
 
-/* ================= money ================= */
+/* ================= money: Big Sis Check ================= */
+const PERSONAS = {
+  bigsis: { label: "Big Sis", name: "Big Sis", desc: "Funny, protective, brutally honest and a little dramatic. Older-sister energy: she loves you, she's not letting you embarrass yourself, and she will say 'girl' or 'sis' sometimes but not every line." },
+  haitiandad: { label: "Haitian Dad", name: "Haitian Dad", desc: "Funny, practical, expressive, financially disciplined and dramatic about unnecessary spending. Haitian-American family humor in plain English (keeping the receipt, rice and plantains math, 'we have it at home', sending money to family, side-eyeing name brands). Never invent Haitian Creole, never spell out an accent, no caricature." },
+  blackdad: { label: "Black Dad", name: "Dad", desc: "Playfully strict, sarcastic, loving, full of hilarious reality checks. Cheap-dad energy: prices everything to the cent, turns off lights, 'we have it at home', 'you got McDonald's money?'" },
+  bestie: { label: "Bestie", name: "Bestie", desc: "A close friend reading you in the group chat. Ride or die, screenshots-for-the-group-chat energy, honest because she loves you." },
+  custom: { label: "Custom", name: "", desc: "" }
+};
+const NAME_PICKS = ["Big Sis", "Big Bro", "Dad", "Haitian Dad", "Bestie", "Auntie"];
+const INTENSITY = { 1: ["Gentle Reality Check", "Light teasing with supportive advice."], 2: ["Don't Play With Me", "Funny, direct, sarcastic and unapologetic."], 3: ["Drag Me", "Maximum comedic roasting. You asked for it."] };
+const KINDS = [["need", "Need"], ["want", "Want"], ["unsure", "Not sure"]];
+const URGENCY = [["today", "Today"], ["week", "This week"], ["whenever", "Whenever"]];
+const LOADING = ["{n} is checking those numbers...", "Hold on. Let me see what foolishness this is.", "Your wallet has entered the group chat.", "Pulling up your receipts...", "{n} put her glasses on. This is serious.", "Calculating how brand new you're about to act..."];
+
+/* Backup roasts when Claude isn't reachable (for example on the GitHub Pages copy). The verdict never comes from here. */
+const FALLBACK = {
+  sis: {
+    green: ["Okay, look at you being responsible. {item} for {price}? It fits. I'm still judging your taste a little, but go ahead. 😂", "Bills handled and money left over? Who ARE you? Go get your {item}.", "I came ready to fight and you actually have the money. Fine. Approved. Don't get used to it. 😌"],
+    yellow: ["Hmm. {item} for {price}? I'm not saying no. I'm saying sit down for a second.", "You CAN. But should you? Let's wait before you act brand new.", "Your wallet is side-eyeing you right now and honestly so am I. 👀"],
+    red: ["{price}? For {item}? Tell it to leave a voicemail. Your bank account is fighting for its life. 😭", "Absolutely not. You'd be left with {left} and a whole lot of confidence. Put the phone down.", "Girl. Be so for real. {item} is not about to take your whole week from you.", "The audacity. The nerve. The {price}. No ma'am."]
+  },
+  dad: {
+    green: ["You have the money and the bills are handled. I'm suspicious, but approved.", "Hm. {price}. It fits. Don't tell your mother I said yes. 😂", "Okay. You did the math before you spent. That's my child."],
+    yellow: ["Wait two days. If you still want {item} after that, we'll talk. Maybe.", "{price}? I'm not saying no. I'm saying turn off the light in the other room first.", "We have something at home that does the same thing. Go look."],
+    red: ["{price}? What is inside this {item}, next month's rent? Absolutely not.", "You know how many packs of chicken that is? I did the math. No.", "You're going to walk around with {left} and confidence? Not in this house. 😭", "Put it back. Put. It. Back."]
+  },
+  bestie: {
+    green: ["Babe it fits!! Get the {item}. I'm happy for you. I'm also screenshotting this for the group chat. 😂", "Bills paid, money left, and you asked first? Healed behavior. Go.", "Okay rich auntie, I see you. Approved."],
+    yellow: ["Babe. I love you. But let's sleep on the {item}. 👀", "You're not wrong for wanting it. You're just early. Give it two days.", "I'm not saying no. I'm saying I've seen this movie before."],
+    red: ["Babe. {price}?? On {item}?? I'm sending this to the group chat. 😭", "Ma'am you would have {left} left. LEFT. Put the phone down.", "Nope. Not today. Not on my watch. I'll go window shopping with you instead."]
+  },
+  needGreen: ["That's a need. Go handle it. This is exactly what the money is for.", "No roast here. You need it, it fits. Take care of yourself."],
+  needOver: ["I know you need it, so I'm not playing with you. But it doesn't fit as-is. Let's find the cheaper way to cover it.", "This is a real need, so no jokes. We just have to make the numbers work without touching your bills."],
+  gentle: {
+    green: ["This fits nicely. Enjoy it. 💛", "You've got room for this. Go for it."],
+    yellow: ["You could, but it's a big piece of your week. Maybe give it a day or two?", "Not a no, just a pause. Let's see if you still want it later."],
+    red: ["Love you, but this one doesn't fit right now. {item} can wait.", "This would stretch you too thin this week. Let's park it."]
+  }
+};
+function fallbackRoast(input, n, d) {
+  const fill = t => t.split("{item}").join(input.item).split("{price}").join(SisEngine.fmt(input.price)).split("{left}").join(n.after === null ? "nothing" : SisEngine.fmt(n.after));
+  if (d.verdict === "needinfo") return "I can't read you yet because I don't know your numbers. Give me your weekly budget and I'll get to work. 👀";
+  if (input.kind === "need") return fill(pick(d.verdict === "green" ? FALLBACK.needGreen : FALLBACK.needOver));
+  if (S.sis.intensity === 1) return fill(pick(FALLBACK.gentle[d.verdict]));
+  const set = S.sis.persona === "bestie" ? FALLBACK.bestie : (S.sis.persona === "haitiandad" || S.sis.persona === "blackdad") ? FALLBACK.dad : FALLBACK.sis;
+  const recent = S.sis.history.slice(-6).map(r => r.roast);
+  const options = set[d.verdict].filter(x => !recent.includes(fill(x)));
+  return fill(pick(options.length ? options : set[d.verdict]));
+}
+
+async function aiRoast(input, n, d, base) {
+  if (!sampleFn) return null;
+  const p = PERSONAS[S.sis.persona] || PERSONAS.bigsis, name = R();
+  const persona = S.sis.persona === "custom" ? (S.sis.custom || "A funny, honest friend who cares about the user.") : p.desc;
+  const [lvl, lvlDesc] = INTENSITY[S.sis.intensity];
+  const fmt = SisEngine.fmt;
+  const facts = [
+    "Available spending money: " + fmt(n.available),
+    "Price: " + fmt(n.price),
+    "Left after buying: " + fmt(n.after),
+    "Share of available money: " + (isFinite(n.pct) ? Math.round(n.pct) + "%" : "more than everything available"),
+    n.hitsBills ? "It cuts into money needed for bills (" + fmt(n.bills) + " due before payday)." : n.billsUnknown ? "Bills of " + fmt(n.bills) + " are coming; account balance unknown, so bills coverage is unconfirmed." : n.balance !== null ? "Bills are covered." : "No bills info given.",
+    n.hitsSavings ? "It cuts into their " + fmt(n.savings) + " savings goal." : "",
+    n.daysToPayday !== null ? "Payday is in " + n.daysToPayday + " day(s)." : "Payday date not given.",
+    d.repeat >= 2 ? "They've checked this same item " + (d.repeat + 1) + " times in two weeks." : "",
+    d.reasons.includes("impulse-run") ? "This is want number " + (d.impulseRun + 1) + " in 24 hours." : "",
+    d.late ? "It's late at night." : ""
+  ].filter(Boolean).join("\n- ");
+  const recent = S.sis.history.slice(-6).map(r => (r.roast || "").slice(0, 50)).filter(Boolean);
+  const prompt = `You are "${name}", the money accountability companion inside Critter Cove, an ADHD-friendly app. Write in this character's voice.
+
+Character: ${persona}
+Roast level: ${lvl}. ${lvlDesc}
+
+What they want to buy: "${input.item}" for ${fmt(input.price)}.
+Why: ${input.why ? '"' + input.why + '"' : "not given"}. They said it's a ${input.kind === "unsure" ? "not sure if need or want" : input.kind}. Urgency: ${input.urgency === "week" ? "this week" : input.urgency}.${input.link ? " Link: " + input.link : ""}
+
+The app already decided the verdict from their budget. You MUST NOT change or contradict it:
+VERDICT: ${SisEngine.label(d.verdict, name)}
+Facts (use only these numbers, never invent balances, bills or other facts):
+- ${facts}
+Suggested reality check: ${base.reality}
+Suggested next move: ${base.next}
+
+Reply with JSON only: {"roast": string, "reality": string, "next": string}
+- roast: 1 to 3 sentences, genuinely funny, in character, matching the verdict. If approved, you can tease their taste but clearly say go ahead. At most 2 emoji.
+- reality: 2 to 4 conversational sentences explaining why, using only the facts above.
+- next: one short actionable recommendation that agrees with the suggested next move.
+Voice: Black Twitter, Black TikTok, Instagram comments, the funny family group chat, the brutally honest Black best friend. Natural and witty, never forced slang, no fake accents, no invented Haitian Creole, no stereotypes or caricatures, no repeated catchphrases.
+Hard rules: never shame anyone for poverty, disability, financial hardship or necessary purchases. If it's a need (food, kids, medicine, bills, work, safety), be supportive and keep the jokes light while staying in character. Never suggest skipping bills or essentials. Even at Drag Me, never cruel, discriminatory or degrading.
+${recent.length ? "Do not start the roast the same way as these recent ones: " + recent.map(x => '"' + x + '"').join("; ") : ""}`;
+  const ctl = new AbortController(); const to = setTimeout(() => ctl.abort(), 25000);
+  try {
+    const out = await sampleFn.json(prompt, { signal: ctl.signal, cache: false });
+    const ok = x => typeof x === "string" && x.trim().length > 3 && x.length < 900;
+    if (out && ok(out.roast) && ok(out.reality) && ok(out.next)) return { roast: out.roast.trim(), reality: out.reality.trim(), next: out.next.trim() };
+    return null;
+  } catch (e) { return null; } finally { clearTimeout(to); }
+}
+
+/* ---- avatars ---- */
+function dadSVG(mood) {
+  const mouth = { ok: "M48 88 Q60 96 72 88", meh: "M49 91 L71 91", shock: "M54 92 a6 8 0 1 0 12 0 a6 8 0 1 0 -12 0", rage: "M48 96 Q60 86 72 96" }[mood];
+  const brows = { ok: "M36 46 L52 44 M68 44 L84 46", meh: "M36 46 L52 46 M68 46 L84 46", shock: "M36 40 L52 36 M68 36 L84 40", rage: "M36 40 L52 48 M68 48 L84 40" }[mood];
+  return `<svg viewBox="0 0 120 120" aria-hidden="true"><rect width="120" height="120" fill="#CFE3D3"/>
+    <circle cx="18" cy="66" r="8" fill="#6B4026"/><circle cx="102" cy="66" r="8" fill="#6B4026"/><ellipse cx="60" cy="64" rx="42" ry="44" fill="#7A4A2C"/>
+    <path d="M20 54 Q20 18 60 18 Q100 18 100 54 Q96 34 60 32 Q24 34 20 54z" fill="#1A120E"/>
+    <rect x="33" y="52" width="23" height="16" rx="5" fill="rgba(255,255,255,.12)" stroke="#C9A24A" stroke-width="3.5"/><rect x="64" y="52" width="23" height="16" rx="5" fill="rgba(255,255,255,.12)" stroke="#C9A24A" stroke-width="3.5"/><path d="M56 60 H64" stroke="#C9A24A" stroke-width="3.5"/>
+    <circle cx="45" cy="60" r="3" fill="#120C08"/><circle cx="75" cy="60" r="3" fill="#120C08"/><path d="${brows}" stroke="#120C08" stroke-width="5" stroke-linecap="round" fill="none"/>
+    <path d="M54 66 q6 8 12 0" stroke="#5A331D" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M40 82 Q50 75 60 79 Q70 75 80 82 Q72 87 60 84 Q48 87 40 82z" fill="#1A120E"/>
+    <path d="${mouth}" stroke="#120C08" stroke-width="4" fill="${mood === "shock" ? "#120C08" : "none"}" stroke-linecap="round"/></svg>`;
+}
+function sisSVG(mood, braids) {
+  const brows = { ok: "M38 58 q8 -5 16 -1 M66 57 q8 -4 16 1", meh: "M38 57 h16 M66 57 h16", shock: "M38 52 q8 -6 16 -2 M66 50 q8 -4 16 2", rage: "M38 52 L54 58 M66 58 L82 52" }[mood];
+  const mouth = { ok: `<path d="M48 88 q12 12 24 0 q-12 4 -24 0z" fill="#B8475A"/>`, meh: `<path d="M50 90 q10 -3 20 0" stroke="#7A2E3A" stroke-width="4" fill="none" stroke-linecap="round"/>`, shock: `<ellipse cx="60" cy="91" rx="6" ry="8" fill="#5A1E28"/>`, rage: `<path d="M48 94 q12 -9 24 0" stroke="#7A2E3A" stroke-width="4" fill="none" stroke-linecap="round"/>` }[mood];
+  const hair = braids
+    ? `<path d="M22 60 Q20 22 60 20 Q100 22 98 60 L102 118 H86 L84 70 Q80 44 60 42 Q40 44 36 70 L34 118 H18z" fill="#1A120E"/><g stroke="#3A2A20" stroke-width="2">${[24, 30, 90, 96].map(x => `<path d="M${x} 70 v46" stroke-dasharray="4 3"/>`).join("")}</g><path d="M30 40 q30 -16 60 0" stroke="#E0607A" stroke-width="6" fill="none"/>`
+    : `<circle cx="60" cy="20" r="22" fill="#1A120E"/><path d="M24 62 Q24 34 60 34 Q96 34 96 62 Q90 46 60 46 Q30 46 24 62z" fill="#1A120E"/><path d="M46 40 q14 -6 28 0" stroke="#F2C24A" stroke-width="4" fill="none"/>`;
+  return `<svg viewBox="0 0 120 120" aria-hidden="true"><rect width="120" height="120" fill="#F3D9C4"/>${hair}
+    <ellipse cx="60" cy="72" rx="34" ry="38" fill="#7A4A2C"/><path d="M26 66 Q28 40 60 40 Q92 40 94 66 Q88 50 60 50 Q32 50 26 66z" fill="#1A120E"/>
+    ${braids ? "" : `<circle cx="26" cy="86" r="8" fill="none" stroke="#F2C24A" stroke-width="3"/><circle cx="94" cy="86" r="8" fill="none" stroke="#F2C24A" stroke-width="3"/>`}
+    <path d="${brows}" stroke="#120C08" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+    <ellipse cx="46" cy="68" rx="4" ry="5" fill="#120C08"/><ellipse cx="74" cy="68" rx="4" ry="5" fill="#120C08"/><path d="M40 63 l-4 -3 M80 63 l4 -3" stroke="#120C08" stroke-width="2.5" stroke-linecap="round"/>
+    <circle cx="47.5" cy="66.5" r="1.4" fill="#fff"/><circle cx="75.5" cy="66.5" r="1.4" fill="#fff"/><path d="M57 74 q3 6 6 0" stroke="#5A331D" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    ${mouth}</svg>`;
+}
+function customSVG(mood) { return `<svg viewBox="0 0 120 120" aria-hidden="true"><rect width="120" height="120" fill="#E9DDF3"/><path d="M60 18 l10 28 30 2 -24 18 9 30 -25 -17 -25 17 9 -30 -24 -18 30 -2z" fill="#B07CC6" stroke="#2A2622" stroke-width="3" stroke-linejoin="round"/><circle cx="52" cy="62" r="3.5" fill="#2A2622"/><circle cx="68" cy="62" r="3.5" fill="#2A2622"/><path d="${mood === "ok" ? "M52 72 q8 7 16 0" : mood === "meh" ? "M53 74 h14" : "M52 76 q8 -6 16 0"}" stroke="#2A2622" stroke-width="3" fill="none" stroke-linecap="round"/></svg>`; }
+const MOOD = { green: "ok", yellow: "meh", red: "rage", needinfo: "shock" };
+function avatar(verdict) {
+  const m = MOOD[verdict] || "ok", p = S.sis.persona;
+  return p === "haitiandad" || p === "blackdad" ? dadSVG(m) : p === "bestie" ? sisSVG(m, true) : p === "custom" ? customSVG(m) : sisSVG(m, false);
+}
+
+/* ---- form state ---- */
+const sisForm = { kind: "want", urgency: "whenever" };
+function chipGroup(el, items, key) {
+  el.innerHTML = items.map(([v, l]) => `<button class="chip2" role="radio" data-v="${v}" aria-checked="${sisForm[key] === v}">${l}</button>`).join("");
+  el.onclick = e => { const b = e.target.closest("[data-v]"); if (!b) return; sisForm[key] = b.dataset.v; el.querySelectorAll(".chip2").forEach(x => x.setAttribute("aria-checked", x === b)); };
+}
+chipGroup($("#kindChips"), KINDS, "kind"); chipGroup($("#urgChips"), URGENCY, "urgency");
+$("#linkToggle").onclick = () => { $("#linkField").hidden = false; $("#linkToggle").hidden = true; $("#buyLink").focus(); };
+
+const wkNow = () => SisEngine.weekKey(Date.now());
+function sisRoll() { S.sis.budget = SisEngine.rollWeek(S.sis.budget, wkNow()); }
+const avoidedAll = () => SisEngine.r2(SisEngine.avoided(S.sis.history) + (S.nahAmt || 0));
+const fmtDate = t => new Date(t).toLocaleDateString(undefined, { month: "short", day: "numeric" });
+const DECISIONS = { bought: "Bought", skipped: "Didn't buy", jail: "Wishlist Jail", cooldown: "Cooling off" };
+
 function renderMoney() {
-  $("#askTitle").textContent = "Ask " + R() + " first";
+  sisRoll();
+  const sis = S.sis, b = sis.budget, fmt = SisEngine.fmt;
+  $("#sisAva").innerHTML = avatar("green");
+  $("#sisTitle").textContent = R() + " Check 💸";
+  $("#sisWho").innerHTML = `<span><b>${esc(R())}</b>${R() === (PERSONAS[sis.persona] || PERSONAS.bigsis).label ? "" : " · " + esc((PERSONAS[sis.persona] || PERSONAS.bigsis).label)} · ${esc(INTENSITY[sis.intensity][0])}</span><span class="muted">Change</span>`;
+  const n = SisEngine.numbers(b, 0, new Date());
+  if (n.available === null) { $("#sisAvail").textContent = "Not set"; $("#sisAvailSub").textContent = "Add your weekly spending money so I can check purchases."; }
+  else {
+    $("#sisAvail").textContent = fmt(n.available);
+    const bits = [fmt(n.weekly) + " this week", fmt(n.spent) + " spent"];
+    if (n.balance !== null) bits.push(n.hitsBills === false && n.billsRoom >= n.remaining ? "bills covered" : "limited by bills");
+    else if (n.bills) bits.push("add your balance to check bills");
+    if (n.daysToPayday !== null) bits.push(n.daysToPayday === 0 ? "payday today" : "payday in " + n.daysToPayday + "d");
+    $("#sisAvailSub").textContent = bits.join(" · ") + (b.updated && Date.now() - b.updated > 7 * DAY ? ". Budget is over a week old, give it a quick update." : "");
+  }
+  // stats
+  $("#avoidAmt").textContent = fmt(avoidedAll());
+  const jailed = sis.history.filter(r => r.decision === "jail"), cooling = sis.history.filter(r => r.decision === "cooldown");
+  $("#jailCount").textContent = jailed.length;
+  const now = Date.now();
+  $("#coolCard").hidden = !cooling.length;
+  $("#cooldowns").innerHTML = cooling.sort((a, c) => (a.until || 0) - (c.until || 0)).map(r => { const ms = (r.until || 0) - now, ready = ms <= 0, h = Math.floor(ms / HOUR), m = Math.floor(ms % HOUR / 6e4), dd = Math.floor(ms / DAY);
+    return `<div class="item"><div class="grow"><b>${esc(r.item)} · ${fmt(r.price)}</b><div class="small muted">${ready ? "Cooled off. Still want it?" : "Decide in " + (dd >= 2 ? dd + " days" : (h ? h + "h " : "") + m + "m")}</div></div>${ready ? `<button class="btn" data-act="bought" data-id="${esc(r.id)}">Buy it</button>` : ""}<button class="btn main" data-act="skipped" data-id="${esc(r.id)}">Nah</button></div>`; }).join("");
+  $("#jailCard").hidden = !jailed.length;
+  $("#jail").innerHTML = jailed.map(r => `<div class="item"><div class="grow"><b>${esc(r.item)} · ${fmt(r.price)}</b><div class="small muted">Locked up ${fmtDate(r.jailAt || r.at)}</div></div><button class="btn" data-act="bought" data-id="${esc(r.id)}">Bought it anyway</button></div>`).join("");
+  const pats = SisEngine.patterns(sis.history, now);
+  $("#patternCard").hidden = !pats.length;
+  $("#patterns").innerHTML = pats.map(t => `<p>${esc(t)}</p>`).join("");
+  const hist = sis.history.slice().sort((a, c) => c.at - a.at).slice(0, 40);
+  $("#history").innerHTML = hist.length ? hist.map(r => `<button class="hrow" data-edit="${esc(r.id)}"><div class="grow"><b>${esc(r.item)}</b> · ${fmt(r.price)}<div class="meta"><span class="small muted">${fmtDate(r.at)}</span>${r.verdict ? `<span class="vchip ${r.verdict}">${{ green: "Approved", yellow: "Hold up", red: "Absolutely not" }[r.verdict]}</span>` : ""}<span class="dchip">${r.decision ? DECISIONS[r.decision] : "Not decided"}</span></div></div><span class="muted">Edit</span></button>`).join("")
+    : `<div class="empty">Nothing checked yet. Next time you're about to buy something, run it by ${esc(R())} first.</div>`;
+  // no-spend + check-in
   const ws = weekStart(), t = today(); let html = "";
   ["M", "T", "W", "T", "F", "S", "S"].forEach((l, i) => { const d = dkey(new Date(ws + i * DAY + 2 * HOUR)), on = S.nospend.includes(d); html += `<div class="day${on ? " on" : ""}${d === t ? " today" : ""}"><i>${on ? "✓" : ""}</i>${l}</div>`; });
   $("#nsWeek").innerHTML = html;
   const did = S.nospend.includes(t);
   $("#nsBtn").disabled = did; $("#nsBtn").textContent = did ? "Logged. " + R() + " is shocked. In a good way." : "Today I bought nothing fun (+10)";
-  const now = Date.now();
-  $("#parkedCard").hidden = !S.parked.length;
-  $("#parked").innerHTML = S.parked.map((p, i) => { const ms = p.until - now, ready = ms <= 0, h = Math.floor(ms / HOUR), m = Math.floor(ms % HOUR / 6e4);
-    return `<div class="item"><div class="grow"><b>${esc(p.item)} · ${money(p.amt)}</b><div class="small muted">${ready ? "Cooled off. Still want it?" : "Decide in " + (h ? h + "h " : "") + m + "m"}</div></div>${ready ? `<button class="btn" data-pyes="${i}">Yes</button>` : ""}<button class="btn main" data-pno="${i}">Nah</button></div>`; }).join("");
-  const wk = dkey(new Date(ws)), doneCi = S.checkins.find(c => c.week === wk);
-  $("#ciBtn").textContent = doneCi ? "Checked in: " + money(doneCi.amt) + " this week" : "Do this week's check‑in (+20)";
+  const wk = dkey(new Date(ws)), doneCi = S.checkins.find(c => c.week === wk), budgetRef = sis.budget.weekly !== null && sis.budget.weekly !== undefined ? sis.budget.weekly : null;
+  $("#ciBtn").textContent = doneCi ? "Checked in: " + fmt(doneCi.amt) + " this week" : "Do this week's check‑in (+20)";
   $("#ciBtn").disabled = !!doneCi;
-  const last = S.checkins.slice(-8), max = Math.max(S.budget, ...last.map(c => c.amt), 1);
+  const last = S.checkins.slice(-8), max = Math.max(budgetRef || 0, ...last.map(c => c.amt), 1);
   $("#ciBars").style.height = last.length ? "110px" : "auto";
-  $("#ciBars").innerHTML = last.length ? last.map(c => `<div><span>${money(c.amt)}</span><i style="height:${Math.round(c.amt / max * 70)}px;background:${c.amt <= c.budget ? "var(--moss)" : "var(--coral)"}"></i><span>${new Date(c.week + "T12:00").toLocaleDateString(undefined, { month: "numeric", day: "numeric" })}</span></div>`).join("")
-    : `<div class="empty">Your weeks show up here. Green means under your ${money(S.budget)} fun budget.</div>`;
+  $("#ciBars").innerHTML = last.length ? last.map(c => `<div><span>${fmt(c.amt)}</span><i style="height:${Math.round(c.amt / max * 70)}px;background:${c.budget === null || c.budget === undefined ? "var(--sea-dk)" : c.amt <= c.budget ? "var(--moss)" : "var(--coral)"}"></i><span>${new Date(c.week + "T12:00").toLocaleDateString(undefined, { month: "numeric", day: "numeric" })}</span></div>`).join("")
+    : `<div class="empty">Your weeks show up here.${budgetRef !== null ? " Green means under your " + fmt(budgetRef) + " weekly budget." : ""}</div>`;
 }
-$("#nsBtn").onclick = () => { const t = today(); if (S.nospend.includes(t)) return; S.nospend = S.nospend.filter(d => d >= dkey(new Date(Date.now() - 40 * DAY))).concat(t); S.shells += 10; S.earned += 10; save(); ding(); confetti(50); toast("+10. " + R() + ": " + pick(PROUD)); renderAll(); };
-function tierFor(price) { const b = S.budget || 60; if (price > b) return "over"; const r = price / b; if (price <= 5 || r <= .1) return "tiny"; if (r <= .4) return "some"; return "big"; }
-function dadSVG(mood) {
-  const mouth = { ok: "M48 88 Q60 96 72 88", meh: "M49 91 L71 91", shock: "M54 92 a6 8 0 1 0 12 0 a6 8 0 1 0 -12 0", rage: "M48 96 Q60 86 72 96" }[mood];
-  const brows = { ok: "M36 46 L52 44 M68 44 L84 46", meh: "M36 46 L52 46 M68 46 L84 46", shock: "M36 40 L52 36 M68 36 L84 40", rage: "M36 40 L52 48 M68 48 L84 40" }[mood];
-  return `<svg viewBox="0 0 120 120" aria-hidden="true">
-    <circle cx="18" cy="66" r="8" fill="#6B4026"/><circle cx="102" cy="66" r="8" fill="#6B4026"/>
-    <ellipse cx="60" cy="64" rx="42" ry="44" fill="#7A4A2C"/>
-    <path d="M20 54 Q20 18 60 18 Q100 18 100 54 Q96 34 60 32 Q24 34 20 54z" fill="#1A120E"/>
-    <path d="M24 46 Q30 30 60 28 Q90 30 96 46" stroke="#2E211A" stroke-width="2" fill="none" stroke-dasharray="2 3"/>
-    <rect x="33" y="52" width="23" height="16" rx="5" fill="rgba(255,255,255,.12)" stroke="#C9A24A" stroke-width="3.5"/><rect x="64" y="52" width="23" height="16" rx="5" fill="rgba(255,255,255,.12)" stroke="#C9A24A" stroke-width="3.5"/><path d="M56 60 H64" stroke="#C9A24A" stroke-width="3.5"/>
-    <circle cx="45" cy="60" r="3" fill="#120C08"/><circle cx="75" cy="60" r="3" fill="#120C08"/>
-    <path d="${brows}" stroke="#120C08" stroke-width="5" stroke-linecap="round" fill="none"/>
-    <path d="M54 66 q6 8 12 0" stroke="#5A331D" stroke-width="3" fill="none" stroke-linecap="round"/>
-    <path d="M40 82 Q50 75 60 79 Q70 75 80 82 Q72 87 60 84 Q48 87 40 82z" fill="#1A120E"/>
-    <path d="${mouth}" stroke="#120C08" stroke-width="4" fill="${mood === "shock" ? "#120C08" : "none"}" stroke-linecap="round"/>
-    <path d="M50 100 Q60 108 70 100 L66 106 Q60 110 54 106z" fill="#1A120E"/>
-  </svg>`;
+
+/* ---- decisions ---- */
+function setDecision(id, dec, cool) {
+  const i = S.sis.history.findIndex(r => r.id === id); if (i < 0) return;
+  let r = Object.assign({}, S.sis.history[i]);
+  r.decision = dec || null; r.decidedAt = Date.now();
+  if (dec === "cooldown") r.until = Date.now() + (SisEngine.COOLDOWNS[cool] || SisEngine.COOLDOWNS["48h"]); else delete r.until;
+  if (dec === "jail") r.jailAt = Date.now();
+  sisRoll();
+  const out = SisEngine.reconcile(r, S.sis.budget, wkNow()); r = out.rec; S.sis.budget = out.budget;
+  let msg = "";
+  if ((dec === "skipped" || dec === "jail") && !r.rewarded) { r.rewarded = true; S.shells += 15; S.earned += 15; ding(true); confetti(90); }
+  if (dec === "jail") msg = "Congratulations. We successfully stopped you from acting brand new today. +15";
+  else if (dec === "skipped") msg = "+15. " + R() + ": " + pick(PROUD);
+  else if (dec === "cooldown") msg = "Cooling off until " + new Date(r.until).toLocaleString(undefined, { weekday: "short", hour: "numeric", minute: "2-digit" }) + ".";
+  else if (dec === "bought") msg = r.verdict === "green" || r.kind === "need" ? "Enjoy it. You planned for this." : "Logged. No guilt, just numbers.";
+  S.sis.history[i] = r; save(); renderAll(); if (msg) toast(msg);
 }
-$("#courtBtn").onclick = () => {
-  const item = $("#buyItem").value.trim().slice(0, 60), amt = parseFloat(($("#buyAmt").value || "").replace(/[^0-9.]/g, ""));
-  if (!item || !(amt > 0)) { toast("Add what it is and the price."); return; }
-  const tier = tierFor(amt), v = VERDICTS[tier], [top, bottom] = pick(v.items);
-  const side = ["penny", "coupon", "ceo", "lawyer", "pete"].map(id => CRITTERS.find(c => c.id === id)).find(c => S.crew[c.id]);
-  openSheet(`<div class="label">Receipt check · ${esc(item)} · ${money(amt)}</div>` +
-    (S.memes ? `<div class="meme" role="img" aria-label="${esc(top + ". " + bottom)}">${dadSVG(v.mood)}<div class="cap">${esc(top)}</div><div class="cap">${esc(bottom)}</div></div><div class="dadsays"><b>${esc(R())}:</b> “${esc(pick(ROASTS))}”</div>`
-      : `<h2>${tier === "over" ? "This is more than your weekly fun money." : tier === "big" ? "This is a big chunk of your week." : tier === "some" ? "This is a decent chunk of your week." : "This is small."}</h2>`) +
-    (side ? `<p class="small"><b>${esc(side.name)}:</b> ${esc(pick(side.say))}</p>` : "") +
-    `<p class="small muted">That's ${Math.round(amt / (S.budget || 60) * 100)}% of your ${money(S.budget)} weekly fun money.</p>
-    <button class="btn main huge block" id="cNah">Nah, I'm good (+15)</button><div class="btns"><button class="btn shell" id="cPark">Park it 48 hours</button><button class="btn" id="cBuy">I really need it</button></div>`, el => {
-      const clear = () => { $("#buyItem").value = ""; $("#buyAmt").value = ""; };
-      el.querySelector("#cNah").onclick = () => { closeSheet(); clear(); S.nah++; S.nahAmt += amt; S.shells += 15; S.earned += 15; save(); ding(); confetti(70); toast(S.memes ? "+15. " + R() + ": " + pick(PROUD) : "+15 shells. Money saved."); renderAll(); };
-      el.querySelector("#cPark").onclick = () => { closeSheet(); clear(); S.parked.push({ item, amt, until: Date.now() + 48 * HOUR }); S.shells += 3; S.earned += 3; save(); toast(S.memes ? "Parked. You'll forget you even wanted it. +3" : "Parked for 48 hours. +3"); renderAll(); };
-      el.querySelector("#cBuy").onclick = () => { closeSheet(); clear(); toast(S.memes ? "Okay. " + R() + " is keeping the receipt. For evidence." : "Okay. Enjoy it."); };
-    });
+["#cooldowns", "#jail"].forEach(sel => $(sel).addEventListener("click", e => { const b = e.target.closest("[data-act]"); if (b) setDecision(b.dataset.id, b.dataset.act); }));
+
+/* ---- the check ---- */
+let checking = false;
+$("#checkBtn").onclick = async () => {
+  if (checking) return;
+  const item = $("#buyItem").value.trim(), price = SisEngine.parsePrice($("#buyAmt").value);
+  if (!item) { toast("Tell me what we're buying first. 👀"); $("#buyItem").focus(); return; }
+  if (price === null) { toast("That price doesn't look right. Try something like 24.99"); $("#buyAmt").focus(); return; }
+  let link = $("#buyLink").value.trim(); if (link && !/^https?:\/\/\S+$/i.test(link)) link = "";
+  const input = { id: "c" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), item: item.slice(0, 80), price, why: $("#buyWhy").value.trim().slice(0, 140), kind: sisForm.kind, urgency: sisForm.urgency, link: link.slice(0, 300) };
+  const last = S.sis.history[S.sis.history.length - 1];
+  if (last && SisEngine.norm(last.item) === SisEngine.norm(input.item) && last.price === price && Date.now() - last.at < 60000) { showResult(last); return; }
+  sisRoll();
+  const now = new Date(), n = SisEngine.numbers(S.sis.budget, price, now), d = SisEngine.decide(input, n, S.sis.history, S.sis.rules, now);
+  if (d.verdict === "needinfo") { needInfoSheet(); return; }
+  checking = true; $("#checkBtn").disabled = true;
+  const base = { reality: SisEngine.reality(input, n, d).join(" "), next: SisEngine.nextMove(input, n, d) };
+  let li = 0;
+  openSheet(`<div class="loadbox"><div class="sis-ava">${avatar("needinfo")}</div><h2 id="loadMsg">${esc(LOADING[0].split("{n}").join(R()))}</h2><p class="small muted">${esc(input.item)} · ${SisEngine.fmt(price)}</p></div>`);
+  const spin = setInterval(() => { li = (li + 1) % LOADING.length; const m = $("#loadMsg"); if (m) m.textContent = LOADING[li].split("{n}").join(R()); }, 1700);
+  const ai = await aiRoast(input, n, d, base);
+  clearInterval(spin);
+  const rec = Object.assign({}, input, { at: Date.now(), verdict: d.verdict, reasons: d.reasons, cooldown: d.cooldown,
+    n: { available: n.available, price: n.price, after: n.after, pct: isFinite(n.pct) ? n.pct : null, hitsBills: n.hitsBills, billsUnknown: n.billsUnknown, hitsSavings: n.hitsSavings, bills: n.bills, savings: n.savings, daysToPayday: n.daysToPayday },
+    roast: ai ? ai.roast : fallbackRoast(input, n, d), reality: ai ? ai.reality : base.reality, next: ai && input.kind !== "need" ? ai.next : base.next, ai: !!ai, name: R(), decision: null });
+  S.sis.history.push(rec); if (S.sis.history.length > 300) S.sis.history = S.sis.history.slice(-300);
+  save(); checking = false; $("#checkBtn").disabled = false;
+  ["#buyItem", "#buyAmt", "#buyWhy", "#buyLink"].forEach(s => ($(s).value = ""));
+  renderMoney(); showResult(rec);
 };
-$("#parked").addEventListener("click", e => {
-  const y = e.target.closest("[data-pyes]"), n = e.target.closest("[data-pno]"); if (!y && !n) return;
-  const i = +(y ? y.dataset.pyes : n.dataset.pno), p = S.parked[i]; if (!p) return; S.parked.splice(i, 1);
-  if (n) { S.nah++; S.nahAmt += p.amt; S.shells += 15; S.earned += 15; ding(); confetti(60); toast("+15. The craving lost. You won."); } else toast("Still wanted it after 48 hours. That's a real want. Enjoy it.");
-  save(); renderAll();
+function showResult(rec) {
+  const fmt = SisEngine.fmt, n = rec.n, decided = rec.decision;
+  const billsTxt = n.hitsBills ? `<span class="bad">Cuts into bills</span>` : n.billsUnknown ? `<span class="bad">Unknown, add your balance</span>` : n.hitsBills === false ? `<span class="good">Covered</span>` : `<span class="muted">No bills info</span>`;
+  const savTxt = n.hitsSavings ? `<span class="bad">Cuts into savings</span>` : n.hitsSavings === false && n.savings ? `<span class="good">Safe</span>` : `<span class="muted">No savings goal set</span>`;
+  const isNeed = rec.kind === "need";
+  const actions = rec.verdict === "green"
+    ? `<button class="btn main huge block" data-r="bought">Buying it ✅</button><button class="btn block" data-r="skipped">Skip it anyway (+15)</button>`
+    : `<button class="btn main huge block" data-r="jail">${isNeed ? "Not right now (+15)" : "Fine. Wishlist Jail (+15)"}</button>
+       ${isNeed ? "" : `<div class="label" style="text-align:center">Or cool off first</div><div class="btns">${["24h", "48h", "7d"].map(k => `<button class="btn shell" data-r="cooldown" data-c="${k}">${k === "7d" ? "7 days" : k}${rec.cooldown === k ? " ✓" : ""}</button>`).join("")}</div>`}
+       <button class="btn block" data-r="bought">${isNeed ? "I'm getting it" : "Buying it anyway"}</button>`;
+  openSheet(`<div class="speaker"><div class="sis-ava">${avatar(rec.verdict)}</div><div><b>${esc(rec.name || R())}</b><div class="small muted">${esc(rec.item)} · ${fmt(rec.price)}</div></div></div>
+    <div class="roast">${esc(rec.roast)}</div>
+    <div class="verdict ${rec.verdict}">${esc(SisEngine.label(rec.verdict, rec.name || R()))}</div>
+    <div class="sec"><h3>The numbers</h3><dl class="nums">
+      <dt>Available to spend</dt><dd>${fmt(n.available)}</dd>
+      <dt>Price</dt><dd>${fmt(n.price)}</dd>
+      <dt>Left after</dt><dd class="${n.after < 0 ? "bad" : ""}">${fmt(n.after)}</dd>
+      <dt>Share of available money</dt><dd>${n.pct === null ? "All of it and then some" : Math.round(n.pct) + "%"}</dd>
+      <dt>Bills and essentials</dt><dd>${billsTxt}</dd>
+      <dt>Savings</dt><dd>${savTxt}</dd>
+      ${n.daysToPayday !== null && n.daysToPayday !== undefined ? `<dt>Payday</dt><dd>${n.daysToPayday === 0 ? "Today" : "In " + n.daysToPayday + " day" + (n.daysToPayday === 1 ? "" : "s")}</dd>` : ""}
+    </dl></div>
+    <div class="sec"><h3>Reality check</h3><p>${esc(rec.reality)}</p></div>
+    <div class="sec"><h3>Next move</h3><p><b>${esc(rec.next)}</b></p></div>
+    ${decided ? `<p class="small muted" style="text-align:center">You decided: ${DECISIONS[decided]}. You can change it in Purchase history.</p><button class="btn block" id="rClose">Close</button>` : actions}
+    <p class="fine">The math decides the verdict. ${rec.ai ? "The jokes were written by Claude." : "The jokes are built in."}</p>`, el => {
+    el.querySelectorAll("[data-r]").forEach(b => (b.onclick = () => { if (b.disabled) return; el.querySelectorAll("[data-r]").forEach(x => (x.disabled = true)); closeSheet(); setDecision(rec.id, b.dataset.r, b.dataset.c); }));
+    const c = el.querySelector("#rClose"); c && (c.onclick = closeSheet);
+  });
+}
+function needInfoSheet() {
+  openSheet(`<div class="speaker"><div class="sis-ava">${avatar("needinfo")}</div><b>${esc(R())}</b></div><div class="roast">I can't read you yet because I don't know your numbers. Give me your weekly spending money and I'll get to work. 👀</div><div class="verdict needinfo">${SisEngine.label("needinfo")}</div><button class="btn main block" id="niGo">Add my budget</button>`, el => (el.querySelector("#niGo").onclick = () => { closeSheet(); budgetSheet(); }));
+}
+
+/* ---- budget editor ---- */
+const BUDGET_FIELDS = [
+  ["weekly", "Weekly spending money", "What you plan to spend on non-bill stuff this week. Required."],
+  ["spent", "Already spent this week", "Resets every Monday. Anything you mark \"bought\" here gets added for you."],
+  ["balance", "Money in your account right now", "Optional. Only used to make sure bills are covered. Never treated as spending money."],
+  ["bills", "Bills due before payday (not paid yet)", "Optional. Rent, phone, car, anything still coming out."],
+  ["savings", "Savings to set aside before payday", "Optional. A purchase that would eat into this gets a Hold Up."],
+  ["emergency", "Emergency savings", "Optional and just for you. Never counted as spending money."]
+];
+function budgetSheet() {
+  const b = S.sis.budget;
+  openSheet(`<div class="label">Your budget</div><h2 class="big-title">Give me your real numbers</h2><p class="small muted">I only use what you type here. Nothing is connected to your bank.</p>
+    ${BUDGET_FIELDS.map(([k, l, h]) => `<div class="field"><label for="bf-${k}">${l}</label><input id="bf-${k}" inputmode="decimal" value="${b[k] === null || b[k] === undefined ? "" : esc(b[k])}" placeholder="${k === "weekly" ? "150" : ""}"><span class="help">${h}</span></div>`).join("")}
+    <div class="field"><label for="bf-payday">Next payday</label><input id="bf-payday" type="date" value="${esc(b.payday || "")}"><span class="help">Optional. Helps me know how long your money has to last.</span></div>
+    <button class="btn main block" id="bfSave">Save budget</button>`, el => {
+    el.querySelector("#bfSave").onclick = () => {
+      const nb = Object.assign({}, S.sis.budget);
+      for (const [k, l] of BUDGET_FIELDS) {
+        const raw = el.querySelector("#bf-" + k).value.trim().replace(/[$,]/g, "");
+        if (raw === "") { nb[k] = k === "spent" ? 0 : null; continue; }
+        const v = Number(raw);
+        if (!isFinite(v) || v < 0) { toast(l + " needs to be a number of 0 or more."); el.querySelector("#bf-" + k).focus(); return; }
+        nb[k] = SisEngine.r2(v);
+      }
+      if (nb.weekly === null) { toast("Weekly spending money is the one I really need."); el.querySelector("#bf-weekly").focus(); return; }
+      nb.payday = el.querySelector("#bf-payday").value || ""; nb.updated = Date.now(); nb.week = wkNow();
+      S.sis.budget = nb; save(); closeSheet(); renderMoney(); toast("Budget saved.");
+    };
+  });
+}
+$("#budgetBtn").onclick = budgetSheet;
+
+/* ---- companion editor ---- */
+function companionSheet() {
+  let persona = S.sis.persona, intensity = S.sis.intensity;
+  openSheet(`<div class="label">Your accountability companion</div>
+    <div class="field"><label for="cName">Name</label><input id="cName" value="${esc(R())}" maxlength="24"><div class="chips2" id="namePicks">${NAME_PICKS.map(nm => `<button class="chip2" data-n="${esc(nm)}">${esc(nm)}</button>`).join("")}</div></div>
+    <div class="field"><span class="flabel">Personality</span><div class="chips2" id="pPicks" role="radiogroup">${Object.entries(PERSONAS).map(([k, v]) => `<button class="chip2" role="radio" data-p="${k}" aria-checked="${k === persona}">${v.label}</button>`).join("")}</div><span class="help" id="pDesc"></span></div>
+    <div class="field" id="customWrap" ${persona === "custom" ? "" : "hidden"}><label for="cCustom">How should they talk to you?</label><textarea id="cCustom" maxlength="500" placeholder="Like my auntie from Brockton who loves me but has zero patience">${esc(S.sis.custom || "")}</textarea></div>
+    <div class="field"><span class="flabel">Roast level</span><div class="chips2" id="iPicks" role="radiogroup">${[1, 2, 3].map(i => `<button class="chip2" role="radio" data-i="${i}" aria-checked="${i === intensity}">${INTENSITY[i][0]}</button>`).join("")}</div><span class="help" id="iDesc"></span></div>
+    <p class="small muted">Personality and roast level only change the jokes. They never change the math or the verdict.</p>
+    <button class="btn main block" id="cSave">Save</button>`, el => {
+    const name = el.querySelector("#cName");
+    const sync = () => { el.querySelector("#pDesc").textContent = persona === "custom" ? "Write your own instructions below." : PERSONAS[persona].desc.split(". ")[0] + "."; el.querySelector("#iDesc").textContent = INTENSITY[intensity][1]; el.querySelector("#customWrap").hidden = persona !== "custom"; };
+    sync();
+    el.querySelector("#namePicks").onclick = e => { const b = e.target.closest("[data-n]"); if (b) name.value = b.dataset.n; };
+    el.querySelector("#pPicks").onclick = e => { const b = e.target.closest("[data-p]"); if (!b) return; const old = persona; persona = b.dataset.p; el.querySelectorAll("#pPicks .chip2").forEach(x => x.setAttribute("aria-checked", x === b));
+      const defaults = Object.values(PERSONAS).map(p => p.name).filter(Boolean); if ((defaults.includes(name.value.trim()) || !name.value.trim()) && PERSONAS[persona].name && PERSONAS[old].name === name.value.trim()) name.value = PERSONAS[persona].name; sync(); };
+    el.querySelector("#iPicks").onclick = e => { const b = e.target.closest("[data-i]"); if (!b) return; intensity = +b.dataset.i; el.querySelectorAll("#iPicks .chip2").forEach(x => x.setAttribute("aria-checked", x === b)); sync(); };
+    el.querySelector("#cSave").onclick = () => {
+      const nm = name.value.trim().slice(0, 24); if (!nm) { toast("Give them a name."); name.focus(); return; }
+      const custom = el.querySelector("#cCustom").value.trim().slice(0, 500);
+      if (persona === "custom" && !custom) { toast("Tell me how your custom companion should talk."); el.querySelector("#cCustom").focus(); return; }
+      Object.assign(S.sis, { name: nm, persona, intensity, custom }); save(); closeSheet(); renderAll(); toast(nm + " is ready for you.");
+    };
+  });
+}
+$("#sisWho").onclick = companionSheet;
+
+/* ---- history editor ---- */
+$("#history").addEventListener("click", e => {
+  const b = e.target.closest("[data-edit]"); if (!b) return;
+  const r = S.sis.history.find(x => x.id === b.dataset.edit); if (!r) return;
+  let dec = r.decision || "";
+  openSheet(`<div class="label">Edit purchase · ${fmtDate(r.at)}</div>
+    <div class="field"><label for="hItem">Item</label><input id="hItem" value="${esc(r.item)}" maxlength="80"></div>
+    <div class="field"><label for="hPrice">Price</label><input id="hPrice" inputmode="decimal" value="${esc(r.price)}"></div>
+    <div class="field"><span class="flabel">What happened?</span><div class="chips2" id="hDec">${[["", "Not decided"], ["bought", "Bought"], ["skipped", "Didn't buy"], ["jail", "Wishlist Jail"], ["cooldown", "Cooling off"]].map(([v, l]) => `<button class="chip2" role="radio" data-v="${v}" aria-checked="${v === dec}">${l}</button>`).join("")}</div></div>
+    ${r.verdict ? `<button class="btn block" id="hView">See ${esc(r.name || R())}'s answer again</button>` : ""}
+    <div class="btns"><button class="btn main" id="hSave">Save</button><button class="btn" id="hDel">Delete</button></div>`, el => {
+    el.querySelector("#hDec").onclick = ev => { const c = ev.target.closest("[data-v]"); if (!c) return; dec = c.dataset.v; el.querySelectorAll("#hDec .chip2").forEach(x => x.setAttribute("aria-checked", x === c)); };
+    const v = el.querySelector("#hView"); v && (v.onclick = () => showResult(r));
+    el.querySelector("#hSave").onclick = () => {
+      const price = SisEngine.parsePrice(el.querySelector("#hPrice").value), item = el.querySelector("#hItem").value.trim().slice(0, 80);
+      if (!item) { toast("Item can't be empty."); return; } if (price === null) { toast("That price doesn't look right."); return; }
+      const i = S.sis.history.findIndex(x => x.id === r.id); let nr = Object.assign({}, S.sis.history[i], { item, price });
+      if ((nr.decision || "") !== dec) { nr.decision = dec || null; nr.decidedAt = Date.now(); if (dec === "cooldown") nr.until = Date.now() + SisEngine.COOLDOWNS["48h"]; else delete nr.until; if (dec === "jail") nr.jailAt = Date.now();
+        if ((dec === "skipped" || dec === "jail") && !nr.rewarded) { nr.rewarded = true; S.shells += 15; S.earned += 15; } }
+      sisRoll(); const out = SisEngine.reconcile(nr, S.sis.budget, wkNow()); S.sis.history[i] = out.rec; S.sis.budget = out.budget;
+      save(); closeSheet(); renderAll(); toast("Saved.");
+    };
+    const del = el.querySelector("#hDel");
+    del.onclick = () => { if (!del.dataset.sure) { del.dataset.sure = 1; del.textContent = "Tap again to delete"; return; }
+      const i = S.sis.history.findIndex(x => x.id === r.id); sisRoll();
+      const out = SisEngine.reconcile(Object.assign({}, S.sis.history[i], { decision: null }), S.sis.budget, wkNow()); S.sis.budget = out.budget;
+      S.sis.history.splice(i, 1); save(); closeSheet(); renderAll(); toast("Deleted."); };
+  });
 });
+
+$("#nsBtn").onclick = () => { const t = today(); if (S.nospend.includes(t)) return; S.nospend = S.nospend.filter(d => d >= dkey(new Date(Date.now() - 40 * DAY))).concat(t); S.shells += 10; S.earned += 10; save(); ding(); confetti(50); toast("+10. " + R() + ": " + pick(PROUD)); renderAll(); };
 $("#ciBtn").onclick = () => {
-  const ws = dkey(new Date(weekStart()));
+  const ws = dkey(new Date(weekStart())), bud = S.sis.budget.weekly;
   openSheet(`<div class="label">Weekly check‑in · +20</div><h2 class="big-title">How much did fun stuff cost this week?</h2><p class="muted small">Open your bank app. Add up treats, takeout, online orders. A rough guess is fine.</p><div class="field"><label for="ciAmt">Fun spending this week ($)</label><input id="ciAmt" inputmode="decimal" placeholder="45"></div><button class="btn main block" id="ciSave">Check in</button>`, el => {
-    el.querySelector("#ciSave").onclick = () => { const a = parseFloat((el.querySelector("#ciAmt").value || "").replace(/[^0-9.]/g, "")); if (!(a >= 0)) { toast("Type a number. A guess is fine."); return; }
-      S.checkins = S.checkins.filter(c => c.week !== ws).concat({ week: ws, amt: a, budget: S.budget }).slice(-12); S.shells += 20; S.earned += 20; save(); ding(true); confetti(80); renderAll();
-      const under = a <= S.budget;
-      openSheet(`<div class="stack"><div class="plus">+20 ${SHELL}</div><h2 class="big-title">${under ? "Under budget!" : "Over by " + money(a - S.budget)}</h2><p><b>${esc(R())}:</b> ${under ? esc(pick(PROUD)) : "You looked. That's growth. Next week you park stuff first. Deal?"}</p></div><button class="btn main block" id="ok2">Deal</button>`, el2 => (el2.querySelector("#ok2").onclick = closeSheet)); };
+    el.querySelector("#ciSave").onclick = () => { const a = SisEngine.num(String(el.querySelector("#ciAmt").value).replace(/[$,]/g, "")); if (a === null || a < 0) { toast("Type a number. A guess is fine."); return; }
+      S.checkins = S.checkins.filter(c => c.week !== ws).concat({ week: ws, amt: a, budget: bud === undefined ? null : bud }).slice(-12); S.shells += 20; S.earned += 20; save(); ding(true); confetti(80); renderAll();
+      const known = bud !== null && bud !== undefined, under = known && a <= bud;
+      openSheet(`<div class="stack"><div class="plus">+20 ${SHELL}</div><h2 class="big-title">${!known ? "Checked in!" : under ? "Under budget!" : "Over by " + SisEngine.fmt(a - bud)}</h2><p><b>${esc(R())}:</b> ${!known ? "Thank you for looking. Add your weekly budget in Big Sis Check and I can tell you how you did." : under ? esc(pick(PROUD)) : "You looked. That's growth. Next week you run stuff by me first. Deal?"}</p></div><button class="btn main block" id="ok2">Deal</button>`, el2 => (el2.querySelector("#ok2").onclick = closeSheet)); };
   });
 };
 
@@ -857,19 +1359,19 @@ async function makeShareImage() {
   let fs = 84; do { ctx.font = `700 ${fs}px Fredoka, 'Trebuchet MS', sans-serif`; fs -= 4; } while (ctx.measureText(title).width > 936 && fs > 52);
   const ty = wrapText(ctx, title, 72, 200, 936, fs + 10);
   ctx.font = "600 40px Fredoka, 'Trebuchet MS', sans-serif"; ctx.fillStyle = "#2F5C5A"; ctx.fillText(ZONES[S.zones - 1].name + " unlocked · " + S.zones + " of " + ZONES.length + " zones", 72, Math.max(282, ty + 76));
-  const stats = [[wk, "tiny things this week"], [S.tasks, "tiny things total"], [found.length + "/" + CRITTERS.length, "weird critters found"], [money(S.nahAmt), "NOT spent on impulses"]];
+  const stats = [[wk, "tiny things this week"], [S.tasks, "tiny things total"], [found.length + "/" + CRITTERS.length, "weird critters found"], [money(avoidedAll()), "NOT spent on impulses"]];
   stats.forEach(([v, l], i) => { const x = 72 + (i % 2) * 476, y = 410 + Math.floor(i / 2) * 190; ctx.fillStyle = "rgba(255,255,255,.62)"; rr(ctx, x, y, 460, 168, 32); ctx.fill(); ctx.fillStyle = ink; ctx.font = "700 76px Fredoka, sans-serif"; ctx.fillText(String(v), x + 34, y + 92); ctx.font = "700 28px 'Atkinson Hyperlegible', Verdana, sans-serif"; ctx.fillStyle = "#3E5551"; ctx.fillText(l, x + 36, y + 138); });
   ctx.fillStyle = "rgba(255,255,255,.45)"; rr(ctx, 72, 810, 936, 300, 32); ctx.fill();
   const show = found.slice(0, 12); const imgs = await Promise.all(show.map(c => svgImg(critterSVG(c))));
   imgs.forEach((im, i) => { if (!im) return; const x = 96 + (i % 6) * 150, y = 828 + Math.floor(i / 6) * 138; ctx.drawImage(im, x, y, 136, 136); });
   if (!show.length) { ctx.fillStyle = ink; ctx.font = "600 38px Fredoka, sans-serif"; ctx.fillText("Critters loading... (go do one tiny thing)", 110, 970); }
   ctx.fillStyle = ink; ctx.font = "700 34px 'Atkinson Hyperlegible', Verdana, sans-serif";
-  const quote = S.nahAmt > 0 ? `${R()}: "${pick(PROUD)}"` : found.length ? `${found[0].name}: "${found[0].say[0]}"` : `The goose is watching. The goose approves.`;
+  const quote = avoidedAll() > 0 ? `${R()}: "${pick(PROUD)}"` : found.length ? `${found[0].name}: "${found[0].say[0]}"` : `The goose is watching. The goose approves.`;
   wrapText(ctx, quote, 72, 1170, 936, 44);
   ctx.font = "600 28px Fredoka, sans-serif"; ctx.fillStyle = "#3E5551"; ctx.fillText("One tiny thing at a time.", 72, 1282);
   return await new Promise(res => cv.toBlob(b => res(b), "image/png"));
 }
-function caption() { const f = Object.keys(S.crew).length; return `I've done ${S.tasks} tiny chore${S.tasks === 1 ? "" : "s"} and found ${f} weird critter${f === 1 ? "" : "s"} on my island 🦝🪿 ${S.nahAmt > 0 ? "Saved " + money(S.nahAmt) + " by telling impulse buys no. " + R() + " is shocked. " : ""}One tiny thing at a time.`; }
+function caption() { const f = Object.keys(S.crew).length; return `I've done ${S.tasks} tiny chore${S.tasks === 1 ? "" : "s"} and found ${f} weird critter${f === 1 ? "" : "s"} on my island 🦝🪿 ${avoidedAll() > 0 ? "Didn't spend " + money(avoidedAll()) + " on impulse buys. " + R() + " is shocked. " : ""}One tiny thing at a time.`; }
 let shareURL = null;
 $("#bragBtn").onclick = async () => {
   openSheet(`<div class="label">Share my island</div><img class="shareimg" id="shareImg" alt="Your island report image"><div class="btns"><button class="btn shell" id="shSave" disabled>Save or share image</button><button class="btn" id="shCopy">Copy caption</button></div><p class="small muted" id="shHelp">Making your picture…</p>`, async el => {
@@ -889,16 +1391,14 @@ window.__makeShareImage = makeShareImage;
 function applyPrefs() { document.documentElement.classList.toggle("calm", !!S.calm); document.documentElement.classList.toggle("big", !!S.big); }
 $("#gearBtn").onclick = () => openSheet(`<div class="label">Settings</div>
   <div class="field"><label for="sName">Your name (for posts and the share card)</label><input id="sName" value="${esc(S.name)}" maxlength="20"></div>
-  <div class="field"><label for="sRoaster">Who roasts you about money?</label><input id="sRoaster" value="${esc(R())}" maxlength="20"></div>
-  <div class="field"><label for="sBudget">Weekly fun money ($)</label><input id="sBudget" inputmode="decimal" value="${esc(S.budget)}"></div>
   <div><div class="switch"><div class="grow"><b>Sounds</b><div class="small muted">Soft plinks when you finish.</div></div><button class="tog" role="switch" data-k="sound" aria-checked="${S.sound}" aria-label="Sounds"></button></div>
   <div class="switch"><div class="grow"><b>Extra calm</b><div class="small muted">No confetti or wobbling critters.</div></div><button class="tog" role="switch" data-k="calm" aria-checked="${S.calm}" aria-label="Extra calm"></button></div>
-  <div class="switch"><div class="grow"><b>Bigger text</b></div><button class="tog" role="switch" data-k="big" aria-checked="${S.big}" aria-label="Bigger text"></button></div>
-  <div class="switch"><div class="grow"><b>Money roasts</b><div class="small muted">Off means plain, kind money wording.</div></div><button class="tog" role="switch" data-k="memes" aria-checked="${S.memes}" aria-label="Money roasts"></button></div></div>
+  <div class="switch"><div class="grow"><b>Bigger text</b></div><button class="tog" role="switch" data-k="big" aria-checked="${S.big}" aria-label="Bigger text"></button></div></div>
+  <p class="small muted">Money settings (your budget, who roasts you and how hard) live in the Money tab.</p>
   <p class="small muted">Tip: open this on your phone and use "Add to Home Screen" so the island is one tap away.</p>
   <button class="btn main block" id="sSave">Save</button>`, el => {
   el.querySelectorAll(".tog").forEach(t => (t.onclick = () => { const k = t.dataset.k; S[k] = !S[k]; t.setAttribute("aria-checked", S[k]); save(); applyPrefs(); }));
-  el.querySelector("#sSave").onclick = () => { S.name = el.querySelector("#sName").value.trim().slice(0, 20); S.roaster = el.querySelector("#sRoaster").value.trim().slice(0, 20) || "Mr. Receipts"; const b = parseFloat(el.querySelector("#sBudget").value); if (b >= 0) S.budget = b; save(); closeSheet(); renderAll(); };
+  el.querySelector("#sSave").onclick = () => { S.name = el.querySelector("#sName").value.trim().slice(0, 20); save(); closeSheet(); renderAll(); };
 });
 
 /* ================= fx ================= */
