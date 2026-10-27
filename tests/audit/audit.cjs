@@ -1,4 +1,4 @@
-const {chromium}=require('playwright');const fs=require('fs');
+const {chromium}=require("playwright");const fs=require("fs");
 const URL=process.env.APP_URL||'file://'+require('path').resolve(__dirname,'../../index.html'), OUT=process.argv[2], R={};
 const seed=(extra={})=>{const crew={};["pete","crab","gary","shelly","patricia","kevin"].forEach(i=>crew[i]={found:Date.now(),friend:1});
  return Object.assign({v:4,at:Date.now(),name:"",shells:120,earned:400,tasks:20,zones:2,crew,lastVisit:Date.now(),lastCollect:Date.now()-3*3600e3,done:{},goals:{},checkins:[],nospend:[],week:[],sis:{name:"Big Sis",persona:"bigsis",custom:"",intensity:2,budget:{weekly:300,spent:0,balance:null,bills:null,savings:null,payday:"",emergency:null,week:null,updated:Date.now()},history:[],rules:{}}},extra);};
@@ -13,7 +13,7 @@ for(const [n,vp] of [["320",{width:320,height:640}],["390",{width:390,height:844
  const p=await page(vp,seed());const res={};
  for(const t of ["island","critters","money"]){await p.click(`nav button[data-tab=${t}]`);await p.waitForTimeout(120);
   res[t]=await p.evaluate(()=>({overflowX:document.documentElement.scrollWidth>innerWidth+1,scrollW:document.documentElement.scrollWidth,w:innerWidth}));
-  await p.screenshot({path:`${OUT}/vp${n}_${t}.png`,fullPage:false});}
+  }
  res.errors=p.errs;R.viewports[n]=res;await p.close();}
 // B. clock rollback freezes gifts
 {const p=await page({width:390,height:844},seed({lastCollect:Date.now()+5*3600e3}));R.clockGift=await p.textContent('#giftBtn b');await p.close();}
@@ -57,4 +57,4 @@ for(const [n,vp] of [["320",{width:320,height:640}],["390",{width:390,height:844
 // L. reduced motion
 {const p=await b.newPage({viewport:{width:390,height:844},reducedMotion:'reduce'});await p.goto(URL);await p.waitForTimeout(200);if(await p.$('#wOk'))await p.click('#wOk');
  R.reducedMotion=await p.evaluate(()=>{const e=document.querySelector('.wave');return e?getComputedStyle(e).animationName:'n/a'});await p.close();}
-fs.writeFileSync(OUT+'/audit.json',JSON.stringify(R,null,1));console.log(JSON.stringify(R,null,1));await b.close();})();
+fs.writeFileSync(OUT+'/'+(process.env.OUT_NAME||'audit.json'),JSON.stringify(R,null,1));console.log(JSON.stringify(R,null,1));await b.close();})();

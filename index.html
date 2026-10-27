@@ -2012,7 +2012,7 @@ document.addEventListener("keydown", e => {
 /* ================= tabs + boot ================= */
 const TABS = ["island", "critters", "money"];
 function showTab(t) { if (!TABS.includes(t)) t = "island"; document.querySelectorAll(".view").forEach(v => (v.hidden = v.id !== "v-" + t)); document.querySelectorAll("nav.tabs button").forEach(b => b.dataset.tab === t ? b.setAttribute("aria-current", "page") : b.removeAttribute("aria-current")); window.scrollTo(0, 0); }
-document.querySelectorAll("nav.tabs button").forEach(b => (b.onclick = () => { showTab(b.dataset.tab); try { history.replaceState(null, "", "#" + b.dataset.tab); } catch (e) {} if (b.dataset.tab === "island") renderIsland(); }));
+document.querySelectorAll("nav.tabs button").forEach(b => (b.onclick = () => { const t = b.dataset.tab; if (t === "island") renderIsland(); else if (t === "critters") renderCritters(); else renderMoney(); showTab(t); try { history.replaceState(null, "", "#" + t); } catch (e) {} }));
 function welcome() {
   const first = !S.lastVisit, away = S.lastVisit ? Date.now() - S.lastVisit : 0;
   if (!S.lastCollect) S.lastCollect = Date.now();
@@ -2027,7 +2027,7 @@ function welcome() {
 }
 const h0 = (location.hash || "").slice(1);
 applyPrefs(); renderAll(); showTab(TABS.includes(h0) ? h0 : "island"); welcome();
-setInterval(renderGift, 60000);
+setInterval(() => { if ($("#sheetHost").firstChild) return; renderGift(); if (!$("#v-money").hidden && document.activeElement && !/INPUT|TEXTAREA/.test(document.activeElement.tagName)) renderMoney(); }, 60000);
 document.addEventListener("visibilitychange", () => { if (!document.hidden) renderAll(); });
 connect();
 })();

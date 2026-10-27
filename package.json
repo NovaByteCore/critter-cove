@@ -2,5 +2,9 @@
   "name": "critter-cove",
   "private": true,
   "type": "module",
-  "scripts": { "test": "node --test tests/*.test.mjs" }
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "test:e2e": "node tests/e2e/app.e2e.cjs",
+    "audit": "node tests/audit/audit.cjs"
+  }
 }

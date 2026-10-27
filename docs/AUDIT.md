@@ -19,6 +19,7 @@ Severity scale: **Critical** (data loss or wrong money math), **High** (silent d
 | 7 | **Low** | Critter gifts | If the phone's clock is set back, critter gifts stop until the clock catches up (`lastCollect` is in the future). | Browser test: `lastCollect` 5 h ahead shows "Your crew is out foraging" with gifts frozen. | Clamp saved timestamps to "now" on load. |
 | 8 | **Low** | Accessibility (contrast) | The "rare" label on critter cards is 2.6:1 contrast (needs 4.5:1). | Computed from the color tokens in both themes. | Darker text color for that label. |
 | 9 | **Low** | Accessibility (island map) | Critters on the map are 26 px and can't be reached by keyboard. Same info is in the Critters tab, so nothing is lost, but it's inconsistent. | Browser measurement. | Make them focusable with a label. |
+| 10 | **Low** (found while writing tests) | Money tab | Switching to a tab didn't refresh it, so an expired cooldown kept saying "Decide in…" until you did something else. | Browser test: fast-forward 25 hours, switch tabs, list unchanged. | Refresh a tab when you open it, plus a once-a-minute refresh. |
 
 ## Checked and working (no change needed)
 
@@ -45,3 +46,19 @@ Severity scale: **Critical** (data loss or wrong money math), **High** (silent d
 - **Inside Claude:** progress, including money records, is saved in your private area of the app's storage (`data/users/<your id>/`), which other viewers can't read.
 - **On GitHub Pages:** progress is saved in the browser on that device only. Browser storage on `novabytecore.github.io` is shared by every GitHub Pages site under the NovaByteCore account, so a different site you publish there could technically read it. Low risk while this is your only Pages site.
 - Nothing is sent to any outside service. The only network calls are Google Fonts (and, inside Claude, Claude itself).
+
+## Status on the `refinements` branch
+
+Re-running the same audit script on the new code (`tests/audit/audit-results-main.json` vs `audit-results-refinements.json`):
+
+| Check | `main` (live today) | `refinements` |
+|---|---|---|
+| Older device taps Done while the account loads | Account overwritten: 30 shells, 4 tasks | Account kept: 999 shells, 300 tasks, both devices' critters |
+| 301st purchase check | Oldest deleted, avoided spending $3000 → $2990 | All 301 kept, $3000 stays |
+| Tampered save tries to run code | Code ran | Blocked |
+| Tab presses escaping a pop-up | 16 of 25 | 0 of 25 |
+| Map critters by keyboard | Not reachable | Reachable, labelled |
+| Console errors / sideways scroll (320–1280 px) | None | None |
+| Double-tap Done | Counted once | Counted once |
+
+Bugs #1–#10 above are fixed on the branch. Each fix has a matching automated test (see `tests/`).
