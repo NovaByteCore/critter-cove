@@ -243,3 +243,18 @@ test("notification and timer settings are validated and old saves get safe defau
   assert.equal(s.timerPrefs.defaultSecs, 30); assert.equal(s.timerPrefs.alerts.half, true); assert.equal(s.timerPrefs.alerts.end, true);
   const old = prep({ shells: 5 }); assert.equal(old.notif.enabled, true); assert.equal(old.notif.setupDone, false); assert.equal(old.timerPrefs.defaultSecs, 300);
 });
+
+test("appearance: defaults to Playful + follow device, rejects junk, and the most recent change wins across devices", () => {
+  const opts = { critterIds: ["pete"], zoneCount: 10 };
+  const d = C.sanitize({}, opts);
+  assert.equal(d.look, "playful"); assert.equal(d.mode, "device"); assert.equal(d.still, false); assert.equal(d.calm, false);
+  const j = C.sanitize({ look: "neon", mode: "<script>", still: "yes" }, opts);
+  assert.equal(j.look, "playful"); assert.equal(j.mode, "device"); assert.equal(j.still, false);
+  const rich = { earned: 900, tasks: 90, crew: {}, look: "playful", mode: "device", calm: false, appearAt: 100 };
+  const phone = { earned: 10, tasks: 1, crew: {}, look: "cozy", mode: "dark", calm: true, appearAt: 500 };
+  const m = C.mergeStates(rich, phone);
+  assert.equal(m.earned, 900, "progress still comes from the device with more progress");
+  assert.equal(m.look, "cozy"); assert.equal(m.mode, "dark"); assert.equal(m.calm, true);
+  const m2 = C.mergeStates(phone, Object.assign({}, rich, { look: "playful", appearAt: 900 }));
+  assert.equal(m2.look, "playful");
+});

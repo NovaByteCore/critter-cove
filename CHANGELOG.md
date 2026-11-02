@@ -1,6 +1,28 @@
 # Changelog
 
-## Refinements (branch `refinements`, not yet on `main`)
+## Appearance release (2026-11-02)
+
+**Settings → Appearance**
+- Two themes: Playful Cove 🌈 (new default) and Cozy Cove 🌿.
+- Light, Dark, or Follow my device.
+- Low stimulation now also softens colors, removes shadows and mutes sounds. Every button stays.
+- New Reduce animations switch (stops movement, keeps the colors). Bigger text moved here.
+- Changes apply instantly, save automatically, and the latest change syncs between devices inside Claude.
+
+**Accessibility fixes from the theme audit**
+- Dark mode Start timer button was 1.83:1 contrast; now readable in every theme and mode.
+- Stronger focus ring, switch tracks and text box edges; check mark inside switches that are on.
+- Legendary critter label meets contrast guidelines.
+- Smallest labels raised from 12–13 px to 13–14 px.
+- Both themes pass WCAG 2.2 AA in light and dark, checked automatically on every tab and the timer.
+
+**Upgrade fixes**
+- A weekly budget set in the Mr. Receipts version now carries into Big Sis (the old built-in $60 default does not, since nobody chose it).
+- Inside Claude, a returning player opening the app on a new device no longer sees the first-time welcome while their account loads.
+
+**Tests:** 45 unit, 51 browser.
+
+## Timers, reminders and refinements (2026-10-27)
 
 **Fixes** (details and evidence in `docs/AUDIT.md`)
 - Two devices can no longer overwrite each other's progress inside Claude: saves are merged, and live changes from another device are merged in.
