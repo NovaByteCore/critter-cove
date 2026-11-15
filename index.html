@@ -1071,10 +1071,12 @@ async function loadRemote() {
 let downloads = null, sampleFn = null;
 /* ===== Installed Android/iPhone app (Capacitor). On the website and inside Claude this whole block is inert. ===== */
 const CapNative = (() => { try { return !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()); } catch (e) { return false; } })();
-const NativeWidget = CapNative ? window.Capacitor.registerPlugin("CritterWidget") : null;
+const capPlugin = name => { try { const C = window.Capacitor; if (C.registerPlugin) return C.registerPlugin(name); if (C.Plugins && C.Plugins[name]) return C.Plugins[name];
+  if (C.nativePromise) return new Proxy({}, { get: (_, m) => o => C.nativePromise(name, m, o || {}) }); } catch (e) {} return null; };
+const NativeWidget = CapNative ? capPlugin("CritterWidget") : null;
 if (CapNative) {
   // Saving a backup or a share picture: write the file, then open the phone's share sheet.
-  const FS = window.Capacitor.registerPlugin("Filesystem"), SH = window.Capacitor.registerPlugin("Share");
+  const FS = capPlugin("Filesystem"), SH = capPlugin("Share");
   const b64 = blob => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(String(r.result).split(",")[1]); r.onerror = rej; r.readAsDataURL(blob); });
   downloads = { save: async ({ filename, data }) => {
     const f = await FS.writeFile({ path: filename, data: await b64(data), directory: "CACHE" });
