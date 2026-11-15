@@ -114,10 +114,10 @@ jobs:
           disable-animations: true
           working-directory: app/android
           script: |
-            ./gradlew --no-daemon connectedDebugAndroidTest > "$RUNNER_TEMP/test.log" 2>&1; echo $? > "$RUNNER_TEMP/status"
-            mkdir -p "$RUNNER_TEMP/shots"; adb pull /sdcard/Android/data/com.novabytecore.crittercove/files/shots "$RUNNER_TEMP/shots" || true
-            adb logcat -c; adb shell am start -n com.novabytecore.crittercove/.MainActivity; sleep 20; adb exec-out screencap -p > "$RUNNER_TEMP/shots/6-app-open.png" || true
-            adb logcat -d | grep -iE "Capacitor|chromium|Console|CritterWidget|AndroidRuntime" | tail -70 > "$RUNNER_TEMP/shots/logcat.txt" || true
+            adb logcat -c; ./gradlew --no-daemon connectedDebugAndroidTest -Pandroid.injected.androidTest.leaveApksInstalledAfterRun=true > "$RUNNER_TEMP/test.log" 2>&1; echo $? > "$RUNNER_TEMP/status"
+            mkdir -p "$RUNNER_TEMP/shots"; adb logcat -d | grep -iE "Capacitor|chromium|Console|CritterWidget|AndroidRuntime|WebView" | tail -120 > "$RUNNER_TEMP/shots/logcat.txt" || true
+            adb pull /sdcard/Android/data/com.novabytecore.crittercove/files/shots "$RUNNER_TEMP/shots" || true
+            adb shell am start -n com.novabytecore.crittercove/.MainActivity; sleep 20; adb exec-out screencap -p > "$RUNNER_TEMP/shots/6-app-open.png" || true
             if [ "$(cat "$RUNNER_TEMP/status")" != "0" ]; then echo "::error title=Device test::$(grep -E 'FAILED|AssertionError|Exception|error:' -A4 "$RUNNER_TEMP/test.log" | head -60 | sed ':a;N;$!ba;s/%/%25/g;s/\n/%0A/g')"; exit 1; fi
       - name: Save pictures for review
         if: always()
