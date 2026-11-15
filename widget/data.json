@@ -1,0 +1,442 @@
+{
+ "MORNING": [
+  "Drink a glass of water",
+  "Make the bed. Lumpy counts.",
+  "Last night's dishes into the sink",
+  "Put keys, wallet and phone in their spot",
+  "Open the blinds"
+ ],
+ "NIGHT": [
+  "Set a 5‑minute timer and grab stray stuff",
+  "Every cup and plate to the kitchen",
+  "Start the dishwasher or soak the pans",
+  "Clothes into the hamper",
+  "Phone on the charger",
+  "Set out tomorrow's clothes"
+ ],
+ "ROOMS": {
+  "Kitchen": [
+   "Wipe one counter",
+   "Empty the drying rack",
+   "Toss 3 old things from the fridge",
+   "Take out the kitchen trash",
+   "Put away 5 things on the counter",
+   "Wipe the stovetop"
+  ],
+  "Bedroom": [
+   "Pick up clothes off the floor",
+   "Clear the nightstand",
+   "Hang up 5 things",
+   "Put shoes in one pile",
+   "Bring stray cups to the kitchen"
+  ],
+  "Bathroom": [
+   "Wipe the sink and faucet",
+   "Swish the toilet bowl",
+   "Hang the towels up",
+   "Clear 5 things off the counter",
+   "Empty the bathroom trash"
+  ],
+  "Living room": [
+   "Fold the blanket, fluff the pillows",
+   "Clear the coffee table",
+   "Put 10 stray things back",
+   "Give the remote its home",
+   "Quick vacuum where you walk"
+  ],
+  "Laundry": [
+   "Start one load",
+   "Move the wet load to the dryer",
+   "Fold 5 things",
+   "Put away one folded pile"
+  ],
+  "Anywhere": [
+   "Throw away 5 pieces of trash",
+   "Clear one surface. Any surface.",
+   "Pick up everything that's blue",
+   "Carry one armful back where it belongs",
+   "Put on one song and tidy until it ends"
+  ]
+ },
+ "ROOM_ORDER": [
+  "Kitchen",
+  "Living room",
+  "Bedroom",
+  "Bathroom",
+  "Laundry",
+  "Kitchen",
+  "Anywhere"
+ ],
+ "MICRO": [
+  "Throw away ONE thing",
+  "Put ONE dish in the sink",
+  "Pick up ONE thing off the floor",
+  "Put ONE thing back where it lives",
+  "Wipe ONE spot with a paper towel",
+  "Take 3 sips of water",
+  "Close ONE open drawer or cabinet",
+  "Put ONE piece of clothing in the hamper",
+  "Stand up, stretch, grab ONE cup",
+  "Push in ONE chair"
+ ],
+ "CRITTERS": [
+  {
+   "name": "Trash Panda Pete",
+   "sp": "raccoon",
+   "say": [
+    "That sock was abandoned. I checked.",
+    "I ate a grape off the floor and I'd do it again.",
+    "Not you cleaning without me 😭"
+   ]
+  },
+  {
+   "name": "Sir Crabsworth",
+   "sp": "crab",
+   "say": [
+    "The counters? Acceptable. Barely.",
+    "I said what I said. Wipe it again.",
+    "Pinch first, ask questions never."
+   ]
+  },
+  {
+   "name": "Gary",
+   "sp": "pigeon",
+   "say": [
+    "Is that a fry? That's my fry.",
+    "I live here now. Rent is a crumb.",
+    "Coo. (Do the dishes, sis.)"
+   ]
+  },
+  {
+   "name": "Snail Shelly",
+   "sp": "snail",
+   "say": [
+    "Slow is still moving, baby.",
+    "Bonnet on. Now I'm ready.",
+    "One thing at a time. That's the whole secret."
+   ]
+  },
+  {
+   "name": "Possum Patricia",
+   "sp": "possum",
+   "say": [
+    "I'm not lazy. I'm conserving energy.",
+    "Wake me up when it's folded."
+   ]
+  },
+  {
+   "name": "Bottlecap Bob",
+   "sp": "frog",
+   "say": [
+    "Recycle that or I'm screaming.",
+    "412 bottle caps. Zero regrets.",
+    "Ribbit. That's frog for 'proud of you.'"
+   ]
+  },
+  {
+   "name": "Couch Gremlin Kevin",
+   "sp": "gremlin",
+   "say": [
+    "I found 3 remotes and a fry back here.",
+    "Don't vacuum my house. I'm begging.",
+    "Chaos is a lifestyle, babe."
+   ]
+  },
+  {
+   "name": "Lid Larry",
+   "sp": "rat",
+   "say": [
+    "The lid fits nothing. That's the point.",
+    "Whose Tupperware is this? Mine now.",
+    "I don't do bottoms. Only lids."
+   ]
+  },
+  {
+   "name": "Moss Frog Deborah",
+   "sp": "frog",
+   "say": [
+    "Hydrate or I'm haunting you.",
+    "The moss is thriving. Are you?",
+    "Squish. That's all."
+   ]
+  },
+  {
+   "name": "Mole Dale",
+   "sp": "mole",
+   "say": [
+    "Is the floor clean? I can't see. Tell me.",
+    "These are prescription.",
+    "Dig. Dig. Tidy. Dig."
+   ]
+  },
+  {
+   "name": "Spore Gremlin",
+   "sp": "gremlin",
+   "say": [
+    "Please wash the pan. I don't want to exist.",
+    "I'm becoming sentient. Do something.",
+    "Fungus says hey."
+   ]
+  },
+  {
+   "name": "Auntie Shroom",
+   "sp": "snail",
+   "say": [
+    "Baby, did you eat yet?",
+    "I heard what Kevin did. Mm-hm.",
+    "Come here, let me fix your collar."
+   ]
+  },
+  {
+   "name": "Axel the Axolotl",
+   "sp": "axolotl",
+   "say": [
+    "Spin cycle is my cardio.",
+    "I found your other sock. I'm keeping it.",
+    "Wet? Always. Happy? Also always."
+   ]
+  },
+  {
+   "name": "Lint Bat",
+   "sp": "bat",
+   "say": [
+    "Clean the lint trap, I can't breathe 😭",
+    "I'm fluffy because of neglect.",
+    "Fold upside down. Try it."
+   ]
+  },
+  {
+   "name": "Mildew Mildred",
+   "sp": "octopus",
+   "say": [
+    "Eight arms and none of them doing YOUR laundry.",
+    "Fold, sis. FOLD.",
+    "I'm not mildew. I'm misunderstood."
+   ]
+  },
+  {
+   "name": "Hoops Henrietta",
+   "sp": "possum",
+   "say": [
+    "The hoops stay on. Even for laundry.",
+    "I'm not in the way. I'm decor.",
+    "Big hoops, bigger standards."
+   ]
+  },
+  {
+   "name": "CEO Raccoon",
+   "sp": "raccoon",
+   "say": [
+    "Let's circle back on that impulse buy.",
+    "Your budget is my KPI.",
+    "Synergy. Trash. Profit."
+   ]
+  },
+  {
+   "name": "Coupon Possum",
+   "sp": "possum",
+   "say": [
+    "Is it on sale? No? Then no.",
+    "I saved 40 cents today. Living lavish.",
+    "Park it 48 hours. Trust the possum."
+   ]
+  },
+  {
+   "name": "Pigeon Influencer",
+   "sp": "pigeon",
+   "say": [
+    "Link in bio.",
+    "This counter is GIVING.",
+    "Smash that coo button."
+   ]
+  },
+  {
+   "name": "Penny-Pinching Rat",
+   "sp": "rat",
+   "say": [
+    "That's six bags of rice, actually.",
+    "We have it at home."
+   ]
+  },
+  {
+   "name": "Escar-Go",
+   "sp": "snail",
+   "say": [
+    "Zoom zoom (it's been 4 minutes).",
+    "Lap one done. Lap two tomorrow.",
+    "Slow and steady still gets the snack."
+   ]
+  },
+  {
+   "name": "Bayou Toad Earl",
+   "sp": "frog",
+   "say": [
+    "Secret ingredient? Clean pots.",
+    "Don't touch my seasoning.",
+    "Come eat. Wash your hands first."
+   ]
+  },
+  {
+   "name": "Axolotl Lou",
+   "sp": "axolotl",
+   "say": [
+    "I'm smiling but I'm tired 😊",
+    "Empty sink, happy Lou.",
+    "Gills out. Mood up."
+   ]
+  },
+  {
+   "name": "Octavia",
+   "sp": "octopus",
+   "say": [
+    "Who left the cabinet open. Who.",
+    "I can do eight chores. You can do one.",
+    "Not the dishes in the sink AGAIN."
+   ]
+  },
+  {
+   "name": "The Goose",
+   "sp": "goose",
+   "say": [
+    "HONK.",
+    "HONK. (Put that away.)",
+    "I saw what you left on the stairs."
+   ]
+  },
+  {
+   "name": "Goose Lawyer",
+   "sp": "goose",
+   "say": [
+    "Objection. That's a want, not a need.",
+    "The laundry pile is in contempt.",
+    "Honk, your honor."
+   ]
+  },
+  {
+   "name": "Crab Knight",
+   "sp": "crab",
+   "say": [
+    "For the cove!",
+    "I swore an oath to the clean sink.",
+    "Halt. Oh it's you. Hey boo."
+   ]
+  },
+  {
+   "name": "Grandma Goose",
+   "sp": "goose",
+   "say": [
+    "Not in my house.",
+    "Take your shoes off. I just mopped.",
+    "Come let me look at you. You look tired."
+   ]
+  },
+  {
+   "name": "Unc",
+   "sp": "raccoon",
+   "say": [
+    "Don't touch the grill.",
+    "Who brought the potato salad? We need to talk.",
+    "Unc is tired but Unc is here."
+   ]
+  },
+  {
+   "name": "Spades Rat",
+   "sp": "rat",
+   "say": [
+    "Run me my money.",
+    "You reneged. Get up.",
+    "Books on books on books."
+   ]
+  },
+  {
+   "name": "Cousin Crabby",
+   "sp": "crab",
+   "say": [
+    "I brought ice. Y'all should be thanking me.",
+    "Traffic was crazy (I was asleep).",
+    "Where the plates at?"
+   ]
+  },
+  {
+   "name": "DJ Bat",
+   "sp": "bat",
+   "say": [
+    "Everybody up. It's the cleaning slide.",
+    "This one's for the folded laundry.",
+    "Hands up if the sink is empty!"
+   ]
+  },
+  {
+   "name": "Count Batula",
+   "sp": "bat",
+   "say": [
+    "I vant... to vacuum.",
+    "Midnight tidying is a vibe.",
+    "The darkness hides crumbs. I don't."
+   ]
+  },
+  {
+   "name": "Velvet",
+   "sp": "octopus",
+   "say": [
+    "Smooth moves, clean grooves.",
+    "Don't step on my tentacles.",
+    "I came to dance AND fold."
+   ]
+  },
+  {
+   "name": "Frogger Fresh",
+   "sp": "frog",
+   "say": [
+    "My shoes cost more than this couch.",
+    "Clean house, clean fit.",
+    "Brush your shoulders off."
+   ]
+  },
+  {
+   "name": "Midnight Snail",
+   "sp": "snail",
+   "say": [
+    "Shh. Night shift.",
+    "Lights low. Standards high.",
+    "I glide. You hustle."
+   ]
+  },
+  {
+   "name": "Lava Gremlin",
+   "sp": "gremlin",
+   "say": [
+    "It's 900 degrees and I'm vibing.",
+    "You cleaned enough to find me. Respect.",
+    "Hot tip: do the dishes."
+   ]
+  },
+  {
+   "name": "Disco Mole",
+   "sp": "mole",
+   "say": [
+    "Clean floor? Let's DANCE.",
+    "Do the hustle. Then the dishes.",
+    "Saturday night fever. Sunday morning chores."
+   ]
+  },
+  {
+   "name": "Goose Supreme",
+   "sp": "goose",
+   "say": [
+    "HONKUS MAXIMUS.",
+    "You pleased the goose. That never happens.",
+    "Kneel. Then sweep."
+   ]
+  },
+  {
+   "name": "Axolotl Queen",
+   "sp": "axolotl",
+   "say": [
+    "She's HER. (I'm her.)",
+    "Bow. Then mop.",
+    "Clean island, clean queen."
+   ]
+  }
+ ]
+}

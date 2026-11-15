@@ -1,0 +1,38 @@
+CRITTER COVE WIDGET FOR ANDROID (KWGT)
+======================================
+Shows one tiny task and a critter line. Changes every hour, matched to the
+time of day. Tapping it opens Critter Cove.
+
+1. Install "KWGT Kustom Widget Maker" from the Play Store (free).
+2. Long-press your home screen > Widgets > KWGT > pick the 4x2 size and drop it.
+3. Tap the empty widget. KWGT opens. Tap "+" (top right) to add items:
+
+   a) Add a TEXT item (the task)
+      - Tap it > Text > tap the formula icon and paste EVERYTHING
+        between the two lines marked TASK below.
+      - Font size about 18, bold.
+
+   b) Add a second TEXT item (the critter line)
+      - Paste EVERYTHING between the two lines marked CRITTER below.
+      - Font size about 13.
+
+   c) Optional: add a third TEXT item that just says  🦝 Critter Cove
+      and a rounded RECTANGLE behind everything as the background
+      (Playful Cove cream: #FFF4E6, text: #1E2D38, green: #6FC277).
+
+4. Make it open the app: tap the top-level layer (Root/Overlap group) >
+   Touch > "+" > Action: Open Link > paste:
+   https://novabytecore.github.io/critter-cove/
+
+5. Tap Save (the disk icon). Done.
+
+If a text item shows the formula itself, or is blank at one hour of the day,
+tell Claude what you see and it will adjust the formula.
+
+----- TASK (copy from the next line) -----
+$tc(split, "Night: Set a 5-minute timer and grab stray stuff|Night: Every cup and plate to the kitchen|Night: Start the dishwasher or soak the pans|Wipe one counter|Empty the drying rack|Morning: Drink a glass of water|Morning: Make the bed. Lumpy counts.|Morning: Last night's dishes into the sink|Morning: Put keys, wallet and phone in their spot|Morning: Open the blinds|Morning: Drink a glass of water|Toss 3 old things from the fridge|Take out the kitchen trash|Put away 5 things on the counter|Wipe the stovetop|Fold the blanket, fluff the pillows|Clear the coffee table|Put 10 stray things back|Give the remote its home|Night: Clothes into the hamper|Night: Phone on the charger|Night: Set out tomorrow's clothes|Night: Set a 5-minute timer and grab stray stuff|Night: Every cup and plate to the kitchen", "|", df(H))$
+----- END TASK -----
+
+----- CRITTER (copy from the next line) -----
+$tc(split, "That sock was abandoned. I checked. - Trash Panda Pete|412 bottle caps. Zero regrets. - Bottlecap Bob|Fungus says hey. - Spore Gremlin|The hoops stay on. Even for laundry. - Hoops Henrietta|Lap one done. Lap two tomorrow. - Escar-Go|Honk, your honor. - Goose Lawyer|I brought ice. Y'all should be thanking me. - Cousin Crabby|Lights low. Standards high. - Midnight Snail|Not you cleaning without me 😭 - Trash Panda Pete|Recycle that or I'm screaming. - Bottlecap Bob|I'm becoming sentient. Do something. - Spore Gremlin|Big hoops, bigger standards. - Hoops Henrietta|Zoom zoom (it's been 4 minutes). - Escar-Go|The laundry pile is in contempt. - Goose Lawyer|Where the plates at? - Cousin Crabby|Shh. Night shift. - Midnight Snail|I ate a grape off the floor and I'd do it again. - Trash Panda Pete|Ribbit. That's frog for 'proud of you.' - Bottlecap Bob|Please wash the pan. I don't want to exist. - Spore Gremlin|I'm not in the way. I'm decor. - Hoops Henrietta|Slow and steady still gets the snack. - Escar-Go|Objection. That's a want, not a need. - Goose Lawyer|Traffic was crazy (I was asleep). - Cousin Crabby|I glide. You hustle. - Midnight Snail", "|", df(H))$
+----- END CRITTER -----
