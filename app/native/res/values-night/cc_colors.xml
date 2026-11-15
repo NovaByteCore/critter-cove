@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Playful Cove, dark -->
+<resources>
+    <color name="cc_bg">#182C38</color>
+    <color name="cc_edge">#78CB7E</color>
+    <color name="cc_ink">#EBF3F6</color>
+    <color name="cc_muted">#A5B8C2</color>
+    <color name="cc_green">#78CB7E</color>
+    <color name="cc_on">#15202A</color>
+</resources>

@@ -1,0 +1,87 @@
+name: Android app
+
+on:
+  push:
+    branches: [android-app]
+    paths: ["index.html", "manifest.json", "icon-512.png", "app/**", ".github/workflows/android.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: 21 }
+
+      - name: Install Capacitor
+        working-directory: app
+        run: npm install --no-audit --no-fund
+
+      - name: Create the Android project
+        working-directory: app
+        env: { VERSION_CODE: "${{ github.run_number }}" }
+        run: |
+          npm run www
+          npx cap add android
+          npx @capacitor/assets generate --android --iconBackgroundColor '#FFF4E6' --iconBackgroundColorDark '#0F1F29' --splashBackgroundColor '#FFF4E6' --splashBackgroundColorDark '#0F1F29' || echo "Icon generation failed; using the default icon."
+          npm run patch
+          npx cap sync android
+
+      - name: Unlock the signing key
+        id: key
+        working-directory: app
+        env: { PW: "${{ secrets.CC_SIGNING_PASSWORD }}" }
+        run: |
+          if [ -n "$PW" ]; then
+            openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 -in signing/release.jks.enc -out "$RUNNER_TEMP/release.jks" -pass env:PW
+            echo "kind=release" >> "$GITHUB_OUTPUT"
+            echo "CC_KEYSTORE_PASSWORD=$PW" >> "$GITHUB_ENV"
+          else
+            # No password set yet: build with a throwaway key so the build can still be checked. Not for installing.
+            T=$(openssl rand -hex 16)
+            keytool -genkeypair -keystore "$RUNNER_TEMP/release.jks" -alias crittercove -keyalg RSA -keysize 2048 -validity 30 -storepass "$T" -keypass "$T" -dname "CN=Test build" >/dev/null 2>&1
+            echo "kind=test" >> "$GITHUB_OUTPUT"
+            echo "CC_KEYSTORE_PASSWORD=$T" >> "$GITHUB_ENV"
+          fi
+          echo "CC_KEYSTORE=$RUNNER_TEMP/release.jks" >> "$GITHUB_ENV"
+
+      - name: Build the app
+        working-directory: app/android
+        run: |
+          chmod +x gradlew
+          set -o pipefail
+          ./gradlew --no-daemon assembleRelease 2>&1 | tee "$RUNNER_TEMP/build.log"
+
+      - name: Report build errors
+        if: failure()
+        run: |
+          [ -f "$RUNNER_TEMP/build.log" ] || exit 0
+          grep -E "error:|ERROR|FAILURE|What went wrong|e: |AAPT|Exception" -A3 "$RUNNER_TEMP/build.log" | head -80 > "$RUNNER_TEMP/err.txt" || true
+          [ -s "$RUNNER_TEMP/err.txt" ] || tail -60 "$RUNNER_TEMP/build.log" > "$RUNNER_TEMP/err.txt"
+          echo "::error title=Build log::$(sed ':a;N;$!ba;s/%/%25/g;s/\r/%0D/g;s/\n/%0A/g' "$RUNNER_TEMP/err.txt")"
+
+      - name: Name the app file
+        run: cp app/android/app/build/outputs/apk/release/app-release.apk "critter-cove.apk" && ls -la critter-cove.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: critter-cove-${{ steps.key.outputs.kind }}-${{ github.run_number }}
+          path: critter-cove.apk
+
+      - name: Publish the download link
+        if: steps.key.outputs.kind == 'release'
+        env: { GH_TOKEN: "${{ github.token }}" }
+        run: |
+          NOTES="Critter Cove for Android, build ${{ github.run_number }}. On your Android phone: download critter-cove.apk, open it, and allow installing from your browser if asked. Updates install over the old version and keep your progress."
+          if gh release view android-latest >/dev/null 2>&1; then
+            gh release upload android-latest critter-cove.apk --clobber
+            gh release edit android-latest --title "Critter Cove for Android (build ${{ github.run_number }})" --notes "$NOTES"
+          else
+            gh release create android-latest critter-cove.apk --title "Critter Cove for Android (build ${{ github.run_number }})" --notes "$NOTES" --target "${{ github.sha }}"
+          fi

@@ -512,6 +512,43 @@ async function t(name, fn) {
     ok(!bad.length, "low contrast: " + [...new Set(bad)].slice(0, 6).join(" | "));
   });
 
+  await t("installed app: the widget gets the next tasks, shells and a critter; Done taps from the widget count once when the app opens", async () => {
+    const init = `(()=>{window.__w={updates:[],pending:[{key:"__first__",at:Date.now()}],files:[],shares:[]};
+      const plugins={CritterWidget:{update:async o=>{window.__w.updates.push(JSON.parse(o.data))},takeDone:async()=>{const it=window.__w.pending;window.__w.pending=[];return{items:it}}},
+        Filesystem:{writeFile:async o=>{window.__w.files.push(o.path);return{uri:"file:///cache/"+o.path}}},Share:{share:async o=>{window.__w.shares.push(o.files[0])}}};
+      window.Capacitor={isNativePlatform:()=>true,registerPlugin:n=>plugins[n]};})()`;
+    const p = await open({ state: base(), init });
+    await p.waitForTimeout(700);
+    const w = await p.evaluate(() => window.__w.updates.at(-1));
+    ok(w && w.tasks.length >= 3 && w.tasks[0].t && w.shells === 0 && w.critter && w.critter.lines.length, "widget summary: " + JSON.stringify(w).slice(0, 200));
+    ok(w.tasks[0].t === (await p.textContent("#taskText")), "widget's first task isn't the app's current task");
+    // two Done taps on the widget for the first task, plus one for the second, while the app was closed
+    await p.evaluate(k => { window.__w.pending = [{ key: k[0], at: Date.now() }, { key: k[0], at: Date.now() }, { key: k[1], at: Date.now() }]; }, [w.tasks[0].key, w.tasks[1].key]);
+    await p.evaluate(() => document.dispatchEvent(new Event("visibilitychange")));
+    await p.waitForTimeout(800);
+    const s = await saved(p);
+    ok(s.tasks === 2, "widget taps counted " + s.tasks + " times, expected 2");
+    ok(s.shells > 0 && (await p.textContent("#shellCount")).trim() === String(s.shells), "shells not added");
+    ok(/From your widget: 2 tiny things/.test(await p.textContent("#toastHost")), "no summary toast");
+    ok(!(await p.$("#sheetHost .sheet")), "a reward pop-up opened for widget taps");
+    await p.evaluate(() => document.dispatchEvent(new Event("visibilitychange"))); await p.waitForTimeout(500);
+    ok((await saved(p)).tasks === 2, "counted again on the next open");
+    const w2 = await p.evaluate(() => window.__w.updates.at(-1));
+    ok(w2.doneToday === 2 && w2.shells === s.shells && w2.tasks[0].key !== w.tasks[0].key, "widget not refreshed after counting");
+    // backups in the app go through the phone's share sheet
+    await p.click("#gearBtn"); await p.click("#sExport"); await p.waitForTimeout(500);
+    const f = await p.evaluate(() => window.__w);
+    ok(f.files.some(x => /critter-cove-backup-.*\.json$/.test(x)) && f.shares.length === 1, "backup didn't open the share sheet: " + JSON.stringify({ files: f.files, shares: f.shares }));
+    ok(!p.errs.length, p.errs.join());
+  });
+
+  await t("website and Claude: the app-only widget code stays switched off", async () => {
+    const p = await open({ state: base() });
+    ok(await p.evaluate(() => typeof window.Capacitor) === "undefined", "Capacitor present on the website");
+    await p.click("#doneBtn"); await closeSheetIfAny(p); ok((await saved(p)).tasks === 1, "Done broke");
+    ok(!p.errs.length, p.errs.join());
+  });
+
   for (const vp of [{ width: 320, height: 640 }, { width: 390, height: 844 }, { width: 412, height: 915 }, { width: 768, height: 1024 }, { width: 1280, height: 800 }]) {
     await t(`layout at ${vp.width}px: tabs switch, nothing scrolls sideways, sheets fit`, async () => {
       const p = await open({ state: base({ sis: { budget: { weekly: 100 } } }), viewport: vp });

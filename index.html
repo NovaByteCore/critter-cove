@@ -1039,6 +1039,7 @@ function save() {
   S.at = Date.now();
   if (!persistLocal()) toast("This device is out of storage space. Download a backup from Settings.");
   if (dbRef) { clearTimeout(saveT); saveT = setTimeout(flush, 800); }
+  try { pushWidget(); } catch (e) {} // the widget bridge is set up a little later during startup
 }
 function setSync(st) {
   if (st === "error" && syncState !== "error") toast("Couldn't save to your Claude account just now. Your progress is safe on this device and I'll keep trying.");
@@ -1068,6 +1069,44 @@ async function loadRemote() {
   return CoreEngine.joinFromStorage(main, chunks);
 }
 let downloads = null, sampleFn = null;
+/* ===== Installed Android/iPhone app (Capacitor). On the website and inside Claude this whole block is inert. ===== */
+const CapNative = (() => { try { return !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()); } catch (e) { return false; } })();
+const NativeWidget = CapNative ? window.Capacitor.registerPlugin("CritterWidget") : null;
+if (CapNative) {
+  // Saving a backup or a share picture: write the file, then open the phone's share sheet.
+  const FS = window.Capacitor.registerPlugin("Filesystem"), SH = window.Capacitor.registerPlugin("Share");
+  const b64 = blob => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(String(r.result).split(",")[1]); r.onerror = rej; r.readAsDataURL(blob); });
+  downloads = { save: async ({ filename, data }) => {
+    const f = await FS.writeFile({ path: filename, data: await b64(data), directory: "CACHE" });
+    try { await SH.share({ title: filename, files: [f.uri] }); } catch (e) { if (/cancel/i.test(String(e && (e.message || e)))) { const x = new Error("declined"); x.code = "declined"; throw x; } throw e; }
+  } };
+}
+function widgetSummary() {
+  const resting = S.restUntil > Date.now(), q = resting ? [] : candidates(), n = doneToday().length;
+  const start = q.length ? S.skip % q.length : 0, tasks = q.slice(start).concat(q.slice(0, start)).slice(0, 8).map(t => ({ key: t.key, t: t.t, where: t.where }));
+  const next = GOALS.find(([need]) => n < need);
+  const crew = CRITTERS.filter(c => S.crew[c.id]), c = crew.length ? crew[Math.floor(Date.now() / 36e5) % crew.length] : CRITTERS[0];
+  return { v: 1, at: Date.now(), shells: S.shells, doneToday: n, day: today(), resting,
+    chest: next ? (next[0] - n) + " more to open the next chest" : "All 3 chests opened today",
+    critter: { name: c.name, sp: c.sp, lines: c.say }, tasks };
+}
+let widgetT = null;
+function pushWidget() { if (!NativeWidget) return; clearTimeout(widgetT); widgetT = setTimeout(() => { NativeWidget.update({ data: JSON.stringify(widgetSummary()) }).catch(() => {}); }, 300); }
+// Tasks tapped Done on the home-screen widget are counted here, once each, the next time the app opens.
+let collecting = false;
+async function collectWidgetDone() {
+  if (!NativeWidget || collecting) return; collecting = true;
+  try {
+    const r = await NativeWidget.takeDone(); const items = (r && r.items) || [];
+    let total = 0, count = 0, found = null;
+    for (const it of items) {
+      const key = String(it && it.key || ""); if (!key || doneToday().includes(key)) continue;
+      const t = candidates().find(x => x.key === key) || (it.t ? { key, t: String(it.t).slice(0, 120), where: "Widget" } : null);
+      const res = t && completeTask(t, false, true); if (res) { total += res.gain; count++; if (res.found && !found) found = res.found; }
+    }
+    if (count) { renderAll(); toast("From your widget: " + count + " tiny thing" + (count > 1 ? "s" : "") + " · +" + total + " shells" + (found ? " · " + found.c.name + (found.isNew ? " joined your island!" : " came back") : "")); ding(true); }
+  } catch (e) {} finally { collecting = false; pushWidget(); }
+}
 async function connect() {
   try {
     if (!window.claude || !claude.use) return;
@@ -1280,10 +1319,10 @@ function rollCritter(force) {
   return { c, isNew };
 }
 let completing = false;
-function completeTask(task, viaTimer) {
-  if (completing || !task) return; completing = true; setTimeout(() => (completing = false), 250); // blocks accidental double taps only
+function completeTask(task, viaTimer, silent) {
+  if (!silent && (completing || !task)) return; if (!task) return; completing = true; setTimeout(() => (completing = false), 250); // blocks accidental double taps only
   const key = task.key || task.t;
-  if (doneToday().includes(key)) { renderIsland(); return; }
+  if (doneToday().includes(key)) { if (!silent) renderIsland(); return null; }
   const doneList = doneToday().concat(key);
   S.done = { [today()]: doneList };
   if (S.micro === key) S.micro = null;
@@ -1299,6 +1338,7 @@ function completeTask(task, viaTimer) {
   S.shells += gain; S.earned += gain;
   const found = rollCritter(chest && chest.i === 2);
   save(); renderAll();
+  if (silent) return { gain, found, chest };
   if (S.quick) quickReward(gain, chain, found, chest); else rewardSheet(gain, chain, found, chest);
 }
 function quickReward(gain, chain, found, chest) {
@@ -2213,7 +2253,7 @@ $("#bragBtn").onclick = async () => {
     const canShare = !downloads && file && navigator.canShare && navigator.canShare({ files: [file] });
     sv.disabled = false;
     sv.textContent = canShare ? "Share image" : downloads ? "Save or share image" : "Download image";
-    help.textContent = downloads ? "In the Claude phone app, Save opens your share sheet so you can text it or post it." : canShare ? "Opens your phone's share sheet." : "Saves the picture so you can post or text it. You can also press and hold the picture.";
+    help.textContent = CapNative ? "Opens your phone's share sheet so you can text it or post it." : downloads ? "In the Claude phone app, Save opens your share sheet so you can text it or post it." : canShare ? "Opens your phone's share sheet." : "Saves the picture so you can post or text it. You can also press and hold the picture.";
     sv.onclick = async () => {
       try {
         if (canShare) { await navigator.share({ files: [file], text: caption() }); return; }
@@ -2448,8 +2488,8 @@ function welcome() {
 const h0 = (location.hash || "").slice(1);
 applyPrefs(); renderAll(); showTab(TABS.includes(h0) ? h0 : "island"); welcome();
 setInterval(() => { if ($("#sheetHost").firstChild) return; renderGift(); if (!$("#v-money").hidden && document.activeElement && !/INPUT|TEXTAREA/.test(document.activeElement.tagName)) renderMoney(); }, 60000);
-document.addEventListener("visibilitychange", () => { if (!document.hidden) renderAll(); });
-connect();
+document.addEventListener("visibilitychange", () => { if (!document.hidden) { renderAll(); collectWidgetDone(); } });
+connect(); collectWidgetDone();
 })();
 </script>
 

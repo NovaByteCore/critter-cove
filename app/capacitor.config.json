@@ -1,0 +1,6 @@
+{
+  "appId": "com.novabytecore.crittercove",
+  "appName": "Critter Cove",
+  "webDir": "www",
+  "android": { "backgroundColor": "#FFF4E6" }
+}

@@ -1,0 +1,20 @@
+{
+  "name": "critter-cove-app",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Critter Cove as an installed Android app with a home-screen widget (Capacitor).",
+  "scripts": {
+    "www": "node scripts/prepare-www.mjs",
+    "patch": "node scripts/patch-android.mjs"
+  },
+  "dependencies": {
+    "@capacitor/android": "^7.0.0",
+    "@capacitor/core": "^7.0.0",
+    "@capacitor/filesystem": "^7.0.0",
+    "@capacitor/share": "^7.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
+    "@capacitor/cli": "^7.0.0"
+  }
+}
