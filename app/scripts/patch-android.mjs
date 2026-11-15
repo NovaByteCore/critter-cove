@@ -4,6 +4,8 @@ const app = path.resolve(import.meta.dirname, ".."), main = path.join(app, "andr
 const copyDir = (from, to) => { fs.mkdirSync(to, { recursive: true }); for (const e of fs.readdirSync(from, { withFileTypes: true })) { const a = path.join(from, e.name), b = path.join(to, e.name); e.isDirectory() ? copyDir(a, b) : fs.copyFileSync(a, b); } };
 copyDir(path.join(app, "native/res"), path.join(main, "res"));
 copyDir(path.join(app, "native/java"), path.join(main, "java", pkg));
+fs.rmSync(path.join(app, "android/app/src/androidTest/java/com/getcapacitor"), { recursive: true, force: true }); // template example test
+fs.rmSync(path.join(app, "android/app/src/test/java/com/getcapacitor"), { recursive: true, force: true });
 copyDir(path.join(app, "native/androidTest"), path.join(app, "android/app/src/androidTest/java", pkg));
 
 const mf = path.join(main, "AndroidManifest.xml"); let m = fs.readFileSync(mf, "utf8");

@@ -114,15 +114,17 @@ jobs:
           disable-animations: true
           working-directory: app/android
           script: |
-            ./gradlew --no-daemon connectedDebugAndroidTest > "$RUNNER_TEMP/test.log" 2>&1 || (echo "::error title=Device test::$(grep -E 'FAILED|AssertionError|Exception|error:' -A4 "$RUNNER_TEMP/test.log" | head -60 | sed ':a;N;$!ba;s/%/%25/g;s/\n/%0A/g')"; exit 1)
-            mkdir -p "$RUNNER_TEMP/shots" && adb pull /sdcard/Android/data/com.novabytecore.crittercove/files/shots "$RUNNER_TEMP/shots" || true
-            adb shell am start -n com.novabytecore.crittercove/.MainActivity && sleep 12 && adb exec-out screencap -p > "$RUNNER_TEMP/shots/6-app-open.png" || true
+            ./gradlew --no-daemon connectedDebugAndroidTest > "$RUNNER_TEMP/test.log" 2>&1; echo $? > "$RUNNER_TEMP/status"
+            mkdir -p "$RUNNER_TEMP/shots"; adb pull /sdcard/Android/data/com.novabytecore.crittercove/files/shots "$RUNNER_TEMP/shots" || true
+            adb logcat -c; adb shell am start -n com.novabytecore.crittercove/.MainActivity; sleep 20; adb exec-out screencap -p > "$RUNNER_TEMP/shots/6-app-open.png" || true
+            adb logcat -d | grep -iE "Capacitor|chromium|Console|CritterWidget|AndroidRuntime" | tail -70 > "$RUNNER_TEMP/shots/logcat.txt" || true
+            if [ "$(cat "$RUNNER_TEMP/status")" != "0" ]; then echo "::error title=Device test::$(grep -E 'FAILED|AssertionError|Exception|error:' -A4 "$RUNNER_TEMP/test.log" | head -60 | sed ':a;N;$!ba;s/%/%25/g;s/\n/%0A/g')"; exit 1; fi
       - name: Save pictures for review
         if: always()
         env: { GH_TOKEN: "${{ github.token }}" }
         run: |
           [ -d "$RUNNER_TEMP/shots" ] || exit 0
-          find "$RUNNER_TEMP/shots" -name '*.png' -exec cp {} "$RUNNER_TEMP/" \;
-          cd "$RUNNER_TEMP" && git init -q pics && cd pics && cp ../*.png . 2>/dev/null || true
+          find "$RUNNER_TEMP/shots" -type f \( -name '*.png' -o -name '*.txt' \) -exec cp {} "$RUNNER_TEMP/" \;
+          cd "$RUNNER_TEMP" && git init -q pics && cd pics && cp ../*.png ../logcat.txt . 2>/dev/null || true
           git config user.name "github-actions" && git config user.email "actions@github.com"
           git add -A && git commit -qm "Widget pictures from run ${{ github.run_number }}" && git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" HEAD:refs/heads/ci-widget-pictures
