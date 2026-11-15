@@ -171,9 +171,9 @@ public class CritterWidgetProvider extends AppWidgetProvider {
         }
         int doneToday = d.optInt("doneToday") + waiting;
         int[] goals = { 1, 3, 5 };
-        String chest = "All 3 chests opened today";
-        for (int g : goals) { if (doneToday < g) { chest = (g - doneToday) + " more to open the next chest"; break; } }
-        v.setTextViewText(R.id.cc_chest, doneToday + " done today · " + chest);
+        String chest = "All 3 chests\nopened today 🎉";
+        for (int g : goals) { if (doneToday < g) { chest = doneToday + " done today\n" + (g - doneToday) + " more to next chest"; break; } }
+        v.setTextViewText(R.id.cc_chest, chest);
         return v;
     }
 }

@@ -114,7 +114,7 @@ jobs:
           disable-animations: true
           working-directory: app/android
           script: |
-            adb logcat -c; ./gradlew --no-daemon connectedDebugAndroidTest -Pandroid.injected.androidTest.leaveApksInstalledAfterRun=true > "$RUNNER_TEMP/test.log" 2>&1; echo $? > "$RUNNER_TEMP/status"
+            adb logcat -c; ./gradlew --no-daemon :app:connectedDebugAndroidTest -Pandroid.injected.androidTest.leaveApksInstalledAfterRun=true > "$RUNNER_TEMP/test.log" 2>&1; echo $? > "$RUNNER_TEMP/status"
             mkdir -p "$RUNNER_TEMP/shots"; adb logcat -d | grep -iE "Capacitor|chromium|Console|CritterWidget|AndroidRuntime|WebView" | tail -120 > "$RUNNER_TEMP/shots/logcat.txt" || true
             adb pull /sdcard/Android/data/com.novabytecore.crittercove/files/shots "$RUNNER_TEMP/shots" || true
             adb shell am start -n com.novabytecore.crittercove/.MainActivity; sleep 20; adb exec-out screencap -p > "$RUNNER_TEMP/shots/6-app-open.png" || true

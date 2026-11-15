@@ -40,7 +40,7 @@ public class CritterWidgetTest {
         FrameLayout parent = new FrameLayout(themed);
         View v = CritterWidgetProvider.build(c).apply(themed, parent);
         DisplayMetrics dm = c.getResources().getDisplayMetrics();
-        int w = (int) (330 * dm.density), h = (int) (190 * dm.density);
+        int w = (int) (330 * dm.density), h = (int) (170 * dm.density);
         v.measure(View.MeasureSpec.makeMeasureSpec(w, View.MeasureSpec.EXACTLY), View.MeasureSpec.makeMeasureSpec(h, View.MeasureSpec.EXACTLY));
         v.layout(0, 0, w, h);
         return v;
@@ -75,6 +75,7 @@ public class CritterWidgetTest {
         assertEquals("Take out the kitchen trash", text(after, R.id.cc_task));
         assertTrue(text(after, R.id.cc_shells).contains("+1 to collect"));
         assertTrue(text(after, R.id.cc_chest).startsWith("2 done today"));
+        assertTrue(text(after, R.id.cc_chest).contains("1 more to next chest"));
         save(after, "3-after-done");
 
         // Second task done: nothing left, Done button hides.
